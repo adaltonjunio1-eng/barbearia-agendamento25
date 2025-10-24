@@ -805,6 +805,151 @@
         }
 
         /* ===================== */
+        /* Admin Login Screen    */
+        /* ===================== */
+        .admin-login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .admin-login-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 15, 28, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1;
+        }
+
+        .admin-login-container {
+            position: relative;
+            z-index: 2;
+            background: var(--surface);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            border-radius: var(--radius);
+            padding: 40px 30px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: loginSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes loginSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-login-header i {
+            font-size: 48px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .admin-login-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .admin-login-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .admin-login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .admin-login-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .admin-login-form label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-login-form label i {
+            color: var(--secondary);
+        }
+
+        .admin-login-form input {
+            padding: 14px 16px;
+            background: var(--surface-light);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .admin-login-form input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(200, 169, 81, 0.1);
+        }
+
+        .password-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: block;
+            margin-top: 4px;
+        }
+
+        .password-hint strong {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .admin-login-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .admin-login-actions button {
+            flex: 1;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* ===================== */
         /* Admin - Dashboard UI  */
         /* ===================== */
         .admin-app {
@@ -1429,8 +1574,45 @@
         </div>
     </div>
 
+    <!-- Admin Login Screen -->
+    <div class="admin-login-screen" id="adminLoginScreen" style="display:none">
+        <div class="admin-login-overlay"></div>
+        <div class="admin-login-container">
+            <div class="admin-login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h2>Área Administrativa</h2>
+                <p>Digite a senha para acessar</p>
+            </div>
+            <div class="admin-login-form">
+                <div class="form-group">
+                    <label for="adminPassword">
+                        <i class="fas fa-lock"></i>
+                        Senha de Administrador
+                    </label>
+                    <input 
+                        type="password" 
+                        id="adminPassword" 
+                        placeholder="Digite a senha"
+                        autocomplete="off"
+                    >
+                    <small class="password-hint">Senha padrão: <strong>admin123</strong></small>
+                </div>
+                <div class="admin-login-actions">
+                    <button class="btn-secondary" onclick="closeAdminLogin()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button class="btn-primary" onclick="validateAdminPassword()">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Entrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Admin Fullscreen App -->
-    <div class="admin-app" id="admin">
+    <div class="admin-app" id="admin" style="display:none">
         <div class="admin-overlay"></div>
         <aside class="admin-sidebar">
             <div class="admin-brand">
@@ -2171,6 +2353,51 @@
                 }
             });
             return arr;
+        }
+
+        // ===========================
+        // Admin Login Functions
+        // ===========================
+        const ADMIN_PASSWORD = 'admin123'; // Altere aqui para mudar a senha
+
+        function openAdminLogin() {
+            document.getElementById('adminLoginScreen').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+            // Focus no input
+            setTimeout(() => {
+                document.getElementById('adminPassword').focus();
+            }, 100);
+            
+            // Permitir Enter para enviar
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    validateAdminPassword();
+                }
+            });
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginScreen').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function validateAdminPassword() {
+            const inputPassword = document.getElementById('adminPassword').value;
+            
+            if (!inputPassword) {
+                showNotification('Por favor, digite a senha', 'error');
+                return;
+            }
+            
+            if (inputPassword === ADMIN_PASSWORD) {
+                showNotification('Acesso liberado! Bem-vindo(a)', 'success');
+                closeAdminLogin();
+                openAdmin();
+            } else {
+                showNotification('Senha incorreta. Tente novamente.', 'error');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
         }
 
         function openAdmin() {
@@ -3003,8 +3230,8 @@ Aguardamos você! 🙌`;
         // Verificar lembretes a cada 5 minutos
         setInterval(checkPendingReminders, 5 * 60 * 1000);
 
-        // Wire admin access button
-        document.querySelector('.admin-access-btn').addEventListener('click', openAdmin);
+        // Wire admin access button - agora abre tela de login
+        document.querySelector('.admin-access-btn').addEventListener('click', openAdminLogin);
     </script>
 </body>
 </html>
