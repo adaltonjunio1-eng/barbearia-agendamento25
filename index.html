@@ -1595,7 +1595,7 @@
                         placeholder="Digite a senha"
                         autocomplete="off"
                     >
-                    <small class="password-hint">Senha padrão: <strong>admin123</strong></small>
+                    <small class="password-hint">Senha padrão: <strong>bf12025</strong></small>
                 </div>
                 <div class="admin-login-actions">
                     <button class="btn-secondary" onclick="closeAdminLogin()">
@@ -1617,7 +1617,7 @@
         <aside class="admin-sidebar">
             <div class="admin-brand">
                 <i class="fas fa-gem"></i>
-                <span>Admin BARBER</span>
+                <span>adim barber</span>
             </div>
             <nav class="admin-nav">
                 <button class="active" data-admin-view="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></button>
@@ -1808,11 +1808,24 @@
                     </div>
 
                     <div class="card" style="margin-top:20px">
-                        <div class="card-header"><div style="font-weight:700">Horários Disponíveis</div></div>
+                        <div class="card-header">
+                            <div style="font-weight:700">Horários Disponíveis</div>
+                            <button class="action-btn" onclick="toggleWeeklyCalendar()" id="toggleCalendarBtn" style="padding:8px 14px">
+                                <i class="fas fa-calendar-week"></i> Ver calendário semanal
+                            </button>
+                        </div>
                         <div class="card-body">
                             <p style="color:var(--text-secondary);margin-bottom:16px">
                                 Defina os horários que aparecem para o cliente ao agendar. Você pode adicionar e remover horários conforme sua agenda.
                             </p>
+                            
+                            <!-- Visualização em Calendário Semanal -->
+                            <div id="weeklyCalendarView" style="display:none;margin-bottom:20px;padding:16px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(200,169,81,0.15)">
+                                <h4 style="color:var(--secondary);margin-bottom:16px;text-align:center">
+                                    <i class="fas fa-calendar-week"></i> Grade Semanal de Horários
+                                </h4>
+                                <div id="weeklyCalendarGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px"></div>
+                            </div>
                             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
                                 <label>Dia da semana:</label>
                                 <select id="slotDaySelect" class="search-input" style="min-width:180px">
@@ -1835,6 +1848,18 @@
                                 <input type="time" id="newSlotInput" class="search-input" style="min-width:160px" step="300" value="09:00">
                                 <button class="action-btn confirm" onclick="addAvailableSlot()" style="padding:10px 16px">
                                     <i class="fas fa-plus"></i> Adicionar horário
+                                </button>
+                            </div>
+                            <div style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;align-items:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px">
+                                <strong style="font-size:13px;color:var(--text-secondary)">Gerar intervalos:</strong>
+                                <label>Início <input type="time" id="genStart" class="search-input" value="09:00" style="width:140px"></label>
+                                <label>Fim <input type="time" id="genEnd" class="search-input" value="18:00" style="width:140px"></label>
+                                <label>Passo (min) <input type="number" id="genStep" class="search-input" value="30" min="5" step="5" style="width:120px"></label>
+                                <button class="action-btn" onclick="generateForSelectedDay()" style="padding:10px 16px">
+                                    <i class="fas fa-clock"></i> Gerar para este dia
+                                </button>
+                                <button class="action-btn" onclick="applyPresetTueFriSat()" style="padding:10px 16px">
+                                    <i class="fas fa-calendar-check"></i> Aplicar Ter–Sex 09–18 / Sáb 09–16 (30m)
                                 </button>
                             </div>
                             <div id="availableSlotsList" style="display:flex;flex-wrap:wrap;gap:10px"></div>
@@ -1893,6 +1918,27 @@
                                 </button>
                             </div>
                             <small style="color:var(--text-secondary);display:block;margin-top:8px">Dica: use 6+ caracteres com números e letras.</small>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:20px">
+                        <div class="card-header"><div style="font-weight:700">Backup e Restauração</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);margin-bottom:12px">
+                                Exporte seus dados para um arquivo e importe em outro dispositivo quando precisar.
+                            </p>
+                            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                                <button class="action-btn confirm" onclick="exportBackup()" style="padding:10px 16px">
+                                    <i class="fas fa-download"></i> Exportar Backup
+                                </button>
+                                <label class="action-btn" style="padding:10px 16px;display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+                                    <i class="fas fa-upload"></i> Importar Backup
+                                    <input type="file" id="importBackupInput" accept="application/json" style="display:none" onchange="importBackup(this)">
+                                </label>
+                            </div>
+                            <small style="color:var(--text-secondary);display:block;margin-top:8px">
+                                Inclui: agendamentos, dias fechados, horários disponíveis (global e por dia), tema e senha do admin.
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -1998,14 +2044,15 @@
             const timeSlots = document.getElementById('timeSlots');
             timeSlots.innerHTML = '';
             const selectedDate = appState.selectedDate;
-            const slots = selectedDate ? getAvailableSlotsForDateISO(selectedDate) : getAvailableSlots();
 
             // Pegar a data selecionada primeiro
-            const selectedDate = appState.selectedDate;
             if (!selectedDate) {
                 timeSlots.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">Selecione uma data</div>';
                 return;
             }
+
+            // Carregar slots de acordo com o dia da semana da data escolhida
+            const slots = getAvailableSlotsForDateISO(selectedDate);
 
             // Carregar agendamentos existentes
             let existingBookings = [];
@@ -2569,6 +2616,94 @@
             } catch (e) {}
         }
 
+        // =====================
+        // Backup (Export/Import)
+        // =====================
+        function exportBackup() {
+            try {
+                const data = {
+                    bookings: JSON.parse(localStorage.getItem('bookings') || '[]'),
+                    closedDates: JSON.parse(localStorage.getItem('closedDates') || '[]'),
+                    availableSlots: JSON.parse(localStorage.getItem('availableSlots') || 'null'),
+                    availableSlotsByDay: JSON.parse(localStorage.getItem('availableSlotsByDay') || 'null'),
+                    adminTheme: localStorage.getItem('adminTheme') || 'dark',
+                    adminPassword: localStorage.getItem('adminPassword') || null,
+                    exportedAt: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const dt = new Date();
+                const y = dt.getFullYear();
+                const m = String(dt.getMonth()+1).padStart(2,'0');
+                const d = String(dt.getDate()).padStart(2,'0');
+                a.href = url;
+                a.download = `barbearia-backup-${y}${m}${d}.json`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showNotification('Backup exportado com sucesso!');
+            } catch (e) {
+                showNotification('Falha ao exportar backup', 'error');
+            }
+        }
+
+        function importBackup(input) {
+            const file = input?.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    // Restaurar chaves conhecidas, se existirem
+                    if (Array.isArray(json.bookings)) {
+                        localStorage.setItem('bookings', JSON.stringify(json.bookings));
+                    }
+                    if (Array.isArray(json.closedDates)) {
+                        localStorage.setItem('closedDates', JSON.stringify(json.closedDates));
+                    }
+                    if (json.availableSlots == null || Array.isArray(json.availableSlots)) {
+                        if (json.availableSlots == null) localStorage.removeItem('availableSlots');
+                        else localStorage.setItem('availableSlots', JSON.stringify(json.availableSlots));
+                    }
+                    if (json.availableSlotsByDay == null || typeof json.availableSlotsByDay === 'object') {
+                        if (json.availableSlotsByDay == null) localStorage.removeItem('availableSlotsByDay');
+                        else localStorage.setItem('availableSlotsByDay', JSON.stringify(json.availableSlotsByDay));
+                    }
+                    if (typeof json.adminTheme === 'string') {
+                        localStorage.setItem('adminTheme', json.adminTheme);
+                        adminState.theme = json.adminTheme;
+                        const adminEl = document.getElementById('admin');
+                        adminEl.classList.toggle('light', adminState.theme === 'light');
+                        if (adminState.chart) updateRevenueChart();
+                    }
+                    if (typeof json.adminPassword === 'string' && json.adminPassword.length) {
+                        localStorage.setItem('adminPassword', json.adminPassword);
+                    }
+
+                    // Recarregar dados/UI
+                    try { renderClosedDates(); } catch(e) {}
+                    try { renderAvailableSlotsList(); } catch(e) {}
+                    try { renderTimeSlots(); } catch(e) {}
+                    try { loadOrdersFromStorage(); renderOrdersTable(); updateKPIs(); } catch(e) {}
+                    try { updateReminderStats(); } catch(e) {}
+
+                    showNotification('Backup importado com sucesso!');
+                } catch (err) {
+                    showNotification('Arquivo inválido de backup', 'error');
+                } finally {
+                    input.value = '';
+                }
+            };
+            reader.onerror = function() {
+                showNotification('Não foi possível ler o arquivo', 'error');
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
         function openAdmin() {
             const mainApp = document.querySelector('.app-container');
             const adminEl = document.getElementById('admin');
@@ -2661,6 +2796,11 @@
                     sel.value = String(new Date().getDay());
                 }
                 renderAvailableSlotsList();
+                // Renderizar calendário se estiver visível
+                const calView = document.getElementById('weeklyCalendarView');
+                if (calView && calView.style.display !== 'none') {
+                    renderWeeklyCalendar();
+                }
             }
             // Renderizar clientes ao abrir a seção
             if (view === 'clients') {
@@ -3123,6 +3263,7 @@
             const sorted = Array.from(new Set(slots)).sort((a,b)=> toMinutes(a)-toMinutes(b));
             setSlotsForDow(dow, sorted);
             renderAvailableSlotsList();
+            renderWeeklyCalendar();
             showNotification('Horário adicionado!');
             // Atualiza UI de agendamento se necessário
             try { renderTimeSlots(); } catch (e) {}
@@ -3135,6 +3276,7 @@
             slots = slots.filter(s => s !== v);
             setSlotsForDow(dow, slots);
             renderAvailableSlotsList();
+            renderWeeklyCalendar();
             showNotification('Horário removido');
             try { renderTimeSlots(); } catch (e) {}
         }
@@ -3164,6 +3306,7 @@
             slots = Array.from(new Set(slots)).sort((a,b)=> toMinutes(a)-toMinutes(b));
             setSlotsForDow(dow, slots);
             renderAvailableSlotsList();
+            renderWeeklyCalendar();
             showNotification('Horário atualizado!');
             try { renderTimeSlots(); } catch (e) {}
         }
@@ -3179,6 +3322,7 @@
             const slots = getSlotsForDow(srcDow);
             setSlotsForDow(targetDow, slots);
             renderAvailableSlotsList();
+            renderWeeklyCalendar();
             showNotification('Horários copiados de ' + mapNames[Number(srcDow)] + '!');
             try { renderTimeSlots(); } catch (e) {}
         }
@@ -3189,8 +3333,137 @@
             const slots = getAvailableSlots();
             setSlotsForDow(dow, slots);
             renderAvailableSlotsList();
+            renderWeeklyCalendar();
             showNotification('Aplicado o padrão global para este dia');
             try { renderTimeSlots(); } catch (e) {}
+        }
+
+        // ===========================
+        // Gerador de intervalos/grades
+        // ===========================
+        function toHHMM(totalMin) {
+            const h = Math.floor(totalMin / 60);
+            const m = totalMin % 60;
+            return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+        }
+
+        function parseHHMM(v) {
+            if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) return null;
+            const [h,m] = v.split(':').map(Number);
+            return h*60 + m;
+        }
+
+        function generateTimeArray(startHHMM, endHHMM, stepMin) {
+            const start = parseHHMM(startHHMM);
+            const end = parseHHMM(endHHMM);
+            const step = Number(stepMin) || 30;
+            if (start == null || end == null || step < 5 || end < start) return [];
+            const out = [];
+            for (let t = start; t <= end; t += step) out.push(toHHMM(t));
+            return out;
+        }
+
+        function generateForSelectedDay() {
+            const sel = document.getElementById('slotDaySelect');
+            const dow = sel ? String(sel.value) : String(new Date().getDay());
+            const s = (document.getElementById('genStart')?.value || '').trim();
+            const e = (document.getElementById('genEnd')?.value || '').trim();
+            const p = Number(document.getElementById('genStep')?.value || 30);
+            const arr = generateTimeArray(s, e, p);
+            if (!arr.length) { showNotification('Parâmetros inválidos para geração de horários', 'error'); return; }
+            setSlotsForDow(dow, arr);
+            renderAvailableSlotsList();
+            renderWeeklyCalendar();
+            try { renderTimeSlots(); } catch (e) {}
+            showNotification('Horários gerados para o dia selecionado');
+        }
+
+        function applyPresetTueFriSat() {
+            const tueFri = generateTimeArray('09:00','18:00',30);
+            const sat = generateTimeArray('09:00','16:00',30);
+            ['2','3','4','5'].forEach(d => setSlotsForDow(d, tueFri));
+            setSlotsForDow('6', sat);
+            renderAvailableSlotsList();
+            renderWeeklyCalendar();
+            try { renderTimeSlots(); } catch (e) {}
+            showNotification('Aplicado: Ter–Sex 09:00–18:00 (30m) e Sáb 09:00–16:00 (30m)');
+        }
+
+        // ===========================
+        // Visualização Calendário Semanal
+        // ===========================
+        function toggleWeeklyCalendar() {
+            const view = document.getElementById('weeklyCalendarView');
+            const btn = document.getElementById('toggleCalendarBtn');
+            if (!view || !btn) return;
+            
+            const isVisible = view.style.display !== 'none';
+            if (isVisible) {
+                view.style.display = 'none';
+                btn.innerHTML = '<i class="fas fa-calendar-week"></i> Ver calendário semanal';
+            } else {
+                view.style.display = 'block';
+                btn.innerHTML = '<i class="fas fa-times"></i> Fechar calendário';
+                renderWeeklyCalendar();
+            }
+        }
+
+        function renderWeeklyCalendar() {
+            const grid = document.getElementById('weeklyCalendarGrid');
+            if (!grid) return;
+            
+            const dayNames = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+            const dayIcons = ['☀️','💼','💼','💼','💼','💼','🎉'];
+            
+            grid.innerHTML = '';
+            
+            for (let dow = 0; dow <= 6; dow++) {
+                const slots = getSlotsForDow(String(dow));
+                const dayCard = document.createElement('div');
+                dayCard.style.cssText = 'background:rgba(255,255,255,0.05);border:1px solid rgba(200,169,81,0.2);border-radius:10px;padding:12px;min-height:120px';
+                
+                const header = document.createElement('div');
+                header.style.cssText = 'font-weight:700;color:var(--secondary);margin-bottom:8px;font-size:13px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px';
+                header.innerHTML = `${dayIcons[dow]} ${dayNames[dow]}`;
+                
+                const slotList = document.createElement('div');
+                slotList.style.cssText = 'display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text-secondary)';
+                
+                if (slots.length === 0) {
+                    slotList.innerHTML = '<div style="color:var(--text-secondary);opacity:0.5;font-style:italic;text-align:center;padding:8px">Sem horários</div>';
+                } else {
+                    // Agrupar horários para exibição compacta
+                    const summary = slots.length <= 5 
+                        ? slots.join(', ')
+                        : `${slots[0]} - ${slots[slots.length-1]} (${slots.length} horários)`;
+                    
+                    slotList.innerHTML = `
+                        <div style="color:var(--text-primary);font-weight:600;margin-bottom:4px">
+                            ${slots.length} horário${slots.length > 1 ? 's' : ''}
+                        </div>
+                        <div style="line-height:1.6">${summary}</div>
+                    `;
+                    
+                    // Botão para editar este dia
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'action-btn';
+                    editBtn.style.cssText = 'margin-top:8px;padding:6px 10px;font-size:11px;width:100%';
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar';
+                    editBtn.onclick = () => {
+                        const sel = document.getElementById('slotDaySelect');
+                        if (sel) sel.value = String(dow);
+                        renderAvailableSlotsList();
+                        // Scroll suave até a seção de edição
+                        const editSection = document.getElementById('slotDaySelect');
+                        if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    };
+                    slotList.appendChild(editBtn);
+                }
+                
+                dayCard.appendChild(header);
+                dayCard.appendChild(slotList);
+                grid.appendChild(dayCard);
+            }
         }
 
         // =====================
@@ -3552,6 +3825,17 @@ Aguardamos você! 🙌`;
 
         // Wire admin access button - agora abre tela de login
         document.querySelector('.admin-access-btn').addEventListener('click', openAdminLogin);
+
+        // Aplicar automaticamente a grade solicitada (uma única vez), sem sobrescrever futuras edições
+        (function oneTimeApplyPreset(){
+            try {
+                const flag = localStorage.getItem('slotsPreset_TerSexSab_30m');
+                if (!flag) {
+                    applyPresetTueFriSat();
+                    localStorage.setItem('slotsPreset_TerSexSab_30m', '1');
+                }
+            } catch (e) {}
+        })();
     </script>
 </body>
 </html>
