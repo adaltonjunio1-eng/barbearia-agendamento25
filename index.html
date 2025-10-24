@@ -1813,6 +1813,24 @@
                             <p style="color:var(--text-secondary);margin-bottom:16px">
                                 Defina os horários que aparecem para o cliente ao agendar. Você pode adicionar e remover horários conforme sua agenda.
                             </p>
+                            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+                                <label>Dia da semana:</label>
+                                <select id="slotDaySelect" class="search-input" style="min-width:180px">
+                                    <option value="0">Domingo</option>
+                                    <option value="1">Segunda-feira</option>
+                                    <option value="2">Terça-feira</option>
+                                    <option value="3">Quarta-feira</option>
+                                    <option value="4">Quinta-feira</option>
+                                    <option value="5">Sexta-feira</option>
+                                    <option value="6">Sábado</option>
+                                </select>
+                                <button class="action-btn" onclick="copySlotsFromDay()" style="padding:10px 16px">
+                                    <i class="fas fa-copy"></i> Copiar de outro dia
+                                </button>
+                                <button class="action-btn" onclick="useGlobalDefaultSlots()" style="padding:10px 16px">
+                                    <i class="fas fa-sync-alt"></i> Usar padrão global
+                                </button>
+                            </div>
                             <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
                                 <input type="time" id="newSlotInput" class="search-input" style="min-width:160px" step="300" value="09:00">
                                 <button class="action-btn confirm" onclick="addAvailableSlot()" style="padding:10px 16px">
@@ -1979,7 +1997,8 @@
         function renderTimeSlots() {
             const timeSlots = document.getElementById('timeSlots');
             timeSlots.innerHTML = '';
-            const slots = getAvailableSlots();
+            const selectedDate = appState.selectedDate;
+            const slots = selectedDate ? getAvailableSlotsForDateISO(selectedDate) : getAvailableSlots();
 
             // Pegar a data selecionada primeiro
             const selectedDate = appState.selectedDate;
@@ -2429,6 +2448,42 @@
         function saveAvailableSlots(slots) {
             try { localStorage.setItem('availableSlots', JSON.stringify(slots)); } catch (e) {}
         }
+
+        function getSlotsByDay() {
+            try {
+                const obj = JSON.parse(localStorage.getItem('availableSlotsByDay') || 'null');
+                return (obj && typeof obj === 'object') ? obj : {};
+            } catch (e) { return {}; }
+        }
+
+        function saveSlotsByDay(map) {
+            try { localStorage.setItem('availableSlotsByDay', JSON.stringify(map)); } catch (e) {}
+        }
+
+        function getSlotsForDow(dowStr) {
+            const map = getSlotsByDay();
+            const arr = map && Array.isArray(map[dowStr]) ? map[dowStr] : [];
+            if (arr && arr.length) {
+                return Array.from(new Set(arr)).filter(v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v)).sort((a,b)=>toMinutes(a)-toMinutes(b));
+            }
+            return getAvailableSlots(); // fallback global
+        }
+
+        function setSlotsForDow(dowStr, slots) {
+            const map = getSlotsByDay();
+            map[dowStr] = Array.from(new Set(slots)).filter(v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v)).sort((a,b)=>toMinutes(a)-toMinutes(b));
+            saveSlotsByDay(map);
+        }
+
+        function getAvailableSlotsForDateISO(dateISO) {
+            try {
+                const d = new Date(dateISO + 'T12:00:00');
+                const dow = String(d.getDay());
+                return getSlotsForDow(dow);
+            } catch (e) {
+                return getAvailableSlots();
+            }
+        }
         function getAdminPassword() {
             try {
                 const saved = localStorage.getItem('adminPassword');
@@ -2596,6 +2651,15 @@
             if (view === 'settings') {
                 renderClosedDates();
                 updateReminderStats();
+                // inicializa seletor de dia e renderiza slots
+                const sel = document.getElementById('slotDaySelect');
+                if (sel && !sel._bound) {
+                    sel._bound = true;
+                    sel.addEventListener('change', () => renderAvailableSlotsList());
+                }
+                if (sel && !sel.value) {
+                    sel.value = String(new Date().getDay());
+                }
                 renderAvailableSlotsList();
             }
             // Renderizar clientes ao abrir a seção
@@ -3003,7 +3067,9 @@
         function renderAvailableSlotsList() {
             const listEl = document.getElementById('availableSlotsList');
             if (!listEl) return;
-            const slots = getAvailableSlots();
+            const sel = document.getElementById('slotDaySelect');
+            const dow = sel ? String(sel.value) : String(new Date().getDay());
+            const slots = getSlotsForDow(dow);
             listEl.innerHTML = '';
             if (!slots.length) {
                 listEl.innerHTML = '<div style="color:var(--text-secondary)">Nenhum horário configurado</div>';
@@ -3046,14 +3112,16 @@
                 showNotification('Informe um horário válido (HH:MM)', 'error');
                 return;
             }
-            const slots = getAvailableSlots();
+            const sel = document.getElementById('slotDaySelect');
+            const dow = sel ? String(sel.value) : String(new Date().getDay());
+            let slots = getSlotsByDay()[dow] || getSlotsForDow(dow);
             if (slots.includes(v)) {
                 showNotification('Horário já existe na lista', 'error');
                 return;
             }
-            slots.push(v);
+            slots = [...slots, v];
             const sorted = Array.from(new Set(slots)).sort((a,b)=> toMinutes(a)-toMinutes(b));
-            saveAvailableSlots(sorted);
+            setSlotsForDow(dow, sorted);
             renderAvailableSlotsList();
             showNotification('Horário adicionado!');
             // Atualiza UI de agendamento se necessário
@@ -3061,9 +3129,11 @@
         }
 
         function removeAvailableSlot(v) {
-            let slots = getAvailableSlots();
+            const sel = document.getElementById('slotDaySelect');
+            const dow = sel ? String(sel.value) : String(new Date().getDay());
+            let slots = getSlotsByDay()[dow] || getSlotsForDow(dow);
             slots = slots.filter(s => s !== v);
-            saveAvailableSlots(slots);
+            setSlotsForDow(dow, slots);
             renderAvailableSlotsList();
             showNotification('Horário removido');
             try { renderTimeSlots(); } catch (e) {}
@@ -3082,7 +3152,9 @@
                 showNotification('Informe um horário válido (HH:MM)', 'error');
                 return;
             }
-            let slots = getAvailableSlots();
+            const sel = document.getElementById('slotDaySelect');
+            const dow = sel ? String(sel.value) : String(new Date().getDay());
+            let slots = getSlotsByDay()[dow] || getSlotsForDow(dow);
             if (v === current) return; // sem mudança
             if (slots.includes(v)) {
                 showNotification('Este horário já existe na lista', 'error');
@@ -3090,9 +3162,34 @@
             }
             slots = slots.map(s => s === current ? v : s);
             slots = Array.from(new Set(slots)).sort((a,b)=> toMinutes(a)-toMinutes(b));
-            saveAvailableSlots(slots);
+            setSlotsForDow(dow, slots);
             renderAvailableSlotsList();
             showNotification('Horário atualizado!');
+            try { renderTimeSlots(); } catch (e) {}
+        }
+
+        function copySlotsFromDay() {
+            const sel = document.getElementById('slotDaySelect');
+            const targetDow = sel ? String(sel.value) : String(new Date().getDay());
+            const mapNames = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+            const from = prompt('Copiar horários de qual dia? (0=Dom,1=Seg,2=Ter,3=Qua,4=Qui,5=Sex,6=Sáb)', '1');
+            if (from == null) return;
+            const srcDow = String(parseInt(from,10));
+            if (!/^([0-6])$/.test(srcDow)) { showNotification('Dia inválido', 'error'); return; }
+            const slots = getSlotsForDow(srcDow);
+            setSlotsForDow(targetDow, slots);
+            renderAvailableSlotsList();
+            showNotification('Horários copiados de ' + mapNames[Number(srcDow)] + '!');
+            try { renderTimeSlots(); } catch (e) {}
+        }
+
+        function useGlobalDefaultSlots() {
+            const sel = document.getElementById('slotDaySelect');
+            const dow = sel ? String(sel.value) : String(new Date().getDay());
+            const slots = getAvailableSlots();
+            setSlotsForDow(dow, slots);
+            renderAvailableSlotsList();
+            showNotification('Aplicado o padrão global para este dia');
             try { renderTimeSlots(); } catch (e) {}
         }
 
