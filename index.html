@@ -1844,10 +1844,13 @@
                                     <i class="fas fa-sync-alt"></i> Usar padrão global
                                 </button>
                             </div>
-                            <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+                            <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
                                 <input type="time" id="newSlotInput" class="search-input" style="min-width:160px" step="300" value="09:00">
                                 <button class="action-btn confirm" onclick="addAvailableSlot()" style="padding:10px 16px">
-                                    <i class="fas fa-plus"></i> Adicionar horário
+                                    <i class="fas fa-plus"></i> Adicionar neste dia
+                                </button>
+                                <button class="action-btn" onclick="addAvailableSlotToAllDays()" style="padding:10px 16px;background:rgba(157,78,221,0.1);color:#9D4EDD;border:1px solid #9D4EDD">
+                                    <i class="fas fa-calendar-plus"></i> Adicionar em todos os dias
                                 </button>
                             </div>
                             <div style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;align-items:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px">
@@ -3224,17 +3227,24 @@
                 editBtn.className = 'action-btn';
                 editBtn.style.padding = '6px 10px';
                 editBtn.innerHTML = '<i class="fas fa-pen"></i>';
-                editBtn.title = 'Editar';
+                editBtn.title = 'Editar este horário';
                 editBtn.onclick = () => editAvailableSlot(s);
                 const delBtn = document.createElement('button');
                 delBtn.className = 'action-btn';
                 delBtn.style.padding = '6px 10px';
                 delBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                delBtn.title = 'Remover';
+                delBtn.title = 'Remover deste dia';
                 delBtn.onclick = () => removeAvailableSlot(s);
+                const delAllBtn = document.createElement('button');
+                delAllBtn.className = 'action-btn';
+                delAllBtn.style.cssText = 'padding:6px 10px;color:#e74c3c;border-color:#e74c3c';
+                delAllBtn.innerHTML = '<i class="fas fa-calendar-times"></i>';
+                delAllBtn.title = 'Remover de TODOS os dias';
+                delAllBtn.onclick = () => removeAvailableSlotFromAllDays(s);
                 chip.appendChild(span);
                 chip.appendChild(editBtn);
                 chip.appendChild(delBtn);
+                chip.appendChild(delAllBtn);
                 listEl.appendChild(chip);
             });
         }
@@ -3269,6 +3279,52 @@
             try { renderTimeSlots(); } catch (e) {}
         }
 
+        function addAvailableSlotToAllDays() {
+            const input = document.getElementById('newSlotInput');
+            if (!input) return;
+            let v = (input.value || '').trim();
+            // Normaliza HH:MM
+            if (/^\d{1,2}:\d{2}$/.test(v)) {
+                const [h,m] = v.split(':').map(n=>String(n).padStart(2,'0'));
+                v = `${h}:${m}`;
+            }
+            if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) {
+                showNotification('Informe um horário válido (HH:MM)', 'error');
+                return;
+            }
+            
+            // Confirmar ação
+            if (!confirm(`Tem certeza que deseja adicionar o horário ${v} em TODOS os dias da semana (Domingo a Sábado)?`)) {
+                return;
+            }
+            
+            let addedCount = 0;
+            let skippedCount = 0;
+            
+            // Adicionar em todos os dias (0-6)
+            for (let dow = 0; dow <= 6; dow++) {
+                let slots = getSlotsByDay()[String(dow)] || getSlotsForDow(String(dow));
+                if (slots.includes(v)) {
+                    skippedCount++;
+                    continue;
+                }
+                slots = [...slots, v];
+                const sorted = Array.from(new Set(slots)).sort((a,b)=> toMinutes(a)-toMinutes(b));
+                setSlotsForDow(String(dow), sorted);
+                addedCount++;
+            }
+            
+            renderAvailableSlotsList();
+            renderWeeklyCalendar();
+            try { renderTimeSlots(); } catch (e) {}
+            
+            if (addedCount > 0) {
+                showNotification(`Horário ${v} adicionado em ${addedCount} dia(s)!${skippedCount > 0 ? ` (${skippedCount} já tinham)` : ''}`);
+            } else {
+                showNotification('Este horário já existe em todos os dias', 'error');
+            }
+        }
+
         function removeAvailableSlot(v) {
             const sel = document.getElementById('slotDaySelect');
             const dow = sel ? String(sel.value) : String(new Date().getDay());
@@ -3279,6 +3335,35 @@
             renderWeeklyCalendar();
             showNotification('Horário removido');
             try { renderTimeSlots(); } catch (e) {}
+        }
+
+        function removeAvailableSlotFromAllDays(v) {
+            if (!confirm(`Tem certeza que deseja remover o horário ${v} de TODOS os dias da semana?`)) {
+                return;
+            }
+            
+            let removedCount = 0;
+            
+            // Remover de todos os dias (0-6)
+            for (let dow = 0; dow <= 6; dow++) {
+                let slots = getSlotsByDay()[String(dow)] || getSlotsForDow(String(dow));
+                const oldLength = slots.length;
+                slots = slots.filter(s => s !== v);
+                if (slots.length < oldLength) {
+                    setSlotsForDow(String(dow), slots);
+                    removedCount++;
+                }
+            }
+            
+            renderAvailableSlotsList();
+            renderWeeklyCalendar();
+            try { renderTimeSlots(); } catch (e) {}
+            
+            if (removedCount > 0) {
+                showNotification(`Horário ${v} removido de ${removedCount} dia(s)!`);
+            } else {
+                showNotification('Horário não encontrado em nenhum dia', 'error');
+            }
         }
 
         function editAvailableSlot(oldV) {
