@@ -3014,14 +3014,21 @@
                 chip.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.04)';
                 const span = document.createElement('span');
                 span.textContent = s;
-                const btn = document.createElement('button');
-                btn.className = 'action-btn';
-                btn.style.padding = '6px 10px';
-                btn.innerHTML = '<i class="fas fa-trash"></i>';
-                btn.title = 'Remover';
-                btn.onclick = () => removeAvailableSlot(s);
+                const editBtn = document.createElement('button');
+                editBtn.className = 'action-btn';
+                editBtn.style.padding = '6px 10px';
+                editBtn.innerHTML = '<i class="fas fa-pen"></i>';
+                editBtn.title = 'Editar';
+                editBtn.onclick = () => editAvailableSlot(s);
+                const delBtn = document.createElement('button');
+                delBtn.className = 'action-btn';
+                delBtn.style.padding = '6px 10px';
+                delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                delBtn.title = 'Remover';
+                delBtn.onclick = () => removeAvailableSlot(s);
                 chip.appendChild(span);
-                chip.appendChild(btn);
+                chip.appendChild(editBtn);
+                chip.appendChild(delBtn);
                 listEl.appendChild(chip);
             });
         }
@@ -3059,6 +3066,33 @@
             saveAvailableSlots(slots);
             renderAvailableSlotsList();
             showNotification('Horário removido');
+            try { renderTimeSlots(); } catch (e) {}
+        }
+
+        function editAvailableSlot(oldV) {
+            const current = (oldV || '').trim();
+            const input = prompt('Novo horário (HH:MM):', current);
+            if (input == null) return; // cancelou
+            let v = input.trim();
+            if (/^\d{1,2}:\d{2}$/.test(v)) {
+                const [h,m] = v.split(':').map(n=>String(n).padStart(2,'0'));
+                v = `${h}:${m}`;
+            }
+            if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) {
+                showNotification('Informe um horário válido (HH:MM)', 'error');
+                return;
+            }
+            let slots = getAvailableSlots();
+            if (v === current) return; // sem mudança
+            if (slots.includes(v)) {
+                showNotification('Este horário já existe na lista', 'error');
+                return;
+            }
+            slots = slots.map(s => s === current ? v : s);
+            slots = Array.from(new Set(slots)).sort((a,b)=> toMinutes(a)-toMinutes(b));
+            saveAvailableSlots(slots);
+            renderAvailableSlotsList();
+            showNotification('Horário atualizado!');
             try { renderTimeSlots(); } catch (e) {}
         }
 
