@@ -1808,6 +1808,22 @@
                     </div>
 
                     <div class="card" style="margin-top:20px">
+                        <div class="card-header"><div style="font-weight:700">Horários Disponíveis</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);margin-bottom:16px">
+                                Defina os horários que aparecem para o cliente ao agendar. Você pode adicionar e remover horários conforme sua agenda.
+                            </p>
+                            <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+                                <input type="time" id="newSlotInput" class="search-input" style="min-width:160px" step="300" value="09:00">
+                                <button class="action-btn confirm" onclick="addAvailableSlot()" style="padding:10px 16px">
+                                    <i class="fas fa-plus"></i> Adicionar horário
+                                </button>
+                            </div>
+                            <div id="availableSlotsList" style="display:flex;flex-wrap:wrap;gap:10px"></div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:20px">
                         <div class="card-header"><div style="font-weight:700">Dias Fechados</div></div>
                         <div class="card-body">
                             <p style="color:var(--text-secondary);margin-bottom:20px">Selecione datas em que a barbearia estará fechada para agendamentos.</p>
@@ -1963,7 +1979,7 @@
         function renderTimeSlots() {
             const timeSlots = document.getElementById('timeSlots');
             timeSlots.innerHTML = '';
-            const slots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
+            const slots = getAvailableSlots();
 
             // Pegar a data selecionada primeiro
             const selectedDate = appState.selectedDate;
@@ -2390,6 +2406,29 @@
         // Admin Login Functions
         // ===========================
         const DEFAULT_ADMIN_PASSWORD = 'bf12025'; // Senha padrão (pode ser alterada em Configurações)
+        const DEFAULT_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+
+        function toMinutes(hhmm) {
+            const [h, m] = (hhmm || '').split(':').map(Number);
+            return (Number.isFinite(h) && Number.isFinite(m)) ? (h*60 + m) : 0;
+        }
+
+        function getAvailableSlots() {
+            try {
+                const raw = JSON.parse(localStorage.getItem('availableSlots') || 'null');
+                let arr = Array.isArray(raw) ? raw.filter(v => /^([01]\d|2[0-3]):[0-5]\d$/.test(v)) : null;
+                if (!arr || !arr.length) arr = DEFAULT_SLOTS.slice();
+                // únicos e ordenados
+                arr = Array.from(new Set(arr)).sort((a,b)=> toMinutes(a)-toMinutes(b));
+                return arr;
+            } catch (e) {
+                return DEFAULT_SLOTS.slice();
+            }
+        }
+
+        function saveAvailableSlots(slots) {
+            try { localStorage.setItem('availableSlots', JSON.stringify(slots)); } catch (e) {}
+        }
         function getAdminPassword() {
             try {
                 const saved = localStorage.getItem('adminPassword');
@@ -2553,10 +2592,11 @@
                 if (!el) return;
                 el.style.display = (v === view) ? 'block' : 'none';
             });
-            // Renderizar lista de datas fechadas ao abrir configurações
+            // Renderizar listas ao abrir configurações
             if (view === 'settings') {
                 renderClosedDates();
                 updateReminderStats();
+                renderAvailableSlotsList();
             }
             // Renderizar clientes ao abrir a seção
             if (view === 'clients') {
@@ -2955,6 +2995,71 @@
                 `;
                 list.appendChild(item);
             });
+        }
+
+        // ===========================
+        // Admin: Gerenciar Horários
+        // ===========================
+        function renderAvailableSlotsList() {
+            const listEl = document.getElementById('availableSlotsList');
+            if (!listEl) return;
+            const slots = getAvailableSlots();
+            listEl.innerHTML = '';
+            if (!slots.length) {
+                listEl.innerHTML = '<div style="color:var(--text-secondary)">Nenhum horário configurado</div>';
+                return;
+            }
+            slots.forEach(s => {
+                const chip = document.createElement('div');
+                chip.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.04)';
+                const span = document.createElement('span');
+                span.textContent = s;
+                const btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.style.padding = '6px 10px';
+                btn.innerHTML = '<i class="fas fa-trash"></i>';
+                btn.title = 'Remover';
+                btn.onclick = () => removeAvailableSlot(s);
+                chip.appendChild(span);
+                chip.appendChild(btn);
+                listEl.appendChild(chip);
+            });
+        }
+
+        function addAvailableSlot() {
+            const input = document.getElementById('newSlotInput');
+            if (!input) return;
+            let v = (input.value || '').trim();
+            // Normaliza HH:MM
+            if (/^\d{1,2}:\d{2}$/.test(v)) {
+                const [h,m] = v.split(':').map(n=>String(n).padStart(2,'0'));
+                v = `${h}:${m}`;
+            }
+            if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) {
+                showNotification('Informe um horário válido (HH:MM)', 'error');
+                return;
+            }
+            const slots = getAvailableSlots();
+            if (slots.includes(v)) {
+                showNotification('Horário já existe na lista', 'error');
+                return;
+            }
+            slots.push(v);
+            const sorted = Array.from(new Set(slots)).sort((a,b)=> toMinutes(a)-toMinutes(b));
+            saveAvailableSlots(sorted);
+            renderAvailableSlotsList();
+            showNotification('Horário adicionado!');
+            // Atualiza UI de agendamento se necessário
+            try { renderTimeSlots(); } catch (e) {}
+        }
+
+        function removeAvailableSlot(v) {
+            let slots = getAvailableSlots();
+            slots = slots.filter(s => s !== v);
+            saveAvailableSlots(slots);
+            renderAvailableSlotsList();
+            showNotification('Horário removido');
+            try { renderTimeSlots(); } catch (e) {}
         }
 
         // =====================
