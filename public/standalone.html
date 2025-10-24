@@ -1612,7 +1612,7 @@
     </div>
 
     <!-- Admin Fullscreen App -->
-    <div class="admin-app" id="admin" style="display:none">
+    <div class="admin-app" id="admin">
         <div class="admin-overlay"></div>
         <aside class="admin-sidebar">
             <div class="admin-brand">
@@ -2358,7 +2358,7 @@
         // ===========================
         // Admin Login Functions
         // ===========================
-        const ADMIN_PASSWORD = 'admin123'; // Altere aqui para mudar a senha
+        const ADMIN_PASSWORD = 'bf12025'; // Altere aqui para mudar a senha
 
         function openAdminLogin() {
             document.getElementById('adminLoginScreen').style.display = 'flex';
@@ -2401,9 +2401,14 @@
         }
 
         function openAdmin() {
-            document.querySelector('.app-container').style.display = 'none';
+            const mainApp = document.querySelector('.app-container');
             const adminEl = document.getElementById('admin');
+            
+            // Esconder app principal e mostrar admin com !important
+            if (mainApp) mainApp.style.cssText = 'display: none !important;';
+            adminEl.style.cssText = 'display: grid !important;';
             adminEl.classList.add('active');
+            
             // theme
             adminState.theme = localStorage.getItem('adminTheme') || 'dark';
             adminEl.classList.toggle('light', adminState.theme === 'light');
@@ -2418,8 +2423,12 @@
         }
 
         function closeAdmin() {
-            document.getElementById('admin').classList.remove('active');
-            document.querySelector('.app-container').style.display = '';
+            const mainApp = document.querySelector('.app-container');
+            const adminEl = document.getElementById('admin');
+            
+            adminEl.classList.remove('active');
+            adminEl.style.cssText = 'display: none !important;';
+            if (mainApp) mainApp.style.cssText = 'display: block !important;';
         }
 
         function bindAdminEvents() {
