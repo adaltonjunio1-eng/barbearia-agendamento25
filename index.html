@@ -4,24 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BARBER - Barbearia Premium</title>
-        <!-- Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q22F7VWGZJ"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-Q22F7VWGZJ');
-        </script>
-        <!-- Force HTTPS -->
-        <script>
-            // Forçar HTTPS (exceto em localhost)
-            (function(){
-                var isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
-                if (location.protocol === 'http:' && !isLocal) {
-                    location.replace('https://' + location.host + location.pathname + location.search + location.hash);
-                }
-            })();
-        </script>
     <style>
         :root {
             --primary: #0A0F1C;
@@ -1848,21 +1830,35 @@
                             <div id="closedDatesList"></div>
                         </div>
                     </div>
-
                     <div class="card" style="margin-top:20px">
-                        <div class="card-header"><div style="font-weight:700">Backup de Agendamentos</div></div>
+                        <div class="card-header"><div style="font-weight:700">Segurança</div></div>
                         <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:16px">Exporte seus agendamentos (localStorage) para um arquivo JSON e importe quando precisar restaurar.</p>
-                            <div style="display:flex;gap:10px;flex-wrap:wrap">
-                                <button class="action-btn confirm" onclick="exportBookings()" style="padding:10px 16px">
-                                    <i class="fas fa-download"></i> Exportar JSON
-                                </button>
-                                <label for="importFile" class="action-btn" style="padding:10px 16px;cursor:pointer">
-                                    <i class="fas fa-upload"></i> Importar JSON
-                                </label>
-                                <input type="file" id="importFile" accept="application/json" style="display:none">
+                            <p style="color:var(--text-secondary);margin-bottom:12px">
+                                Altere a senha de acesso do administrador. A senha é guardada no seu navegador (apenas neste dispositivo).
+                            </p>
+                            <div style="display:grid;gap:12px;grid-template-columns:1fr">
+                                <div>
+                                    <label style="display:block;margin-bottom:6px">Senha atual</label>
+                                    <input type="password" id="currentAdminPassword" class="search-input" placeholder="Senha atual">
+                                </div>
+                                <div>
+                                    <label style="display:block;margin-bottom:6px">Nova senha</label>
+                                    <input type="password" id="newAdminPassword" class="search-input" placeholder="Nova senha (mín. 6 caracteres)">
+                                </div>
+                                <div>
+                                    <label style="display:block;margin-bottom:6px">Confirmar nova senha</label>
+                                    <input type="password" id="confirmAdminPassword" class="search-input" placeholder="Confirmar nova senha">
+                                </div>
                             </div>
-                            <div id="backupInfo" style="margin-top:10px;color:var(--text-secondary);font-size:12px"></div>
+                            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+                                <button class="action-btn confirm" onclick="changeAdminPassword()" style="padding:10px 16px">
+                                    <i class="fas fa-lock"></i> Salvar nova senha
+                                </button>
+                                <button class="action-btn" onclick="resetAdminPasswordToDefault()" style="padding:10px 16px">
+                                    <i class="fas fa-undo"></i> Restaurar padrão
+                                </button>
+                            </div>
+                            <small style="color:var(--text-secondary);display:block;margin-top:8px">Dica: use 6+ caracteres com números e letras.</small>
                         </div>
                     </div>
                 </div>
@@ -2393,7 +2389,15 @@
         // ===========================
         // Admin Login Functions
         // ===========================
-        const ADMIN_PASSWORD = 'bf12025'; // Altere aqui para mudar a senha
+        const DEFAULT_ADMIN_PASSWORD = 'bf12025'; // Senha padrão (pode ser alterada em Configurações)
+        function getAdminPassword() {
+            try {
+                const saved = localStorage.getItem('adminPassword');
+                return (saved && saved.length) ? saved : DEFAULT_ADMIN_PASSWORD;
+            } catch (e) {
+                return DEFAULT_ADMIN_PASSWORD;
+            }
+        }
 
         function openAdminLogin() {
             document.getElementById('adminLoginScreen').style.display = 'flex';
@@ -2424,7 +2428,7 @@
                 return;
             }
             
-            if (inputPassword === ADMIN_PASSWORD) {
+            if (inputPassword === getAdminPassword()) {
                 showNotification('Acesso liberado! Bem-vindo(a)', 'success');
                 closeAdminLogin();
                 openAdmin();
@@ -2433,6 +2437,42 @@
                 document.getElementById('adminPassword').value = '';
                 document.getElementById('adminPassword').focus();
             }
+        }
+
+        function changeAdminPassword() {
+            const current = document.getElementById('currentAdminPassword').value;
+            const next = document.getElementById('newAdminPassword').value;
+            const confirm = document.getElementById('confirmAdminPassword').value;
+
+            if (current !== getAdminPassword()) {
+                showNotification('Senha atual incorreta', 'error');
+                return;
+            }
+            if (!next || next.length < 6) {
+                showNotification('A nova senha deve ter pelo menos 6 caracteres', 'error');
+                return;
+            }
+            if (next !== confirm) {
+                showNotification('A confirmação da nova senha não confere', 'error');
+                return;
+            }
+
+            try {
+                localStorage.setItem('adminPassword', next);
+                showNotification('Senha alterada com sucesso!');
+                document.getElementById('currentAdminPassword').value = '';
+                document.getElementById('newAdminPassword').value = '';
+                document.getElementById('confirmAdminPassword').value = '';
+            } catch (e) {
+                showNotification('Não foi possível salvar a nova senha', 'error');
+            }
+        }
+
+        function resetAdminPasswordToDefault() {
+            try {
+                localStorage.removeItem('adminPassword');
+                showNotification('Senha restaurada para o padrão');
+            } catch (e) {}
         }
 
         function openAdmin() {
@@ -3268,73 +3308,6 @@ Aguardamos você! 🙌`;
             }
         }
 
-        // =====================
-        // Backup (Export/Import)
-        // =====================
-        function exportBookings() {
-            try {
-                const data = {
-                    exportedAt: new Date().toISOString(),
-                    bookings: JSON.parse(localStorage.getItem('bookings') || '[]'),
-                    closedDates: JSON.parse(localStorage.getItem('closedDates') || '[]')
-                };
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'backup-agendamentos.json';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
-                showNotification('Backup exportado com sucesso!');
-            } catch (e) {
-                showNotification('Falha ao exportar backup', 'error');
-            }
-        }
-
-        document.addEventListener('change', function(e){
-            if (e.target && e.target.id === 'importFile') {
-                importBookings(e.target.files[0]);
-                // reset input para permitir reimportar o mesmo arquivo
-                e.target.value = '';
-            }
-        });
-
-        function importBookings(file) {
-            if (!file) return;
-            const info = document.getElementById('backupInfo');
-            const reader = new FileReader();
-            reader.onload = function() {
-                try {
-                    const data = JSON.parse(reader.result);
-                    if (!data || typeof data !== 'object') throw new Error('JSON inválido');
-                    if (Array.isArray(data.bookings)) {
-                        localStorage.setItem('bookings', JSON.stringify(data.bookings));
-                    }
-                    if (Array.isArray(data.closedDates)) {
-                        localStorage.setItem('closedDates', JSON.stringify(data.closedDates));
-                    }
-                    // Recarregar dados do Admin
-                    loadOrdersFromStorage();
-                    if (adminState.chart) updateRevenueChart();
-                    updateKPIs();
-                    renderOrdersTable();
-                    renderClosedDates();
-                    updateReminderStats();
-                    showNotification('Backup importado com sucesso!');
-                    if (info) info.textContent = 'Importado: ' + (data.bookings?.length || 0) + ' agendamento(s)';
-                } catch (err) {
-                    showNotification('Arquivo de backup inválido', 'error');
-                    if (info) info.textContent = '';
-                }
-            };
-            reader.onerror = function(){
-                showNotification('Não foi possível ler o arquivo', 'error');
-            };
-            reader.readAsText(file);
-        }
-
         // Verificar lembretes ao carregar a página
         checkPendingReminders();
 
@@ -3343,11 +3316,6 @@ Aguardamos você! 🙌`;
 
         // Wire admin access button - agora abre tela de login
         document.querySelector('.admin-access-btn').addEventListener('click', openAdminLogin);
-        </script>
-        <footer style="padding:16px; text-align:center; color:#94a3b8; font-size:12px;">
-            <a href="qrcode.html" target="_blank" rel="noopener" style="color:#22c55e; text-decoration:underline; font-weight:600;">
-                Gerar QR do site
-            </a>
-        </footer>
+    </script>
 </body>
 </html>
