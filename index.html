@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BARBER - Barbearia Premium</title>
+        <script>
+            // Forçar HTTPS (exceto em localhost)
+            (function(){
+                var isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+                if (location.protocol === 'http:' && !isLocal) {
+                    location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+                }
+            })();
+        </script>
     <style>
         :root {
             --primary: #0A0F1C;
@@ -1830,6 +1839,23 @@
                             <div id="closedDatesList"></div>
                         </div>
                     </div>
+
+                    <div class="card" style="margin-top:20px">
+                        <div class="card-header"><div style="font-weight:700">Backup de Agendamentos</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);margin-bottom:16px">Exporte seus agendamentos (localStorage) para um arquivo JSON e importe quando precisar restaurar.</p>
+                            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                                <button class="action-btn confirm" onclick="exportBookings()" style="padding:10px 16px">
+                                    <i class="fas fa-download"></i> Exportar JSON
+                                </button>
+                                <label for="importFile" class="action-btn" style="padding:10px 16px;cursor:pointer">
+                                    <i class="fas fa-upload"></i> Importar JSON
+                                </label>
+                                <input type="file" id="importFile" accept="application/json" style="display:none">
+                            </div>
+                            <div id="backupInfo" style="margin-top:10px;color:var(--text-secondary);font-size:12px"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3231,6 +3257,73 @@ Aguardamos você! 🙌`;
                     </div>
                 `;
             }
+        }
+
+        // =====================
+        // Backup (Export/Import)
+        // =====================
+        function exportBookings() {
+            try {
+                const data = {
+                    exportedAt: new Date().toISOString(),
+                    bookings: JSON.parse(localStorage.getItem('bookings') || '[]'),
+                    closedDates: JSON.parse(localStorage.getItem('closedDates') || '[]')
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'backup-agendamentos.json';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showNotification('Backup exportado com sucesso!');
+            } catch (e) {
+                showNotification('Falha ao exportar backup', 'error');
+            }
+        }
+
+        document.addEventListener('change', function(e){
+            if (e.target && e.target.id === 'importFile') {
+                importBookings(e.target.files[0]);
+                // reset input para permitir reimportar o mesmo arquivo
+                e.target.value = '';
+            }
+        });
+
+        function importBookings(file) {
+            if (!file) return;
+            const info = document.getElementById('backupInfo');
+            const reader = new FileReader();
+            reader.onload = function() {
+                try {
+                    const data = JSON.parse(reader.result);
+                    if (!data || typeof data !== 'object') throw new Error('JSON inválido');
+                    if (Array.isArray(data.bookings)) {
+                        localStorage.setItem('bookings', JSON.stringify(data.bookings));
+                    }
+                    if (Array.isArray(data.closedDates)) {
+                        localStorage.setItem('closedDates', JSON.stringify(data.closedDates));
+                    }
+                    // Recarregar dados do Admin
+                    loadOrdersFromStorage();
+                    if (adminState.chart) updateRevenueChart();
+                    updateKPIs();
+                    renderOrdersTable();
+                    renderClosedDates();
+                    updateReminderStats();
+                    showNotification('Backup importado com sucesso!');
+                    if (info) info.textContent = 'Importado: ' + (data.bookings?.length || 0) + ' agendamento(s)';
+                } catch (err) {
+                    showNotification('Arquivo de backup inválido', 'error');
+                    if (info) info.textContent = '';
+                }
+            };
+            reader.onerror = function(){
+                showNotification('Não foi possível ler o arquivo', 'error');
+            };
+            reader.readAsText(file);
         }
 
         // Verificar lembretes ao carregar a página
