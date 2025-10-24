@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR Code do Site • Barbearia</title>
+    <meta name="description" content="Gere e baixe o QR Code do site da barbearia." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #0f1115;
+        --panel: #151923;
+        --muted: #98a2b3;
+        --text: #e5e7eb;
+        --brand: #22c55e;
+      }
+      * { box-sizing: border-box }
+      html, body { height: 100% }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        color: var(--text);
+        background: radial-gradient(1200px 600px at 20% -10%, #1c2230 0%, #0f1115 50%, #0b0d12 100%);
+      }
+      .wrap {
+        min-height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+      header {
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      header .dot {
+        width: 10px; height: 10px; border-radius: 50%; background: var(--brand);
+        box-shadow: 0 0 16px 2px rgba(34,197,94,.6);
+      }
+      header h1 { font-size: 18px; margin: 0; letter-spacing: .3px }
+      main { padding: 20px; display: grid; place-items: center }
+      .card {
+        width: 100%;
+        max-width: 780px;
+        background: color-mix(in oklab, var(--panel), black 8%);
+        border: 1px solid color-mix(in oklab, var(--panel), white 8%);
+        border-radius: 16px;
+        padding: 20px;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 10px 40px rgba(0,0,0,.35);
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .row { display: grid; grid-template-columns: 1fr auto; gap: 12px }
+      .field { display: grid; gap: 6px }
+      label { color: var(--muted); font-size: 12px }
+      input[type="url"], input[type="text"] {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #1f2633;
+        background: #0f1420;
+        color: var(--text);
+        outline: none;
+      }
+      .slider { display: flex; align-items: center; gap: 10px }
+      input[type="range"] { width: 100% }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px }
+      .btn {
+        appearance: none;
+        border: 1px solid #243045;
+        background: #121824;
+        color: var(--text);
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .btn.primary { background: linear-gradient(180deg, #22c55e, #16a34a); border-color: #15803d; color: #08120c; font-weight: 700 }
+      .btn:disabled { opacity: .6; cursor: not-allowed }
+      .qr-area { display: grid; place-items: center; padding: 24px; margin-top: 10px; background: #0c111a; border: 1px dashed #2a3345; border-radius: 12px }
+      footer { color: var(--muted); font-size: 12px; padding: 16px 24px; opacity: .8 }
+
+      @media (max-width: 720px) {
+        .row { grid-template-columns: 1fr }
+      }
+      /* Impressão: mostra apenas o QR em grande */
+      @media print {
+        body { background: #fff }
+        header, .controls, footer { display: none !important }
+        .card { border: 0; box-shadow: none; padding: 0 }
+        .qr-area { border: 0; padding: 0; margin: 0 }
+        #qrcode canvas { width: 90vh !important; height: 90vh !important }
+      }
+    </style>
+    <script>
+      // Força HTTPS (mantém comportamento do site principal)
+      (function () {
+        const isLocal = /^localhost(:\d+)?$/.test(location.hostname) || location.hostname === '127.0.0.1';
+        if (!isLocal && location.protocol !== 'https:') {
+          location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="dot"></div>
+        <h1>QR Code do Site</h1>
+      </header>
+      <main>
+        <section class="card">
+          <div class="controls">
+            <div class="field">
+              <label for="url">URL do site</label>
+              <div class="row">
+                <input id="url" type="url" placeholder="https://seu-dominio.com" autocomplete="url" />
+                <button id="btn-generate" class="btn primary">Gerar QR</button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="size">Tamanho (px)</label>
+                <div class="slider">
+                  <input id="size" type="range" min="128" max="1024" step="32" value="320" />
+                  <input id="sizeText" type="text" value="320" style="width:96px;text-align:center" />
+                </div>
+              </div>
+              <div class="field" style="align-content:end">
+                <div class="actions">
+                  <button id="btn-download" class="btn">Baixar PNG</button>
+                  <button id="btn-print" class="btn">Imprimir</button>
+                  <a id="btn-open" class="btn" href="#" target="_blank" rel="noopener">Abrir URL</a>
+                </div>
+              </div>
+            </div>
+            <div class="qr-area">
+              <div id="qrcode" aria-label="QR Code do site"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        Dica: cole o QR em materiais impressos e no balcão. Adicione UTMs para medir no Google Analytics.
+      </footer>
+    </div>
+
+    <!-- Biblioteca QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-Mi1hMZy9n9g2CIPJui9oDk/fdWm8tP4O+8Xqi1YwH0o+AqLx1nq38m4Ww4t0V8SxI1yq5C1bC3t5tUk8E2fS2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function () {
+        const $ = (sel) => document.querySelector(sel);
+        const $url = $('#url');
+        const $size = $('#size');
+        const $sizeText = $('#sizeText');
+        const $gen = $('#btn-generate');
+        const $dl = $('#btn-download');
+        const $print = $('#btn-print');
+        const $open = $('#btn-open');
+        const $box = $('#qrcode');
+
+        function baseSiteUrl() {
+          // Se esta página for /qrcode.html, removemos para apontar para a raiz
+          const href = location.href;
+          const root = href.replace(/qrcode\.html(\?.*)?$/, '');
+          // Adiciona UTM para mensurar origem QR
+          try {
+            const u = new URL(root);
+            u.searchParams.set('utm_source', 'qr');
+            u.searchParams.set('utm_medium', 'offline');
+            u.searchParams.set('utm_campaign', 'qrcode');
+            return u.toString();
+          } catch {
+            return root;
+          }
+        }
+
+        function normalizeUrl(u) {
+          const v = (u || '').trim();
+          if (!v) return baseSiteUrl();
+          try { new URL(v); return v; } catch {}
+          // sem esquema: prefixa https://
+          return 'https://' + v.replace(/^https?:\/\//, '');
+        }
+
+        let qr;
+        function render() {
+          const text = normalizeUrl($url.value);
+          const size = Math.max(128, Math.min(1024, parseInt($size.value || '320', 10)));
+          $box.innerHTML = '';
+          qr = new QRCode($box, {
+            text,
+            width: size,
+            height: size,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M,
+          });
+          $open.href = text;
+          $open.title = text;
+          $sizeText.value = String(size);
+        }
+
+        function downloadPng() {
+          const canvas = $box.querySelector('canvas');
+          if (!canvas) return;
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = 'qrcode-barbearia.png';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }
+
+        function syncSizeFromText() {
+          const n = parseInt($sizeText.value, 10);
+          if (Number.isFinite(n)) {
+            const clamped = Math.max(128, Math.min(1024, n));
+            $size.value = String(clamped);
+            render();
+          }
+        }
+
+        // Inicializa valores default
+        $url.value = baseSiteUrl();
+        $open.href = $url.value;
+
+        // Eventos
+        $gen.addEventListener('click', (e) => { e.preventDefault(); render(); });
+        $size.addEventListener('input', () => { $sizeText.value = String($size.value); render(); });
+        $sizeText.addEventListener('change', syncSizeFromText);
+        $url.addEventListener('change', () => render());
+        $dl.addEventListener('click', (e) => { e.preventDefault(); downloadPng(); });
+        $print.addEventListener('click', (e) => { e.preventDefault(); window.print(); });
+
+        // Primeira renderização
+        render();
+      })();
+    </script>
+  </body>
+</html>
