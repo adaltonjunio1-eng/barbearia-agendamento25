@@ -1,37 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>BARBEARIA PREMIUM</title>
-        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-        <!-- Redireciona automaticamente para a versão standalone -->
-        <meta http-equiv="refresh" content="0; url=./standalone.html" />
-        <script>
-            // Fallback de redirecionamento via JS (melhor para alguns navegadores)
-            (function () {
-                try {
-                    var target = 'standalone.html';
-                    if (window.location.pathname && /index\.html?$/i.test(window.location.pathname)) {
-                        target = window.location.pathname.replace(/index\.html?$/i, 'standalone.html');
-                    }
-                    window.location.replace(target);
-                } catch (e) {
-                    // Ignora
-                }
-            })();
-        </script>
-        <style>
-            body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
-            .card { max-width: 640px; margin: 10vh auto; padding: 24px; border-radius: 12px; background: #111826; color: #fff; border: 1px solid rgba(200,169,81,.25); }
-            .card a { color: #C8A951; text-decoration: none; font-weight: 600; }
-            .card a:hover { text-decoration: underline; }
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            <h1>Redirecionando…</h1>
-            <p>Se não for redirecionado automaticamente, <a href="./standalone.html">clique aqui para abrir o sistema</a>.</p>
-        </div>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BARBER - Barbearia Premium</title>
+    <style>
+        :root {
+            --primary: #0A0F1C;
+            --secondary: #C8A951;
+            --accent: #8B0000;
+            --surface: #1A1F2C;
+            --surface-light: #2A2F3C;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --gold-light: #E5D7A3;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --info: #3498DB;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --ciano: #00F5D4;
+            --roxo: #9D4EDD;
+            --laranja: #FF6D00;
+            --gradiente-logo: linear-gradient(135deg, var(--ciano), var(--roxo), var(--laranja));
+        }
+        /* ... (todo o CSS do standalone.html aqui) ... */
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- TODO: TODO o HTML do standalone.html aqui (copiado integralmente) -->
+</body>
 </html>
