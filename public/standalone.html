@@ -1,0 +1,3010 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BARBER - Barbearia Premium</title>
+    <style>
+        :root {
+            --primary: #0A0F1C;
+            --secondary: #C8A951;
+            --accent: #8B0000;
+            --surface: #1A1F2C;
+            --surface-light: #2A2F3C;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --gold-light: #E5D7A3;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --info: #3498DB;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            
+            --ciano: #00F5D4;
+            --roxo: #9D4EDD;
+            --laranja: #FF6D00;
+            --gradiente-logo: linear-gradient(135deg, var(--ciano), var(--roxo), var(--laranja));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--surface);
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(rgba(10, 15, 28, 0.9), rgba(10, 15, 28, 0.7)), url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(200, 169, 81, 0.1), transparent);
+            pointer-events: none; /* não bloquear cliques nos filhos */
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-moderna {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 15px;
+        }
+
+        .logo-simbolo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .particula {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gradiente-logo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 12px;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .particula:nth-child(1) { animation-delay: 0s; }
+        .particula:nth-child(2) { animation-delay: 0.2s; }
+        .particula:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .logo-texto {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradiente-logo);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            font-weight: 300;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Botão Admin */
+        .admin-access-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(200, 169, 81, 0.3);
+            border-radius: 50%;
+            padding: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-access-btn:hover {
+            background: rgba(200, 169, 81, 0.1);
+            color: var(--secondary);
+            border-color: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--primary);
+            border-bottom: 1px solid rgba(200, 169, 81, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 18px 8px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+            min-width: 80px;
+        }
+
+        .nav-tab.active {
+            color: var(--secondary);
+            border-bottom-color: var(--secondary);
+        }
+
+        .nav-tab i {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-hero {
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-repeat: no-repeat;
+            padding: 30px 20px;
+            position: relative;
+            min-height: calc(100vh - 140px);
+        }
+
+        .section-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 15, 28, 0.9), rgba(26, 31, 44, 0.8));
+        }
+
+        .section-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .phone-login-section {
+            background: linear-gradient(rgba(10, 15, 28, 0.95), rgba(10, 15, 28, 0.9)), url('https://images.unsplash.com/photo-1562157873-818bc0726f68?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80');
+        }
+
+        .services-section {
+            background: linear-gradient(rgba(10, 15, 28, 0.95), rgba(10, 15, 28, 0.9)), url('https://images.unsplash.com/photo-1599351431208-50ef6f1e5e2a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+        }
+
+        .booking-section {
+            background: linear-gradient(rgba(10, 15, 28, 0.95), rgba(10, 15, 28, 0.9)), url('https://images.unsplash.com/photo-1511735111819-9a3f7709049c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80');
+        }
+
+        .confirmation-section {
+            background: linear-gradient(rgba(10, 15, 28, 0.95), rgba(10, 15, 28, 0.9)), url('https://images.unsplash.com/photo-1544140708-514b7837e6b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            text-align: center;
+        }
+
+        /* Forms */
+        .phone-form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(200, 169, 81, 0.3);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .phone-input-container:focus-within {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(200, 169, 81, 0.1);
+        }
+
+        .country-code {
+            padding: 16px 12px;
+            background: rgba(200, 169, 81, 0.1);
+            color: var(--secondary);
+            font-weight: 600;
+            border-right: 1px solid rgba(200, 169, 81, 0.3);
+        }
+
+        .phone-input {
+            flex: 1;
+            padding: 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .phone-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .terms-text {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin: 20px 0;
+        }
+
+        .terms-text a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        /* Services */
+        .service-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .service-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .service-item:hover {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .service-item.selected {
+            border-color: var(--secondary);
+            background: rgba(200, 169, 81, 0.1);
+        }
+
+        .service-info h3 {
+            color: var(--secondary);
+            margin-bottom: 6px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .service-description {
+            color: var(--text-secondary);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .service-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--secondary);
+            text-align: right;
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: var(--gradiente-logo);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(200, 169, 81, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--secondary);
+            font-size: 18px;
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Booking */
+        .booking-summary {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .summary-total {
+            font-weight: 800;
+            color: var(--secondary);
+            font-size: 18px;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .time-slot {
+            padding: 12px 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .time-slot:hover {
+            border-color: var(--secondary);
+        }
+
+        .time-slot.selected {
+            background: var(--secondary);
+            color: var(--primary);
+            border-color: var(--secondary);
+        }
+
+        .time-slot.disabled {
+            opacity: 0.4;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+
+        /* Confirmation */
+        .confirmation-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 32px;
+            color: white;
+        }
+
+        .confirmation-details {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* Consulta Agendamentos */
+        .booking-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .booking-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--secondary);
+        }
+
+        .booking-card.cancelled::before {
+            background: var(--danger);
+        }
+
+        .booking-card.confirmed::before {
+            background: var(--success);
+        }
+
+        .booking-card:hover {
+            transform: translateX(4px);
+            border-color: var(--secondary);
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .booking-service {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .booking-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .booking-status.pendente {
+            background: rgba(243, 156, 18, 0.2);
+            color: #F39C12;
+            border: 1px solid #F39C12;
+        }
+
+        .booking-status.pago {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27AE60;
+            border: 1px solid #27AE60;
+        }
+
+        .booking-status.cancelado {
+            background: rgba(231, 76, 60, 0.2);
+            color: #E74C3C;
+            border: 1px solid #E74C3C;
+        }
+
+        .booking-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .booking-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .booking-info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .booking-info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .no-bookings {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-bookings i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(200, 169, 81, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Consulta Header */
+        .consulta-header {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            padding: 20px;
+            gap: 10px;
+            position: relative;
+        }
+
+        .consulta-header .back-btn {
+            justify-self: start;
+            position: relative;
+            z-index: 2;
+        }
+
+        .consulta-header .title {
+            justify-self: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--secondary), #D4B85E);
+            color: var(--primary);
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 20px;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary:not(:disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(200, 169, 81, 0.3);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(200, 169, 81, 0.1);
+        }
+
+        /* Titles */
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--secondary);
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .barber-info {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+        }
+
+        .barber-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .barber-specialty {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+            }
+            
+            .nav-tab {
+                padding: 16px 4px;
+                font-size: 11px;
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .logo-texto {
+                font-size: 20px;
+            }
+            
+            .particula {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+        }
+
+        /* ===================== */
+        /* Admin - Dashboard UI  */
+        /* ===================== */
+        .admin-app {
+            display: none;
+            grid-template-columns: 260px 1fr;
+            grid-template-rows: 64px 1fr;
+            min-height: 100dvh;
+            background: var(--primary);
+            color: var(--text-primary);
+        }
+
+        .admin-app.active {
+            display: grid;
+        }
+
+        .admin-overlay {
+            display: none;
+        }
+
+        .admin-sidebar {
+            grid-row: 1 / span 2;
+            background: var(--surface);
+            border-right: 1px solid rgba(200, 169, 81, 0.15);
+            padding: 16px;
+            position: relative;
+            z-index: 21;
+            width: 260px;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin: 4px 0 16px 4px;
+        }
+
+        .admin-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .admin-nav button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 12px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+        }
+
+        .admin-nav button i {
+            width: 18px;
+            text-align: center;
+        }
+
+        .admin-nav button.active,
+        .admin-nav button:hover {
+            background: rgba(200, 169, 81, 0.12);
+            color: var(--secondary);
+        }
+
+        .admin-topbar {
+            grid-column: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            padding-top: calc(12px + env(safe-area-inset-top, 0px));
+            background: var(--surface);
+            border-bottom: 1px solid rgba(200, 169, 81, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        .hamburger {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .admin-main {
+            grid-column: 2;
+            overflow-y: auto;
+        }
+
+        .admin-content {
+            padding: 20px;
+            display: grid;
+            gap: 20px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: var(--surface-light);
+            border: 1px solid rgba(200, 169, 81, 0.15);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .kpi-title {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: clamp(18px, 2.2vw, 22px);
+            font-weight: 800;
+            margin-top: 8px;
+            color: var(--text-primary);
+        }
+
+        .kpi-delta {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--success);
+        }
+
+        .card {
+            background: var(--surface-light);
+            border: 1px solid rgba(200, 169, 81, 0.15);
+            border-radius: 14px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(200, 169, 81, 0.12);
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .chart-container {
+            height: clamp(220px, 35vh, 420px);
+        }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: left;
+        }
+
+        .table th {
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge.paid { background: rgba(39, 174, 96, 0.15); color: #2ecc71; }
+        .badge.pending { background: rgba(243, 156, 18, 0.15); color: #f39c12; }
+        .badge.canceled { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid currentColor;
+            color: inherit;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            opacity: 0.7;
+        }
+
+        .action-btn.confirm {
+            color: var(--success);
+        }
+
+        .action-btn.cancel {
+            color: var(--danger);
+        }
+
+        .closed-date-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(200, 169, 81, 0.15);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .closed-date-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .remove-date-btn {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .remove-date-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .search-input {
+            width: 260px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(200, 169, 81, 0.2);
+            color: var(--text-primary);
+            border-radius: 10px;
+            padding: 10px 12px;
+            outline: none;
+        }
+
+        /* Light mode apenas para Admin */
+        .admin-app.light {
+            --primary: #F6F7FB;
+            --surface: #FFFFFF;
+            --surface-light: #FFFFFF;
+            --text-primary: #0A0F1C;
+            --text-secondary: #4A4A4A;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .admin-app.light .table th, .admin-app.light .table td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        @media (max-width: 1280px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 1024px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .admin-app {
+                grid-template-columns: 1fr;
+                grid-template-rows: 56px 1fr;
+            }
+            .admin-sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                width: min(260px, 86vw);
+                transform: translateX(-100%);
+                transition: var(--transition);
+                z-index: 20;
+            }
+            .admin-app.sidebar-open .admin-sidebar {
+                transform: translateX(0);
+            }
+            .admin-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 15;
+            }
+            .admin-app.sidebar-open .admin-overlay {
+                display: block;
+            }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .search-input { width: 100%; }
+        }
+
+        /* Mobile cards para tabela */
+        @media (max-width: 640px) {
+            .table thead { display: none; }
+            .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+            .table tbody tr {
+                background: var(--surface-light);
+                border: 1px solid rgba(200, 169, 81, 0.12);
+                border-radius: 12px;
+                padding: 10px 12px;
+                margin-bottom: 10px;
+            }
+            .table td {
+                border: none;
+                position: relative;
+                padding-left: 44%;
+                min-height: 36px;
+            }
+            .table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 12px;
+                top: 10px;
+                color: var(--text-secondary);
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .admin-content { max-width: 1400px; }
+            .admin-sidebar { width: 280px; }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container" id="mainApp">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo-moderna">
+                    <div class="logo-simbolo">
+                        <div class="particula">b</div>
+                        <div class="particula">f</div>
+                        <div class="particula">1</div>
+                    </div>
+                    <div class="logo-texto">BRUNO FERREIRA</div>
+                    <div class="logo-subtitle">BARBEARIA PREMIUM</div>
+                </div>
+            </div>
+            
+            <button class="admin-access-btn" title="Acesso Administrativo">
+                <i class="fas fa-lock"></i>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="login">
+                <i class="fas fa-mobile-alt"></i>
+                Celular
+            </button>
+            <button class="nav-tab" data-tab="servicos">
+                <i class="fas fa-scissors"></i>
+                Serviços
+            </button>
+            <button class="nav-tab" data-tab="agendar">
+                <i class="fas fa-calendar-alt"></i>
+                Agendar
+            </button>
+            <button class="nav-tab" data-tab="confirmacao">
+                <i class="fas fa-check-circle"></i>
+                Confirmação
+            </button>
+        </div>
+
+        <!-- Phone Login Section -->
+        <div class="content-section active" id="login">
+            <div class="section-hero phone-login-section">
+                <div class="section-content">
+                    <div class="barber-info">
+                        <div class="barber-name"> BRUNO FERREIRA</div>
+                        <div class="barber-specialty">Especialista em Cortes Masculinos</div>
+                    </div>
+
+                    <h2 class="section-title">Agendamento por Celular</h2>
+                    <div class="phone-form">
+                        <div class="form-group">
+                            <label class="form-label">Número do Celular</label>
+                            <div class="phone-input-container">
+                                <div class="country-code">+55</div>
+                                <input type="tel" class="phone-input" placeholder="(11) 99999-9999" id="phoneNumber">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Seu Nome</label>
+                            <div class="phone-input-container">
+                                <input type="text" class="phone-input" placeholder="Digite seu nome completo" id="userName">
+                            </div>
+                        </div>
+
+                        <div class="terms-text">
+                            Ao continuar, você concorda com nossos <a href="#">Termos de Uso</a>
+                        </div>
+
+                        <button class="btn-primary" onclick="verifyPhone()">
+                            <i class="fas fa-play"></i>
+                            Iniciar
+                        </button>
+
+                        <div style="text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid rgba(200,169,81,0.2)">
+                            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:12px">
+                                Já tem um agendamento?
+                            </p>
+                            <button class="btn-secondary" onclick="showConsultaAgendamento()" style="width:100%;padding:14px;background:transparent;border:2px solid var(--secondary);color:var(--secondary);border-radius:12px;font-weight:600;cursor:pointer;transition:all 0.3s ease">
+                                <i class="fas fa-search"></i>
+                                Consultar Meus Agendamentos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div class="content-section" id="servicos">
+            <div class="section-hero services-section">
+                <div class="section-content">
+                    <div class="barber-info">
+                        <div class="barber-name">Bruno Ferreira</div>
+                        <div class="barber-specialty">5+ anos de experiência</div>
+                    </div>
+
+                    <h2 class="section-title">Serviços Disponíveis</h2>
+                    <div class="service-list" id="serviceList">
+                        <!-- Populated by JS -->
+                    </div>
+                    
+                    <button class="btn-primary" onclick="proceedToBooking()" id="continueBtn" disabled>
+                        <i class="fas fa-arrow-right"></i>
+                        Continuar para Agendamento
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Section -->
+        <div class="content-section" id="agendar">
+            <div class="section-hero booking-section">
+                <div class="section-content">
+                    <div class="barber-info">
+                        <div class="barber-name">Bruno Ferreira</div>
+                        <div class="barber-specialty">Seu especialista</div>
+                    </div>
+
+                    <h2 class="section-title">Finalizar Agendamento</h2>
+                    
+                    <div class="booking-summary">
+                        <h4 style="color: var(--secondary); margin-bottom: 15px;">Resumo do Pedido</h4>
+                        <div class="summary-item">
+                            <span>Serviço:</span>
+                            <span id="summary-service">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Duração:</span>
+                            <span id="summary-duration">-</span>
+                        </div>
+                        <div class="summary-item summary-total">
+                            <span>Valor:</span>
+                            <span id="summary-price">-</span>
+                        </div>
+                    </div>
+
+                    <div class="date-selection" style="margin-top:20px;">
+                        <h4 style="color: var(--secondary); margin-bottom: 15px;">Escolha a Data</h4>
+                        <div class="phone-input-container">
+                            <input type="date" class="phone-input" id="dateInput">
+                        </div>
+                    </div>
+
+                    <div class="time-selection">
+                        <h4 style="color: var(--secondary); margin-bottom: 15px;">Escolha o Horário</h4>
+                        <div class="time-slots" id="timeSlots">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="confirmBooking()" id="confirmBtn" disabled>
+                        <i class="fas fa-calendar-check"></i>
+                        Confirmar Agendamento
+                    </button>
+
+                    <button class="btn-secondary" onclick="switchTab('servicos')">
+                        <i class="fas fa-arrow-left"></i>
+                        Voltar aos Serviços
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Section -->
+        <div class="content-section" id="confirmacao">
+            <div class="section-hero confirmation-section">
+                <div class="section-content">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    
+                    <div class="barber-info">
+                        <div class="barber-name">Bruno Ferreira</div>
+                        <div class="barber-specialty">Agradece sua preferência</div>
+                    </div>
+
+                    <h2 class="section-title">Agendamento Confirmado!</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 25px;">
+                        Seu agendamento foi realizado com sucesso.
+                    </p>
+
+                    <div class="confirmation-details">
+                        <div class="detail-item">
+                            <span>Serviço:</span>
+                            <span id="confirm-service">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Data:</span>
+                            <span id="confirm-date">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Horário:</span>
+                            <span id="confirm-time">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Valor:</span>
+                            <span id="confirm-price">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Cliente:</span>
+                            <span id="confirm-client">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Celular:</span>
+                            <span id="confirm-phone">-</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="newBooking()">
+                        <i class="fas fa-plus"></i>
+                        Fazer Novo Agendamento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consulta de Agendamentos (Full Screen) -->
+    <div class="app-container" id="consultaContainer" style="display:none">
+        <div class="header consulta-header">
+            <button onclick="closeConsulta()" class="back-btn" style="background:rgba(200,169,81,0.1);border:1px solid var(--secondary);color:var(--secondary);padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;transition:all 0.3s ease">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <div class="title" style="display:none"></div>
+            <div></div>
+        </div>
+
+        <div class="content-section active">
+            <div class="section-hero">
+                <div class="section-content">
+                    <div class="barber-info">
+                        <div class="barber-name">Seus Agendamentos</div>
+                        <div class="barber-specialty">Digite seu telefone para consultar</div>
+                    </div>
+
+                    <div class="phone-form">
+                        <div class="form-group">
+                            <label class="form-label">Número do Celular</label>
+                            <div class="phone-input-container">
+                                <div class="country-code">+55</div>
+                                <input type="tel" class="phone-input" placeholder="(11) 99999-9999" id="consultaPhone">
+                            </div>
+                        </div>
+
+                        <button class="btn-primary" onclick="buscarAgendamentos()">
+                            <i class="fas fa-search"></i>
+                            Buscar Agendamentos
+                        </button>
+                    </div>
+
+                    <div id="consultaResults" style="margin-top:30px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Fullscreen App -->
+    <div class="admin-app" id="admin">
+        <div class="admin-overlay"></div>
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <i class="fas fa-gem"></i>
+                <span>Admin BARBER</span>
+            </div>
+            <nav class="admin-nav">
+                <button class="active" data-admin-view="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></button>
+                <button data-admin-view="orders"><i class="fas fa-receipt"></i><span>Vendas</span></button>
+                <button data-admin-view="clients"><i class="fas fa-user-friends"></i><span>Clientes</span></button>
+                <button data-admin-view="settings"><i class="fas fa-cog"></i><span>Configurações</span></button>
+            </nav>
+        </aside>
+        <header class="admin-topbar">
+            <button class="hamburger" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:800;color:var(--secondary)">Admin</div>
+            <div class="topbar-actions">
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i><span>Dark</span></button>
+                <button class="btn-secondary" id="adminBack" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-arrow-left"></i> Sair</button>
+            </div>
+        </header>
+        <div class="admin-main">
+            <div class="admin-content">
+                <div id="admin-dashboard">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-title">Faturamento (mês)</div>
+                            <div class="kpi-value" id="kpiRevenue">R$ 0</div>
+                            <div class="kpi-delta" id="kpiRevenueDelta">+0%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Agendamentos</div>
+                            <div class="kpi-value" id="kpiOrders">0</div>
+                            <div class="kpi-delta">Hoje</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Ticket Médio</div>
+                            <div class="kpi-value" id="kpiTicket">R$ 0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Clientes</div>
+                            <div class="kpi-value" id="kpiClients">0</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div style="font-weight:700">Gráfico de Faturamento</div>
+                            <div></div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div style="font-weight:700">Vendas Recentes</div>
+                            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                                <select id="statusFilter" class="search-input" style="width:auto;padding:8px 12px">
+                                    <option value="all">Todos</option>
+                                    <option value="Pendente">Pendentes</option>
+                                    <option value="Pago">Pagos</option>
+                                    <option value="Cancelado">Cancelados</option>
+                                </select>
+                                <input type="text" class="search-input" id="tableSearch" placeholder="Buscar..." style="flex:1;min-width:180px">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                            <table class="table" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th data-sort="id">ID</th>
+                                        <th data-sort="cliente">Cliente</th>
+                                        <th data-sort="servico">Serviço</th>
+                                        <th data-sort="valor">Valor</th>
+                                        <th data-sort="data">Data</th>
+                                        <th data-sort="status">Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-orders" style="display:none">
+                    <div class="card">
+                        <div class="card-header"><div style="font-weight:700">Pedidos</div></div>
+                        <div class="card-body">Em breve…</div>
+                    </div>
+                </div>
+                <div id="admin-clients" style="display:none">
+                    <div class="card">
+                        <div class="card-header">
+                            <div style="font-weight:700">Clientes</div>
+                            <input type="text" class="search-input" id="clientSearch" placeholder="Buscar cliente...">
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table" id="clientsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Telefone</th>
+                                            <th>Últ. Visita</th>
+                                            <th>Total Gasto</th>
+                                            <th>Agendamentos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:20px">
+                        <div class="card-header"><div style="font-weight:700">Mensagens em Massa</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);margin-bottom:20px">Envie mensagens via WhatsApp para seus clientes</p>
+                            
+                            <div style="margin-bottom:20px">
+                                <label style="display:block;margin-bottom:10px;font-weight:600">Selecione o grupo:</label>
+                                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                                    <button class="action-btn" onclick="selectGroup('all')" id="groupAll" style="padding:10px 16px;background:rgba(200,169,81,0.1);color:var(--secondary);border:1px solid var(--secondary)">
+                                        <i class="fas fa-users"></i> Todos (<span id="countAll">0</span>)
+                                    </button>
+                                    <button class="action-btn" onclick="selectGroup('recent')" id="groupRecent" style="padding:10px 16px">
+                                        <i class="fas fa-clock"></i> Últ. 30 dias (<span id="countRecent">0</span>)
+                                    </button>
+                                    <button class="action-btn" onclick="selectGroup('inactive')" id="groupInactive" style="padding:10px 16px">
+                                        <i class="fas fa-user-clock"></i> Inativos 60+ dias (<span id="countInactive">0</span>)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:20px">
+                                <label style="display:block;margin-bottom:10px;font-weight:600">Tipo de mensagem:</label>
+                                <select id="messageType" class="search-input" style="width:100%;margin-bottom:15px">
+                                    <option value="reminder">Lembrete de agendamento</option>
+                                    <option value="promo">Promoção</option>
+                                    <option value="custom">Mensagem personalizada</option>
+                                </select>
+                            </div>
+
+                            <div style="margin-bottom:20px">
+                                <label style="display:block;margin-bottom:10px;font-weight:600">Mensagem:</label>
+                                <textarea id="messageText" class="search-input" style="width:100%;min-height:120px;padding:12px;resize:vertical" placeholder="Digite sua mensagem..."></textarea>
+                                <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+                                    <button class="action-btn" onclick="insertVar('{nome}')" style="font-size:11px;padding:6px 10px">
+                                        + {nome}
+                                    </button>
+                                    <button class="action-btn" onclick="insertVar('{servico}')" style="font-size:11px;padding:6px 10px">
+                                        + {servico}
+                                    </button>
+                                    <button class="action-btn" onclick="insertVar('{valor}')" style="font-size:11px;padding:6px 10px">
+                                        + {valor}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:10px;margin-bottom:20px">
+                                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Prévia:</div>
+                                <div id="messagePreview" style="color:var(--text-primary);white-space:pre-wrap">Selecione um tipo de mensagem</div>
+                            </div>
+
+                            <button class="btn-primary" onclick="sendBulkMessages()" id="sendBtn">
+                                <i class="fas fa-paper-plane"></i> Enviar para <span id="sendCount">0</span> cliente(s)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="admin-settings" style="display:none">
+                    <div class="card">
+                        <div class="card-header"><div style="font-weight:700">Lembretes Automáticos</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);margin-bottom:20px">
+                                <i class="fas fa-bell" style="color:var(--secondary)"></i> 
+                                Os lembretes são enviados automaticamente via WhatsApp 1 hora antes do agendamento.
+                            </p>
+                            <div style="background:rgba(200,169,81,0.1);padding:15px;border-radius:10px;border-left:3px solid var(--secondary)">
+                                <div style="font-weight:600;margin-bottom:8px">📊 Status dos Lembretes</div>
+                                <div id="reminderStats" style="font-size:14px;color:var(--text-secondary)">
+                                    Carregando...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:20px">
+                        <div class="card-header"><div style="font-weight:700">Dias Fechados</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--text-secondary);margin-bottom:20px">Selecione datas em que a barbearia estará fechada para agendamentos.</p>
+                            
+                            <div style="margin-bottom:24px;display:flex;gap:10px;flex-wrap:wrap">
+                                <button class="action-btn" onclick="toggleAllSundays()" style="padding:10px 16px;background:rgba(200,169,81,0.1);color:var(--secondary);border:1px solid var(--secondary)">
+                                    <i class="fas fa-calendar-times"></i> <span id="sundayBtnText">Fechar todos os domingos</span>
+                                </button>
+                                <button class="action-btn" onclick="toggleAllMondays()" style="padding:10px 16px;background:rgba(200,169,81,0.1);color:var(--secondary);border:1px solid var(--secondary)">
+                                    <i class="fas fa-calendar-times"></i> <span id="mondayBtnText">Fechar todas as segundas</span>
+                                </button>
+                            </div>
+
+                            <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+                                <input type="date" id="closedDateInput" class="search-input" style="flex:1;min-width:200px">
+                                <button class="action-btn confirm" onclick="addClosedDate()" style="padding:10px 16px">
+                                    <i class="fas fa-plus"></i> Adicionar
+                                </button>
+                            </div>
+                            <div id="closedDatesList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        let appState = {
+            userPhone: '',
+            userName: '',
+            selectedService: null,
+            selectedTime: null,
+            selectedDate: null,
+            services: [
+                { id: 1, name: "Corte Geral", price: 40, duration: 45, icon: "fa-cut" },
+                { id: 2, name: "Alinhamento de Cabelo", price: 40, duration: 30, icon: "fa-ruler-combined" },
+                { id: 3, name: "Combo Premium", price: 60, duration: 90, icon: "fa-crown", featured: true },
+                { id: 4, name: "Luzes", price: 110, duration: 120, icon: "fa-sun" },
+                { id: 5, name: "Pesinho", price: 15, duration: 15, icon: "fa-eraser" },
+                { id: 6, name: "Barba", price: 30, duration: 30, icon: "fa-air-freshener" }
+            ]
+        };
+
+        function verifyPhone() {
+            const phone = document.getElementById('phoneNumber').value;
+            const name = document.getElementById('userName').value;
+            
+            if (!phone || phone.replace(/\D/g, '').length < 11) {
+                showNotification('Por favor, insira um número de celular válido', 'error');
+                return;
+            }
+
+            if (!name) {
+                showNotification('Por favor, insira seu nome', 'error');
+                return;
+            }
+
+            appState.userPhone = phone;
+            appState.userName = name;
+
+            showNotification('Verificado com sucesso!');
+            setTimeout(() => switchTab('servicos'), 1500);
+        }
+
+        function renderServices() {
+            const serviceList = document.getElementById('serviceList');
+            serviceList.innerHTML = '';
+
+            appState.services.forEach(service => {
+                const serviceItem = document.createElement('div');
+                serviceItem.className = `service-item ${service.featured ? 'featured' : ''}`;
+                serviceItem.innerHTML = `
+                    ${service.featured ? '<div class="featured-badge">Popular</div>' : ''}
+                    <div class="service-header">
+                        <div class="service-icon">
+                            <i class="fas ${service.icon}"></i>
+                        </div>
+                        <div class="service-info">
+                            <h3>${service.name}</h3>
+                            <div class="service-description">
+                                <i class="fas fa-clock"></i>
+                                <span>${service.duration} min</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-price">
+                        R$ ${service.price}
+                    </div>
+                `;
+                serviceItem.addEventListener('click', function() {
+                    document.querySelectorAll('.service-item').forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    appState.selectedService = service;
+                    document.getElementById('continueBtn').disabled = false;
+                });
+                serviceList.appendChild(serviceItem);
+            });
+        }
+
+        function proceedToBooking() {
+            if (!appState.selectedService) {
+                showNotification('Por favor, selecione um serviço', 'error');
+                return;
+            }
+
+            document.getElementById('summary-service').textContent = appState.selectedService.name;
+            document.getElementById('summary-duration').textContent = `${appState.selectedService.duration} min`;
+            document.getElementById('summary-price').textContent = `R$ ${appState.selectedService.price}`;
+
+            switchTab('agendar');
+            // Renderizar slots após trocar de aba para garantir que o input de data já foi inicializado
+            setTimeout(() => {
+                if (appState.selectedDate) {
+                    renderTimeSlots();
+                }
+            }, 100);
+        }
+
+        function renderTimeSlots() {
+            const timeSlots = document.getElementById('timeSlots');
+            timeSlots.innerHTML = '';
+            const slots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
+
+            // Pegar a data selecionada primeiro
+            const selectedDate = appState.selectedDate;
+            if (!selectedDate) {
+                timeSlots.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">Selecione uma data</div>';
+                return;
+            }
+
+            // Carregar agendamentos existentes
+            let existingBookings = [];
+            try {
+                existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            } catch(e) {}
+
+            // Verificar se a data está fechada
+            let closedDates = [];
+            try {
+                closedDates = JSON.parse(localStorage.getItem('closedDates') || '[]');
+            } catch(e) {}
+            
+            const isDateClosed = closedDates.includes(selectedDate);
+            if (isDateClosed) {
+                timeSlots.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)"><i class="fas fa-lock" style="font-size:32px;margin-bottom:12px"></i><p>Barbearia fechada nesta data</p></div>';
+                return;
+            }
+
+            const now = new Date();
+            const today = formatDateISO(now);
+            const currentTime = now.getHours() * 60 + now.getMinutes(); // minutos desde meia-noite
+
+            slots.forEach(slot => {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                timeSlot.textContent = slot;
+
+                // Verificar se horário já passou (se for hoje)
+                const [h, m] = slot.split(':').map(Number);
+                const slotMinutes = h * 60 + m;
+                const isPast = (selectedDate === today && slotMinutes <= currentTime);
+
+                // Verificar se horário já foi agendado nesta data (e não está cancelado)
+                const isBooked = existingBookings.some(b => 
+                    b.dataISO === selectedDate && 
+                    b.hora === slot && 
+                    b.status !== 'Cancelado'
+                );
+
+                if (isPast || isBooked) {
+                    timeSlot.classList.add('disabled');
+                    timeSlot.style.opacity = '0.4';
+                    timeSlot.style.cursor = 'not-allowed';
+                    if (isBooked) timeSlot.title = 'Horário já agendado';
+                    if (isPast) timeSlot.title = 'Horário já passou';
+                } else {
+                    timeSlot.addEventListener('click', function() {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                        this.classList.add('selected');
+                        appState.selectedTime = slot;
+                        validateConfirm();
+                    });
+                }
+                
+                timeSlots.appendChild(timeSlot);
+            });
+        }
+
+        function confirmBooking() {
+            if (!appState.selectedTime) {
+                showNotification('Por favor, selecione um horário', 'error');
+                return;
+            }
+            if (!appState.selectedDate) {
+                showNotification('Por favor, selecione uma data', 'error');
+                return;
+            }
+
+            // VALIDAÇÃO ADICIONAL: Verificar se horário já passou
+            const now = new Date();
+            const today = formatDateISO(now);
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const [h, m] = appState.selectedTime.split(':').map(Number);
+            const slotMinutes = h * 60 + m;
+            
+            if (appState.selectedDate === today && slotMinutes <= currentTime) {
+                showNotification('Este horário já passou. Escolha outro horário.', 'error');
+                appState.selectedTime = null;
+                renderTimeSlots();
+                return;
+            }
+
+            // VALIDAÇÃO ADICIONAL: Verificar se horário já está agendado
+            try {
+                const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+                const isBooked = existingBookings.some(b => 
+                    b.dataISO === appState.selectedDate && 
+                    b.hora === appState.selectedTime && 
+                    b.status !== 'Cancelado'
+                );
+                
+                if (isBooked) {
+                    showNotification('Este horário já está agendado. Escolha outro horário.', 'error');
+                    appState.selectedTime = null;
+                    renderTimeSlots();
+                    return;
+                }
+            } catch(e) {}
+
+            document.getElementById('confirm-service').textContent = appState.selectedService.name;
+            document.getElementById('confirm-time').textContent = appState.selectedTime;
+            document.getElementById('confirm-price').textContent = `R$ ${appState.selectedService.price}`;
+            document.getElementById('confirm-client').textContent = appState.userName;
+            document.getElementById('confirm-phone').textContent = appState.userPhone;
+            document.getElementById('confirm-date').textContent = formatDateBR(appState.selectedDate);
+
+            // Persistir agendamento no localStorage
+            try {
+                const booking = {
+                    id: Date.now(),
+                    cliente: appState.userName,
+                    telefone: appState.userPhone,
+                    servicoId: appState.selectedService.id,
+                    servicoNome: appState.selectedService.name,
+                    valor: appState.selectedService.price,
+                    duracao: appState.selectedService.duration,
+                    hora: appState.selectedTime,
+                    dataISO: appState.selectedDate,
+                    status: 'Pendente', // aguardando confirmação do admin
+                    reminderSent: false
+                };
+                const list = JSON.parse(localStorage.getItem('bookings') || '[]');
+                list.push(booking);
+                localStorage.setItem('bookings', JSON.stringify(list));
+                
+                // Agendar lembrete automático
+                scheduleReminder(booking);
+            } catch (e) {
+                /* falha silenciosa */
+            }
+
+            showNotification('Agendamento confirmado!');
+            switchTab('confirmacao');
+        }
+
+        function newBooking() {
+            appState.selectedService = null;
+            appState.selectedTime = null;
+            document.querySelectorAll('.service-item').forEach(i => i.classList.remove('selected'));
+            document.getElementById('continueBtn').disabled = true;
+            document.getElementById('confirmBtn').disabled = true;
+            switchTab('login');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Consulta de Agendamentos
+        function showConsultaAgendamento() {
+            const mainContainer = document.getElementById('mainApp');
+            const consultaContainer = document.getElementById('consultaContainer');
+            const adminContainer = document.getElementById('admin');
+            
+            if (mainContainer) {
+                mainContainer.style.cssText = 'display: none !important;';
+            }
+            if (adminContainer) {
+                adminContainer.classList.remove('active');
+            }
+            if (consultaContainer) {
+                consultaContainer.style.cssText = 'display: block !important;';
+                const phoneInput = document.getElementById('consultaPhone');
+                if (phoneInput) phoneInput.value = '';
+                const results = document.getElementById('consultaResults');
+                if (results) results.innerHTML = '';
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function closeConsulta() {
+            const mainContainer = document.getElementById('mainApp');
+            const consultaContainer = document.getElementById('consultaContainer');
+            
+            if (consultaContainer) {
+                consultaContainer.style.cssText = 'display: none !important;';
+            }
+            if (mainContainer) {
+                mainContainer.style.cssText = 'display: block !important;';
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function buscarAgendamentos() {
+            const phone = document.getElementById('consultaPhone').value.replace(/\D/g, '');
+            
+            if (!phone || phone.length < 11) {
+                showNotification('Por favor, insira um número de celular válido', 'error');
+                return;
+            }
+
+            try {
+                const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+                
+                const userBookings = bookings.filter(b => b.telefone && b.telefone.replace(/\D/g, '') === phone);
+
+                if (userBookings.length === 0) {
+                    document.getElementById('consultaResults').innerHTML = `
+                        <div class="no-bookings">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3 style="margin-bottom:10px">Nenhum agendamento encontrado</h3>
+                            <p>Não encontramos agendamentos para este número.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Ordenar por data (mais recente primeiro)
+                userBookings.sort((a, b) => {
+                    const dateA = new Date(a.dataISO + 'T' + a.hora);
+                    const dateB = new Date(b.dataISO + 'T' + b.hora);
+                    return dateB - dateA;
+                });
+
+                let html = `
+                    <h3 style="color:var(--secondary);margin-bottom:20px;text-align:center">
+                        ${userBookings.length} agendamento${userBookings.length > 1 ? 's' : ''} encontrado${userBookings.length > 1 ? 's' : ''}
+                    </h3>
+                `;
+
+                userBookings.forEach(booking => {
+                    const bookingDate = new Date(booking.dataISO + 'T' + booking.hora);
+                    const isPast = bookingDate < new Date();
+                    const statusClass = booking.status.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    
+                    html += `
+                        <div class="booking-card ${statusClass}">
+                            <div class="booking-header">
+                                <div class="booking-service">
+                                    <i class="fas fa-cut"></i> ${booking.servicoNome}
+                                </div>
+                                <span class="booking-status ${statusClass}">${booking.status}</span>
+                            </div>
+                            <div class="booking-info">
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Data</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-calendar"></i> ${formatDateBR(booking.dataISO)}
+                                    </span>
+                                </div>
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Horário</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-clock"></i> ${booking.hora}
+                                    </span>
+                                </div>
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Valor</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-dollar-sign"></i> R$ ${booking.valor}
+                                    </span>
+                                </div>
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Duração</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-hourglass-half"></i> ${booking.duracao} min
+                                    </span>
+                                </div>
+                            </div>
+                            ${isPast ? '<div style="text-align:center;color:var(--text-secondary);font-size:12px;margin-top:8px"><i class="fas fa-info-circle"></i> Este agendamento já passou</div>' : ''}
+                        </div>
+                    `;
+                });
+
+                document.getElementById('consultaResults').innerHTML = html;
+            } catch (e) {
+                // Silencioso em produção, mas mantém fallback visual
+                showNotification('Erro ao buscar agendamentos', 'error');
+            }
+        }
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                switchTab(this.getAttribute('data-tab'));
+            });
+        });
+
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.substring(0, 11);
+            
+            if (value.length > 0) {
+                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                if (value.length > 10) {
+                    value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                } else {
+                    value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                }
+            }
+            
+            e.target.value = value;
+        });
+
+        // Máscara para o telefone de consulta - adicionar com segurança
+        const consultaPhoneInput = document.getElementById('consultaPhone');
+        if (consultaPhoneInput) {
+            consultaPhoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 11) value = value.substring(0, 11);
+                
+                if (value.length > 0) {
+                    value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                    if (value.length > 10) {
+                        value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                    } else {
+                        value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                    }
+                }
+                
+                e.target.value = value;
+            });
+        }
+
+        renderServices();
+
+        // Data picker: inicializar com hoje e vincular ao estado
+        function formatDateISO(d) {
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+        function formatDateBR(iso) {
+            if (!iso) return '-';
+            const [y, m, d] = iso.split('-');
+            return `${d}/${m}/${y}`;
+        }
+        function validateConfirm() {
+            const btn = document.getElementById('confirmBtn');
+            if (btn) btn.disabled = !(appState.selectedTime && appState.selectedDate);
+        }
+        (function initDatePicker(){
+            const input = document.getElementById('dateInput');
+            if (!input) return;
+            const today = new Date();
+            const isoToday = formatDateISO(today);
+            input.min = isoToday;
+            input.value = isoToday;
+            appState.selectedDate = isoToday;
+            input.addEventListener('change', function(){
+                appState.selectedDate = this.value;
+                validateConfirm();
+                // Recarregar slots quando mudar a data
+                if (appState.selectedService) {
+                    renderTimeSlots();
+                }
+            });
+        })();
+
+        // =====================
+        // Admin - Dashboard JS
+        // =====================
+        const adminState = {
+            chart: null,
+            sortKey: 'id',
+            sortDir: 'desc',
+            theme: 'dark',
+            statusFilter: 'all',
+            orders: [],
+            clients: [],
+            selectedGroup: 'all',
+            messageType: 'reminder'
+        };
+
+        function loadOrdersFromStorage() {
+            try {
+                const list = JSON.parse(localStorage.getItem('bookings') || '[]');
+                // mapear para estrutura da tabela Admin
+                adminState.orders = list.map(b => ({
+                    id: b.id,
+                    cliente: b.cliente,
+                    servico: b.servicoNome,
+                    valor: Number(b.valor) || 0,
+                    data: b.dataISO,
+                    status: b.status || 'Pago'
+                }));
+            } catch (e) {
+                /* falha silenciosa */
+                adminState.orders = [];
+            }
+            // fallback opcional se vazio (comentar se não quiser seeds)
+            if (!adminState.orders.length) {
+                adminState.orders = [];
+            }
+        }
+
+        function getMonthlyRevenue(orders) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const arr = new Array(12).fill(0);
+            orders.forEach(o => {
+                const d = new Date(o.data);
+                if (!isNaN(d) && d.getFullYear() === year && o.status !== 'Cancelado') {
+                    arr[d.getMonth()] += (o.status === 'Pago' ? (o.valor||0) : 0);
+                }
+            });
+            return arr;
+        }
+
+        function openAdmin() {
+            document.querySelector('.app-container').style.display = 'none';
+            const adminEl = document.getElementById('admin');
+            adminEl.classList.add('active');
+            // theme
+            adminState.theme = localStorage.getItem('adminTheme') || 'dark';
+            adminEl.classList.toggle('light', adminState.theme === 'light');
+            // carregar dados reais
+            loadOrdersFromStorage();
+            loadClientsData();
+            // init/update chart
+            if (!adminState.chart) initRevenueChart(); else updateRevenueChart();
+            updateKPIs();
+            bindAdminEvents();
+            renderOrdersTable();
+        }
+
+        function closeAdmin() {
+            document.getElementById('admin').classList.remove('active');
+            document.querySelector('.app-container').style.display = '';
+        }
+
+        function bindAdminEvents() {
+            // Only bind once
+            if (bindAdminEvents._bound) return; 
+            bindAdminEvents._bound = true;
+
+            document.getElementById('adminBack').addEventListener('click', closeAdmin);
+            document.getElementById('themeToggle').addEventListener('click', toggleAdminTheme);
+            document.getElementById('sidebarToggle').addEventListener('click', () => document.getElementById('admin').classList.toggle('sidebar-open'));
+            document.querySelector('.admin-overlay').addEventListener('click', () => document.getElementById('admin').classList.remove('sidebar-open'));
+
+            document.querySelectorAll('#ordersTable th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const key = th.dataset.sort;
+                    if (adminState.sortKey === key) {
+                        adminState.sortDir = adminState.sortDir === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        adminState.sortKey = key;
+                        adminState.sortDir = 'asc';
+                    }
+                    renderOrdersTable();
+                });
+            });
+
+            document.getElementById('tableSearch').addEventListener('input', renderOrdersTable);
+
+            document.getElementById('statusFilter').addEventListener('change', function(){
+                adminState.statusFilter = this.value;
+                renderOrdersTable();
+            });
+
+            document.querySelectorAll('.admin-nav button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const view = btn.getAttribute('data-admin-view');
+                    switchAdminView(view);
+                });
+            });
+        }
+
+        function switchAdminView(view) {
+            const sections = ['dashboard', 'orders', 'clients', 'settings'];
+            sections.forEach(v => {
+                const el = document.getElementById('admin-' + v);
+                if (!el) return;
+                el.style.display = (v === view) ? 'block' : 'none';
+            });
+            // Renderizar lista de datas fechadas ao abrir configurações
+            if (view === 'settings') {
+                renderClosedDates();
+                updateReminderStats();
+            }
+            // Renderizar clientes ao abrir a seção
+            if (view === 'clients') {
+                renderClientsTable();
+                updateGroupCounts();
+            }
+        }
+
+        function toggleAdminTheme() {
+            const adminEl = document.getElementById('admin');
+            adminState.theme = adminState.theme === 'dark' ? 'light' : 'dark';
+            adminEl.classList.toggle('light', adminState.theme === 'light');
+            localStorage.setItem('adminTheme', adminState.theme);
+            // Update chart colors
+            if (adminState.chart) {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+                gradient.addColorStop(0, 'rgba(200, 169, 81, 0.35)');
+                gradient.addColorStop(1, 'rgba(200, 169, 81, 0.0)');
+                adminState.chart.data.datasets[0].backgroundColor = gradient;
+                const styles = getComputedStyle(adminEl);
+                const tickColor = styles.getPropertyValue('--text-secondary').trim() || '#B0B0B0';
+                const gridColor = adminState.theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)';
+                const labelColor = styles.getPropertyValue('--text-primary').trim() || '#FFFFFF';
+                adminState.chart.options.scales.x.ticks.color = tickColor;
+                adminState.chart.options.scales.y.ticks.color = tickColor;
+                adminState.chart.options.scales.x.grid.color = gridColor;
+                adminState.chart.options.scales.y.grid.color = gridColor;
+                adminState.chart.options.plugins.legend.labels.color = labelColor;
+                adminState.chart.update();
+            }
+        }
+
+        function initRevenueChart() {
+            const canvas = document.getElementById('revenueChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, 'rgba(200, 169, 81, 0.35)');
+            gradient.addColorStop(1, 'rgba(200, 169, 81, 0.0)');
+
+            const labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const data = getMonthlyRevenue(adminState.orders);
+
+            const adminEl = document.getElementById('admin');
+            const styles = getComputedStyle(adminEl);
+            const tickColor = styles.getPropertyValue('--text-secondary').trim() || '#B0B0B0';
+            const gridColor = 'rgba(255,255,255,0.08)';
+            const labelColor = styles.getPropertyValue('--text-primary').trim() || '#FFFFFF';
+
+            adminState.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Faturamento',
+                        data,
+                        borderColor: '#C8A951',
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#C8A951'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: labelColor }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+                        y: { grid: { color: gridColor }, ticks: { color: tickColor } }
+                    }
+                }
+            });
+        }
+
+        function updateRevenueChart() {
+            const adminEl = document.getElementById('admin');
+            const styles = getComputedStyle(adminEl);
+            const tickColor = styles.getPropertyValue('--text-secondary').trim() || '#B0B0B0';
+            const gridColor = adminState.theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)';
+            const labelColor = styles.getPropertyValue('--text-primary').trim() || '#FFFFFF';
+            const data = getMonthlyRevenue(adminState.orders);
+            adminState.chart.data.datasets[0].data = data;
+            adminState.chart.options.scales.x.ticks.color = tickColor;
+            adminState.chart.options.scales.y.ticks.color = tickColor;
+            adminState.chart.options.scales.x.grid.color = gridColor;
+            adminState.chart.options.scales.y.grid.color = gridColor;
+            adminState.chart.options.plugins.legend.labels.color = labelColor;
+            adminState.chart.update();
+        }
+
+        function formatBRL(v) {
+            return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function renderOrdersTable() {
+            const tbody = document.querySelector('#ordersTable tbody');
+            if (!tbody) return;
+            const q = (document.getElementById('tableSearch').value || '').toLowerCase();
+            const statusFilter = adminState.statusFilter;
+            
+            // Contar por status para o select
+            const counts = { all: adminState.orders.length, Pendente: 0, Pago: 0, Cancelado: 0 };
+            adminState.orders.forEach(o => {
+                if (counts[o.status] !== undefined) counts[o.status]++;
+            });
+            
+            // Atualizar options do select com contadores
+            const select = document.getElementById('statusFilter');
+            if (select) {
+                select.innerHTML = `
+                    <option value="all">Todos (${counts.all})</option>
+                    <option value="Pendente">Pendentes (${counts.Pendente})</option>
+                    <option value="Pago">Pagos (${counts.Pago})</option>
+                    <option value="Cancelado">Cancelados (${counts.Cancelado})</option>
+                `;
+                select.value = statusFilter;
+            }
+
+            const data = adminState.orders
+                .filter(o => {
+                    const matchSearch = JSON.stringify(o).toLowerCase().includes(q);
+                    const matchStatus = statusFilter === 'all' || o.status === statusFilter;
+                    return matchSearch && matchStatus;
+                })
+                .sort((a, b) => {
+                    const k = adminState.sortKey;
+                    const dir = adminState.sortDir === 'asc' ? 1 : -1;
+                    if (k === 'valor') return (a.valor - b.valor) * dir;
+                    if (k === 'data') return (new Date(a.data) - new Date(b.data)) * dir;
+                    if (typeof a[k] === 'string') return a[k].localeCompare(b[k]) * dir;
+                    return (a[k] - b[k]) * dir;
+                });
+            tbody.innerHTML = '';
+            data.forEach(o => {
+                const tr = document.createElement('tr');
+                const statusClass = o.status === 'Pago' ? 'paid' : (o.status === 'Pendente' ? 'pending' : 'canceled');
+                const d = new Date(o.data);
+                const dataBR = d.toLocaleDateString('pt-BR');
+                
+                let actionsHtml = '';
+                if (o.status === 'Pendente') {
+                    actionsHtml = `
+                        <div class="action-btns">
+                            <button class="action-btn confirm" onclick="updateOrderStatus(${o.id}, 'Pago')">
+                                <i class="fas fa-check"></i> Confirmar
+                            </button>
+                            <button class="action-btn cancel" onclick="updateOrderStatus(${o.id}, 'Cancelado')">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    actionsHtml = `<span style="color:var(--text-secondary);font-size:12px">—</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td data-label="ID">#${o.id}</td>
+                    <td data-label="Cliente">${o.cliente}</td>
+                    <td data-label="Serviço">${o.servico}</td>
+                    <td data-label="Valor">${formatBRL(o.valor)}</td>
+                    <td data-label="Data">${dataBR}</td>
+                    <td data-label="Status"><span class="badge ${statusClass}">${o.status}</span></td>
+                    <td data-label="Ações">${actionsHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateKPIs() {
+            const now = new Date();
+            const month = now.getMonth();
+            const monthOrders = adminState.orders.filter(o => {
+                const d = new Date(o.data);
+                return d.getMonth() === month && d.getFullYear() === now.getFullYear() && o.status !== 'Cancelado';
+            });
+            const revenue = monthOrders.reduce((s, o) => s + (o.status === 'Pago' ? o.valor : 0), 0);
+            const count = monthOrders.length;
+            const ticket = count ? revenue / count : 0;
+            const clients = new Set(monthOrders.map(o => o.cliente)).size;
+            document.getElementById('kpiRevenue').textContent = formatBRL(revenue);
+            document.getElementById('kpiOrders').textContent = String(count);
+            document.getElementById('kpiTicket').textContent = formatBRL(ticket);
+            document.getElementById('kpiClients').textContent = String(clients);
+            document.getElementById('kpiRevenueDelta').textContent = '+12% vs mês anterior';
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            try {
+                const list = JSON.parse(localStorage.getItem('bookings') || '[]');
+                const idx = list.findIndex(b => b.id === orderId);
+                if (idx === -1) {
+                    showNotification('Agendamento não encontrado', 'error');
+                    return;
+                }
+                list[idx].status = newStatus;
+                localStorage.setItem('bookings', JSON.stringify(list));
+                // recarregar
+                loadOrdersFromStorage();
+                if (adminState.chart) updateRevenueChart();
+                updateKPIs();
+                renderOrdersTable();
+                showNotification(`Status atualizado para ${newStatus}`);
+            } catch (e) {
+                /* falha silenciosa */
+                showNotification('Erro ao atualizar status', 'error');
+            }
+        }
+
+        function addClosedDate() {
+            const input = document.getElementById('closedDateInput');
+            const dateValue = input.value;
+            if (!dateValue) {
+                showNotification('Por favor, selecione uma data', 'error');
+                return;
+            }
+            try {
+                let closedDates = JSON.parse(localStorage.getItem('closedDates') || '[]');
+                if (closedDates.includes(dateValue)) {
+                    showNotification('Esta data já está na lista', 'error');
+                    return;
+                }
+                closedDates.push(dateValue);
+                closedDates.sort();
+                localStorage.setItem('closedDates', JSON.stringify(closedDates));
+                input.value = '';
+                renderClosedDates();
+                showNotification('Data adicionada à lista de fechamento');
+            } catch (e) {
+                /* falha silenciosa */
+                showNotification('Erro ao salvar', 'error');
+            }
+        }
+
+        function removeClosedDate(dateISO) {
+            try {
+                let closedDates = JSON.parse(localStorage.getItem('closedDates') || '[]');
+                closedDates = closedDates.filter(d => d !== dateISO);
+                localStorage.setItem('closedDates', JSON.stringify(closedDates));
+                renderClosedDates();
+                showNotification('Data removida');
+            } catch (e) {
+                /* falha silenciosa */
+                showNotification('Erro ao remover', 'error');
+            }
+        }
+
+        function toggleAllSundays() {
+            try {
+                let closedDates = JSON.parse(localStorage.getItem('closedDates') || '[]');
+                const today = new Date();
+                const endDate = new Date(today);
+                endDate.setMonth(endDate.getMonth() + 12); // próximos 12 meses
+                
+                // Verificar se já tem domingos na lista
+                const hasSundays = closedDates.some(dateISO => {
+                    const d = new Date(dateISO + 'T12:00:00');
+                    return d.getDay() === 0;
+                });
+
+                if (hasSundays) {
+                    // Remover todos os domingos
+                    closedDates = closedDates.filter(dateISO => {
+                        const d = new Date(dateISO + 'T12:00:00');
+                        return d.getDay() !== 0;
+                    });
+                    localStorage.setItem('closedDates', JSON.stringify(closedDates));
+                    renderClosedDates();
+                    showNotification('Todos os domingos foram reabertos');
+                } else {
+                    // Adicionar todos os domingos dos próximos 12 meses
+                    let current = new Date(today);
+                    current.setDate(current.getDate() + ((7 - current.getDay()) % 7)); // próximo domingo
+                    
+                    while (current <= endDate) {
+                        const dateISO = formatDateISO(current);
+                        if (!closedDates.includes(dateISO)) {
+                            closedDates.push(dateISO);
+                        }
+                        current.setDate(current.getDate() + 7); // próximo domingo
+                    }
+                    
+                    closedDates.sort();
+                    localStorage.setItem('closedDates', JSON.stringify(closedDates));
+                    renderClosedDates();
+                    showNotification('Todos os domingos foram fechados');
+                }
+            } catch (e) {
+                /* falha silenciosa */
+                showNotification('Erro ao processar', 'error');
+            }
+        }
+
+        function toggleAllMondays() {
+            try {
+                let closedDates = JSON.parse(localStorage.getItem('closedDates') || '[]');
+                const today = new Date();
+                const endDate = new Date(today);
+                endDate.setMonth(endDate.getMonth() + 12); // próximos 12 meses
+                
+                // Verificar se já tem segundas na lista
+                const hasMondays = closedDates.some(dateISO => {
+                    const d = new Date(dateISO + 'T12:00:00');
+                    return d.getDay() === 1;
+                });
+
+                if (hasMondays) {
+                    // Remover todas as segundas
+                    closedDates = closedDates.filter(dateISO => {
+                        const d = new Date(dateISO + 'T12:00:00');
+                        return d.getDay() !== 1;
+                    });
+                    localStorage.setItem('closedDates', JSON.stringify(closedDates));
+                    renderClosedDates();
+                    showNotification('Todas as segundas-feiras foram reabertas');
+                } else {
+                    // Adicionar todas as segundas dos próximos 12 meses
+                    let current = new Date(today);
+                    // Calcular próxima segunda-feira
+                    const daysUntilMonday = (1 - current.getDay() + 7) % 7;
+                    current.setDate(current.getDate() + (daysUntilMonday === 0 ? 7 : daysUntilMonday));
+                    
+                    while (current <= endDate) {
+                        const dateISO = formatDateISO(current);
+                        if (!closedDates.includes(dateISO)) {
+                            closedDates.push(dateISO);
+                        }
+                        current.setDate(current.getDate() + 7); // próxima segunda
+                    }
+                    
+                    closedDates.sort();
+                    localStorage.setItem('closedDates', JSON.stringify(closedDates));
+                    renderClosedDates();
+                    showNotification('Todas as segundas-feiras foram fechadas');
+                }
+            } catch (e) {
+                /* falha silenciosa */
+                showNotification('Erro ao processar', 'error');
+            }
+        }
+
+        function renderClosedDates() {
+            const list = document.getElementById('closedDatesList');
+            if (!list) return;
+            let closedDates = [];
+            try {
+                closedDates = JSON.parse(localStorage.getItem('closedDates') || '[]');
+            } catch(e) {}
+            
+            // Atualizar texto do botão de domingos
+            const hasSundays = closedDates.some(dateISO => {
+                const d = new Date(dateISO + 'T12:00:00');
+                return d.getDay() === 0;
+            });
+            const sundayBtn = document.getElementById('sundayBtnText');
+            if (sundayBtn) {
+                sundayBtn.textContent = hasSundays ? 'Reabrir todos os domingos' : 'Fechar todos os domingos';
+            }
+
+            // Atualizar texto do botão de segundas
+            const hasMondays = closedDates.some(dateISO => {
+                const d = new Date(dateISO + 'T12:00:00');
+                return d.getDay() === 1;
+            });
+            const mondayBtn = document.getElementById('mondayBtnText');
+            if (mondayBtn) {
+                mondayBtn.textContent = hasMondays ? 'Reabrir todas as segundas' : 'Fechar todas as segundas';
+            }
+            
+            if (!closedDates.length) {
+                list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary)">Nenhuma data fechada</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            closedDates.forEach(dateISO => {
+                const item = document.createElement('div');
+                item.className = 'closed-date-item';
+                const dataBR = formatDateBR(dateISO);
+                const dayOfWeek = new Date(dateISO + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                item.innerHTML = `
+                    <div>
+                        <div style="font-weight:600">${dataBR}</div>
+                        <div style="font-size:12px;color:var(--text-secondary);text-transform:capitalize">${dayOfWeek}</div>
+                    </div>
+                    <button class="remove-date-btn" onclick="removeClosedDate('${dateISO}')">
+                        <i class="fas fa-trash"></i> Remover
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // =====================
+        // Clientes & Mensagens
+        // =====================
+        
+        function loadClientsData() {
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const clientMap = {};
+
+            bookings.forEach(b => {
+                if (!b.telefone) return;
+                if (!clientMap[b.telefone]) {
+                    clientMap[b.telefone] = {
+                        nome: b.cliente,
+                        telefone: b.telefone,
+                        lastVisit: b.dataISO,
+                        totalSpent: 0,
+                        bookingCount: 0,
+                        bookings: []
+                    };
+                }
+                const client = clientMap[b.telefone];
+                client.totalSpent += Number(b.valor) || 0;
+                client.bookingCount += 1;
+                client.bookings.push(b);
+                // última visita (mais recente)
+                if (b.dataISO > client.lastVisit) {
+                    client.lastVisit = b.dataISO;
+                }
+            });
+
+            adminState.clients = Object.values(clientMap);
+        }
+
+        function renderClientsTable() {
+            const tbody = document.querySelector('#clientsTable tbody');
+            if (!tbody) return;
+
+            const search = document.getElementById('clientSearch')?.value.toLowerCase() || '';
+            let filtered = adminState.clients.filter(c => 
+                c.nome.toLowerCase().includes(search) || 
+                c.telefone.includes(search)
+            );
+
+            // Ordenar por última visita (mais recente primeiro)
+            filtered.sort((a, b) => b.lastVisit.localeCompare(a.lastVisit));
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-secondary)">Nenhum cliente encontrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(c => `
+                <tr>
+                    <td>${c.nome}</td>
+                    <td>${c.telefone}</td>
+                    <td>${formatDateBR(c.lastVisit)}</td>
+                    <td>R$ ${c.totalSpent.toFixed(2)}</td>
+                    <td>${c.bookingCount}</td>
+                </tr>
+            `).join('');
+        }
+
+        function selectGroup(group) {
+            adminState.selectedGroup = group;
+            // Atualizar botões
+            ['groupAll', 'groupRecent', 'groupInactive'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.border = '';
+                }
+            });
+            const activeBtn = document.getElementById('group' + group.charAt(0).toUpperCase() + group.slice(1));
+            if (activeBtn) {
+                activeBtn.style.background = 'rgba(200,169,81,0.1)';
+                activeBtn.style.color = 'var(--secondary)';
+                activeBtn.style.border = '1px solid var(--secondary)';
+            }
+            updateMessagePreview();
+        }
+
+        function updateGroupCounts() {
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+            const all = adminState.clients.length;
+            const recent = adminState.clients.filter(c => new Date(c.lastVisit) >= thirtyDaysAgo).length;
+            const inactive = adminState.clients.filter(c => new Date(c.lastVisit) < sixtyDaysAgo).length;
+
+            document.getElementById('countAll').textContent = all;
+            document.getElementById('countRecent').textContent = recent;
+            document.getElementById('countInactive').textContent = inactive;
+            document.getElementById('sendCount').textContent = getSelectedClients().length;
+        }
+
+        function getSelectedClients() {
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+            switch (adminState.selectedGroup) {
+                case 'all':
+                    return adminState.clients;
+                case 'recent':
+                    return adminState.clients.filter(c => new Date(c.lastVisit) >= thirtyDaysAgo);
+                case 'inactive':
+                    return adminState.clients.filter(c => new Date(c.lastVisit) < sixtyDaysAgo);
+                default:
+                    return [];
+            }
+        }
+
+        function insertVar(variable) {
+            const textarea = document.getElementById('messageText');
+            if (!textarea) return;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + variable + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + variable.length;
+            textarea.focus();
+            updateMessagePreview();
+        }
+
+        function updateMessagePreview() {
+            const type = document.getElementById('messageType')?.value || 'reminder';
+            const customText = document.getElementById('messageText')?.value || '';
+            
+            let template = '';
+            switch (type) {
+                case 'reminder':
+                    template = 'Olá {nome}! 😊\n\nVocê tem um agendamento conosco. Não esqueça!\n\nAguardamos você!';
+                    break;
+                case 'promo':
+                    template = 'Oi {nome}! 🎉\n\nTemos uma promoção especial para você! Entre em contato para saber mais.\n\nNão perca!';
+                    break;
+                case 'custom':
+                    template = customText || 'Digite sua mensagem...';
+                    break;
+            }
+
+            // Exemplo com primeiro cliente
+            const clients = getSelectedClients();
+            let preview = template;
+            if (clients.length > 0) {
+                const example = clients[0];
+                preview = preview
+                    .replace(/{nome}/g, example.nome)
+                    .replace(/{servico}/g, example.bookings[0]?.servicoNome || '[serviço]')
+                    .replace(/{valor}/g, 'R$ ' + (example.bookings[0]?.valor || '0.00'));
+            }
+
+            document.getElementById('messagePreview').textContent = preview;
+            updateGroupCounts();
+        }
+
+        function sendBulkMessages() {
+            const clients = getSelectedClients();
+            if (!clients.length) {
+                alert('Nenhum cliente selecionado!');
+                return;
+            }
+
+            const type = document.getElementById('messageType')?.value || 'reminder';
+            const customText = document.getElementById('messageText')?.value || '';
+            
+            let template = '';
+            switch (type) {
+                case 'reminder':
+                    template = 'Olá {nome}! 😊\n\nVocê tem um agendamento conosco. Não esqueça!\n\nAguardamos você!';
+                    break;
+                case 'promo':
+                    template = 'Oi {nome}! 🎉\n\nTemos uma promoção especial para você! Entre em contato para saber mais.\n\nNão perca!';
+                    break;
+                case 'custom':
+                    template = customText;
+                    break;
+            }
+
+            if (!template.trim()) {
+                alert('Digite uma mensagem antes de enviar!');
+                return;
+            }
+
+            // Abrir WhatsApp para cada cliente
+            let delay = 0;
+            clients.forEach(client => {
+                setTimeout(() => {
+                    const msg = template
+                        .replace(/{nome}/g, client.nome)
+                        .replace(/{servico}/g, client.bookings[0]?.servicoNome || '')
+                        .replace(/{valor}/g, 'R$ ' + (client.bookings[0]?.valor || '0.00'));
+                    
+                    const phone = client.telefone.replace(/\D/g, '');
+                    const url = `https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`;
+                    window.open(url, '_blank');
+                }, delay);
+                delay += 2000; // 2 segundos entre cada mensagem
+            });
+
+            alert(`Abrindo WhatsApp para ${clients.length} cliente(s). Aguarde...`);
+        }
+
+        // Event listeners para mensagens
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientSearch = document.getElementById('clientSearch');
+            if (clientSearch) {
+                clientSearch.addEventListener('input', renderClientsTable);
+            }
+
+            const messageType = document.getElementById('messageType');
+            if (messageType) {
+                messageType.addEventListener('change', updateMessagePreview);
+            }
+
+            const messageText = document.getElementById('messageText');
+            if (messageText) {
+                messageText.addEventListener('input', updateMessagePreview);
+            }
+        });
+
+        // =====================
+        // Sistema de Lembretes Automáticos
+        // =====================
+        
+        function scheduleReminder(booking) {
+            // Calcular data/hora do agendamento
+            const [hours, minutes] = booking.hora.split(':').map(Number);
+            const appointmentDate = new Date(booking.dataISO + 'T' + booking.hora + ':00');
+            
+            // Calcular 1 hora antes
+            const reminderTime = new Date(appointmentDate.getTime() - 60 * 60 * 1000);
+            const now = new Date();
+            
+            // Se o lembrete deve ser enviado no futuro
+            const timeUntilReminder = reminderTime.getTime() - now.getTime();
+            
+            if (timeUntilReminder > 0) {
+                // Agendar timeout
+                setTimeout(() => {
+                    sendAutomaticReminder(booking);
+                }, timeUntilReminder);
+                
+                /* log removido em produção */
+            }
+        }
+
+        function sendAutomaticReminder(booking) {
+            // Verificar se já foi enviado
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const current = bookings.find(b => b.id === booking.id);
+            
+            if (!current || current.reminderSent || current.status === 'Cancelado') {
+                return;
+            }
+
+            // Mensagem de lembrete
+            const message = `Olá ${booking.cliente}! 😊
+
+🔔 *Lembrete de Agendamento*
+
+Você tem um horário agendado em 1 hora:
+⏰ Horário: ${booking.hora}
+✂️ Serviço: ${booking.servicoNome}
+💰 Valor: R$ ${booking.valor}
+
+Aguardamos você! 🙌`;
+
+            // Abrir WhatsApp
+            const phone = booking.telefone.replace(/\D/g, '');
+            const url = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+
+            // Marcar como enviado
+            current.reminderSent = true;
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            
+            /* log removido em produção */
+        }
+
+        function checkPendingReminders() {
+            // Verificar lembretes pendentes ao carregar a página
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const now = new Date();
+            
+            bookings.forEach(booking => {
+                if (booking.reminderSent || booking.status === 'Cancelado') return;
+                
+                const appointmentDate = new Date(booking.dataISO + 'T' + booking.hora + ':00');
+                const reminderTime = new Date(appointmentDate.getTime() - 60 * 60 * 1000);
+                const timeUntilReminder = reminderTime.getTime() - now.getTime();
+                
+                // Se está entre 0 e 5 minutos após o horário do lembrete, enviar agora
+                if (timeUntilReminder < 0 && timeUntilReminder > -5 * 60 * 1000) {
+                    sendAutomaticReminder(booking);
+                }
+                // Se ainda falta tempo, agendar
+                else if (timeUntilReminder > 0) {
+                    setTimeout(() => {
+                        sendAutomaticReminder(booking);
+                    }, timeUntilReminder);
+                }
+            });
+        }
+
+        function updateReminderStats() {
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            const now = new Date();
+            
+            let scheduled = 0;
+            let sent = 0;
+            let pending = 0;
+            
+            bookings.forEach(booking => {
+                if (booking.status === 'Cancelado') return;
+                
+                const appointmentDate = new Date(booking.dataISO + 'T' + booking.hora + ':00');
+                
+                if (appointmentDate > now) {
+                    scheduled++;
+                    if (booking.reminderSent) {
+                        sent++;
+                    } else {
+                        pending++;
+                    }
+                }
+            });
+            
+            const statsEl = document.getElementById('reminderStats');
+            if (statsEl) {
+                statsEl.innerHTML = `
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:12px">
+                        <div>
+                            <div style="font-size:24px;font-weight:700;color:var(--secondary)">${scheduled}</div>
+                            <div style="font-size:12px">Agendamentos futuros</div>
+                        </div>
+                        <div>
+                            <div style="font-size:24px;font-weight:700;color:#4ade80">${sent}</div>
+                            <div style="font-size:12px">Lembretes enviados</div>
+                        </div>
+                        <div>
+                            <div style="font-size:24px;font-weight:700;color:#fb923c">${pending}</div>
+                            <div style="font-size:12px">Lembretes pendentes</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Verificar lembretes ao carregar a página
+        checkPendingReminders();
+
+        // Verificar lembretes a cada 5 minutos
+        setInterval(checkPendingReminders, 5 * 60 * 1000);
+
+        // Wire admin access button
+        document.querySelector('.admin-access-btn').addEventListener('click', openAdmin);
+    </script>
+</body>
+</html>
