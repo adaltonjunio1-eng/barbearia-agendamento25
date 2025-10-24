@@ -85,6 +85,11 @@
       .qr-area { display: grid; place-items: center; padding: 24px; margin-top: 10px; background: #0c111a; border: 1px dashed #2a3345; border-radius: 12px }
       footer { color: var(--muted); font-size: 12px; padding: 16px 24px; opacity: .8 }
 
+      .colors { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px }
+      input[type="color"] { width: 100%; height: 40px; padding: 0; border: 1px solid #1f2633; border-radius: 10px; background: transparent }
+      .field small { color: var(--muted); opacity: .8 }
+      .muted { color: var(--muted) }
+
       @media (max-width: 720px) {
         .row { grid-template-columns: 1fr }
       }
@@ -139,6 +144,39 @@
                 </div>
               </div>
             </div>
+            <div class="row">
+              <div class="field">
+                <label>Cores do QR</label>
+                <div class="colors">
+                  <div class="field">
+                    <label for="colorDark">Pontos (frente)</label>
+                    <input id="colorDark" type="color" value="#000000" />
+                  </div>
+                  <div class="field">
+                    <label for="colorLight">Fundo</label>
+                    <input id="colorLight" type="color" value="#ffffff" />
+                  </div>
+                </div>
+                <small>Use alto contraste para melhor leitura. Evite fundos muito escuros.</small>
+              </div>
+              <div class="field">
+                <label for="logoFile">Logo central</label>
+                <div class="actions">
+                  <input id="logoFile" type="file" accept="image/*" class="btn" />
+                  <button id="logoClear" class="btn" type="button">Remover logo</button>
+                </div>
+                <div class="slider" style="margin-top:8px">
+                  <label for="logoSize" class="muted" style="min-width:110px">Tamanho do logo</label>
+                  <input id="logoSize" type="range" min="10" max="35" step="1" value="22" />
+                  <input id="logoSizeText" type="text" value="22%" style="width:72px;text-align:center" />
+                </div>
+                <div style="margin-top:6px">
+                  <label style="display:flex; align-items:center; gap:8px">
+                    <input id="logoBg" type="checkbox" checked /> Fundo branco atrás do logo
+                  </label>
+                </div>
+              </div>
+            </div>
             <div class="qr-area">
               <div id="qrcode" aria-label="QR Code do site"></div>
             </div>
@@ -163,6 +201,13 @@
         const $print = $('#btn-print');
         const $open = $('#btn-open');
         const $box = $('#qrcode');
+        const $colorDark = $('#colorDark');
+        const $colorLight = $('#colorLight');
+        const $logoFile = $('#logoFile');
+        const $logoClear = $('#logoClear');
+        const $logoSize = $('#logoSize');
+        const $logoSizeText = $('#logoSizeText');
+        const $logoBg = $('#logoBg');
 
         function baseSiteUrl() {
           // Se esta página for /qrcode.html, removemos para apontar para a raiz
@@ -189,21 +234,66 @@
         }
 
         let qr;
+        let logoImg = null; // HTMLImageElement carregada do arquivo
+
         function render() {
           const text = normalizeUrl($url.value);
           const size = Math.max(128, Math.min(1024, parseInt($size.value || '320', 10)));
+          const cd = ($colorDark?.value || '#000000');
+          const cl = ($colorLight?.value || '#ffffff');
           $box.innerHTML = '';
           qr = new QRCode($box, {
             text,
             width: size,
             height: size,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
+            colorDark: cd,
+            colorLight: cl,
             correctLevel: QRCode.CorrectLevel.M,
           });
           $open.href = text;
           $open.title = text;
           $sizeText.value = String(size);
+
+          // Aguarda o canvas ser inserido no DOM antes de desenhar o logo
+          requestAnimationFrame(() => drawLogoOverlay());
+        }
+
+        function roundedRect(ctx, x, y, w, h, r) {
+          const radius = Math.min(r, w/2, h/2);
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + w, y, x + w, y + h, radius);
+          ctx.arcTo(x + w, y + h, x, y + h, radius);
+          ctx.arcTo(x, y + h, x, y, radius);
+          ctx.arcTo(x, y, x + w, y, radius);
+          ctx.closePath();
+        }
+
+        function drawLogoOverlay() {
+          const canvas = $box.querySelector('canvas');
+          if (!canvas) return;
+          if (!logoImg) return; // sem logo, nada a fazer
+          const ctx = canvas.getContext('2d');
+          const size = canvas.width; // quadrado
+          const pct = Math.max(10, Math.min(35, parseInt($logoSize.value || '22', 10)));
+          const logoW = Math.round((pct / 100) * size);
+          const logoH = Math.round(logoW * (logoImg.naturalHeight / logoImg.naturalWidth));
+          const x = Math.round((size - logoW) / 2);
+          const y = Math.round((size - logoH) / 2);
+
+          if ($logoBg.checked) {
+            const pad = Math.max(6, Math.round(logoW * 0.10));
+            const rx = Math.round(logoW * 0.12);
+            ctx.save();
+            roundedRect(ctx, x - pad, y - pad, logoW + pad * 2, logoH + pad * 2, rx);
+            ctx.fillStyle = ($colorLight?.value || '#ffffff');
+            ctx.fill();
+            ctx.restore();
+          }
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(logoImg, x, y, logoW, logoH);
         }
 
         function downloadPng() {
@@ -226,6 +316,20 @@
           }
         }
 
+        function syncLogoSizeFromText() {
+          const n = parseInt(($logoSizeText.value || '').replace('%',''), 10);
+          if (Number.isFinite(n)) {
+            const clamped = Math.max(10, Math.min(35, n));
+            $logoSize.value = String(clamped);
+            $logoSizeText.value = clamped + '%';
+            // redesenha apenas a sobreposição
+            const canvas = $box.querySelector('canvas');
+            if (canvas) {
+              render(); // garante que o QR é redesenhado limpo antes do logo
+            }
+          }
+        }
+
         // Inicializa valores default
         $url.value = baseSiteUrl();
         $open.href = $url.value;
@@ -235,6 +339,24 @@
         $size.addEventListener('input', () => { $sizeText.value = String($size.value); render(); });
         $sizeText.addEventListener('change', syncSizeFromText);
         $url.addEventListener('change', () => render());
+        $colorDark.addEventListener('input', () => render());
+        $colorLight.addEventListener('input', () => render());
+        $logoSize.addEventListener('input', () => { $logoSizeText.value = $logoSize.value + '%'; render(); });
+        $logoSizeText.addEventListener('change', syncLogoSizeFromText);
+        $logoBg.addEventListener('change', () => render());
+
+        $logoFile.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => { logoImg = img; render(); };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+        $logoClear.addEventListener('click', () => { logoImg = null; $logoFile.value = ''; render(); });
         $dl.addEventListener('click', (e) => { e.preventDefault(); downloadPng(); });
         $print.addEventListener('click', (e) => { e.preventDefault(); window.print(); });
 
