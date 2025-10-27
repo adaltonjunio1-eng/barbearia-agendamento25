@@ -1627,6 +1627,12 @@
                 <i class="fas fa-gem"></i>
                 <span>adim barber</span>
             </div>
+            <div style="padding:12px 20px 0">
+                <button id="openQRQuick" class="action-btn" style="width:100%;justify-content:center;gap:8px;padding:10px 12px">
+                    <i class="fas fa-qrcode"></i>
+                    <span>Abrir QR do WhatsApp</span>
+                </button>
+            </div>
             <nav class="admin-nav">
                 <button class="active" data-admin-view="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></button>
                 <button data-admin-view="orders"><i class="fas fa-receipt"></i><span>Vendas</span></button>
@@ -3139,6 +3145,8 @@
             document.getElementById('themeToggle').addEventListener('click', toggleAdminTheme);
             document.getElementById('sidebarToggle').addEventListener('click', () => document.getElementById('admin').classList.toggle('sidebar-open'));
             document.querySelector('.admin-overlay').addEventListener('click', () => document.getElementById('admin').classList.remove('sidebar-open'));
+            const quickQRBtn = document.getElementById('openQRQuick');
+            if (quickQRBtn) quickQRBtn.addEventListener('click', (e) => { e.preventDefault(); openWhatsAppQR(); });
 
             document.querySelectorAll('#ordersTable th').forEach(th => {
                 th.addEventListener('click', () => {
