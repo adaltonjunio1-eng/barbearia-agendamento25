@@ -1655,6 +1655,7 @@
             <div style="font-weight:800;color:var(--secondary)">Admin</div>
             <div class="topbar-actions">
                 <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i><span>Dark</span></button>
+                <button class="btn-secondary" id="openQRTop" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-qrcode"></i> Abrir QR</button>
                 <button class="btn-secondary" id="adminBack" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-arrow-left"></i> Sair</button>
             </div>
         </header>
@@ -3147,6 +3148,8 @@
             document.querySelector('.admin-overlay').addEventListener('click', () => document.getElementById('admin').classList.remove('sidebar-open'));
             const quickQRBtn = document.getElementById('openQRQuick');
             if (quickQRBtn) quickQRBtn.addEventListener('click', (e) => { e.preventDefault(); openWhatsAppQR(); });
+            const topQRBtn = document.getElementById('openQRTop');
+            if (topQRBtn) topQRBtn.addEventListener('click', (e) => { e.preventDefault(); openWhatsAppQR(); });
 
             document.querySelectorAll('#ordersTable th').forEach(th => {
                 th.addEventListener('click', () => {
