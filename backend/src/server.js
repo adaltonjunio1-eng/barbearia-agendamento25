@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3333;
 // Middlewares de segurança
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: process.env.FRONTEND_URL || ['https://adaltonjunio1-eng.github.io', 'http://localhost:5500', '*'],
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   credentials: true
 }));
