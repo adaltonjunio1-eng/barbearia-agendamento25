@@ -274,6 +274,10 @@
             text-align: center;
         }
 
+        .consulta-section {
+            background: linear-gradient(rgba(10, 15, 28, 0.95), rgba(10, 15, 28, 0.9)), url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80');
+        }
+
         /* Forms */
         .phone-form {
             background: rgba(255, 255, 255, 0.05);
@@ -1411,7 +1415,7 @@
                 <div class="section-content">
                     <div class="barber-info">
                         <div class="barber-name">Bruno Ferreira</div>
-                        <div class="barber-specialty">5+ anos de experiência</div>
+                        <div class="barber-specialty">10+ anos de experiência</div>
                     </div>
 
                     <h2 class="section-title">Serviços Disponíveis</h2>
@@ -1530,6 +1534,10 @@
                         <i class="fas fa-plus"></i>
                         Fazer Novo Agendamento
                     </button>
+                    <button class="btn-secondary" onclick="showConsultaAgendamento()">
+                        <i class="fas fa-search"></i>
+                        Consultar agora
+                    </button>
                 </div>
             </div>
         </div>
@@ -1546,7 +1554,7 @@
         </div>
 
         <div class="content-section active">
-            <div class="section-hero">
+            <div class="section-hero consulta-section">
                 <div class="section-content">
                     <div class="barber-info">
                         <div class="barber-name">Seus Agendamentos</div>
@@ -1625,6 +1633,16 @@
                 <button data-admin-view="clients"><i class="fas fa-user-friends"></i><span>Clientes</span></button>
                 <button data-admin-view="settings"><i class="fas fa-cog"></i><span>Configurações</span></button>
             </nav>
+            <div style="position:absolute;bottom:20px;left:20px;right:20px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.1)">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <i class="fab fa-whatsapp" style="font-size:20px;color:#25D366"></i>
+                    <div style="flex:1">
+                        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">WhatsApp</div>
+                        <div id="whatsStatusBadge" style="font-size:12px;font-weight:600;margin-top:2px">Carregando...</div>
+                    </div>
+                    <div id="whatsStatusIndicator" style="width:8px;height:8px;border-radius:50%;background:#fb923c;animation:pulse 2s infinite" title="Verificando status..."></div>
+                </div>
+            </div>
         </aside>
         <header class="admin-topbar">
             <button class="hamburger" id="sidebarToggle"><i class="fas fa-bars"></i></button>
@@ -1792,17 +1810,48 @@
                 </div>
                 <div id="admin-settings" style="display:none">
                     <div class="card">
+                        <div class="card-header"><div style="font-weight:700">Conexão WhatsApp</div></div>
+                        <div class="card-body">
+                            <div id="whatsStatus" style="margin-bottom:12px;color:var(--text-secondary)">
+                                Status: <span id="whatsStatusText">Carregando...</span>
+                            </div>
+                            <div id="whatsQRContainer" style="display:none">
+                                <img id="whatsQRImage" alt="QR Code do WhatsApp" style="width:260px;height:260px;border-radius:12px;background:#fff;padding:8px;border:1px solid rgba(255,255,255,0.1)" />
+                                <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+                                    <button class="action-btn" onclick="loadWhatsAppQR()" style="padding:10px 16px">
+                                        <i class="fas fa-redo"></i> Atualizar QR
+                                    </button>
+                                    <a class="action-btn" href="https://web.whatsapp.com" target="_blank" rel="noopener" style="padding:10px 16px">
+                                        <i class="fab fa-whatsapp"></i> Abrir WhatsApp Web
+                                    </a>
+                                </div>
+                                <small id="whatsQRTime" style="display:block;margin-top:8px;color:var(--text-secondary)"></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
                         <div class="card-header"><div style="font-weight:700">Lembretes Automáticos</div></div>
                         <div class="card-body">
                             <p style="color:var(--text-secondary);margin-bottom:20px">
                                 <i class="fas fa-bell" style="color:var(--secondary)"></i> 
-                                Os lembretes são enviados automaticamente via WhatsApp 1 hora antes do agendamento.
+                                Os lembretes são enviados automaticamente via WhatsApp <strong></strong>1 hora antes</strong> do agendamento.
                             </p>
-                            <div style="background:rgba(200,169,81,0.1);padding:15px;border-radius:10px;border-left:3px solid var(--secondary)">
+                            <div style="background:rgba(200,169,81,0.1);padding:15px;border-radius:10px;border-left:3px solid var(--secondary);margin-bottom:16px">
                                 <div style="font-weight:600;margin-bottom:8px">📊 Status dos Lembretes</div>
                                 <div id="reminderStats" style="font-size:14px;color:var(--text-secondary)">
                                     Carregando...
                                 </div>
+                            </div>
+                            <div style="background:rgba(52,152,219,0.1);padding:12px;border-radius:8px;border:1px solid rgba(52,152,219,0.3);margin-top:12px">
+                                <div style="font-size:12px;color:#3498DB">
+                                    <i class="fas fa-info-circle"></i> <strong>Como funciona:</strong>
+                                </div>
+                                <ul style="margin:8px 0 0 20px;font-size:12px;color:var(--text-secondary);line-height:1.6">
+                                    <li>Sistema verifica agendamentos a cada 2 minutos</li>
+                                    <li>Abre WhatsApp Web automaticamente 1h antes</li>
+                                    <li>Se popup bloqueado, mostra notificação clicável</li>
+                                    <li>Mensagem pré-formatada com detalhes do agendamento</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -1985,6 +2034,12 @@
             appState.userPhone = phone;
             appState.userName = name;
 
+            // Persistir último telefone/nome para reuso na consulta
+            try {
+                localStorage.setItem('lastPhone', appState.userPhone);
+                localStorage.setItem('lastName', appState.userName);
+            } catch (e) {}
+
             showNotification('Verificado com sucesso!');
             setTimeout(() => switchTab('servicos'), 1500);
         }
@@ -2115,7 +2170,58 @@
             });
         }
 
-        function confirmBooking() {
+        // ==============================
+        // Integração com Backend (API)
+        // ==============================
+        const API_URL = 'http://localhost:3333/api';
+
+        async function createBookingAPI(bookingData) {
+            const resp = await fetch(`${API_URL}/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data.error || 'Falha ao criar agendamento na API');
+            return data.booking;
+        }
+
+        async function getBookingsByPhoneAPI(phone) {
+            const clean = (phone || '').replace(/\D/g, '');
+            const resp = await fetch(`${API_URL}/bookings/phone/${clean}`);
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data.error || 'Falha ao buscar agendamentos na API');
+            return data.bookings || [];
+        }
+
+        async function updateBookingStatusAPI(id, status) {
+            const resp = await fetch(`${API_URL}/bookings/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data.error || 'Falha ao atualizar status na API');
+            return data.booking;
+        }
+
+        async function sendReminderAPI(id) {
+            const resp = await fetch(`${API_URL}/bookings/${id}/reminder`, { method: 'POST' });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data.error || 'Falha ao enviar lembrete');
+            return data;
+        }
+
+        function upsertLocalBooking(booking) {
+            try {
+                const list = JSON.parse(localStorage.getItem('bookings') || '[]');
+                const idx = list.findIndex(b => b.id === booking.id);
+                if (idx >= 0) list[idx] = booking; else list.push(booking);
+                localStorage.setItem('bookings', JSON.stringify(list));
+            } catch(e) {}
+        }
+
+        async function confirmBooking() {
             if (!appState.selectedTime) {
                 showNotification('Por favor, selecione um horário', 'error');
                 return;
@@ -2163,33 +2269,45 @@
             document.getElementById('confirm-phone').textContent = appState.userPhone;
             document.getElementById('confirm-date').textContent = formatDateBR(appState.selectedDate);
 
-            // Persistir agendamento no localStorage
-            try {
-                const booking = {
-                    id: Date.now(),
-                    cliente: appState.userName,
-                    telefone: appState.userPhone,
-                    servicoId: appState.selectedService.id,
-                    servicoNome: appState.selectedService.name,
-                    valor: appState.selectedService.price,
-                    duracao: appState.selectedService.duration,
-                    hora: appState.selectedTime,
-                    dataISO: appState.selectedDate,
-                    status: 'Pendente', // aguardando confirmação do admin
-                    reminderSent: false
-                };
-                const list = JSON.parse(localStorage.getItem('bookings') || '[]');
-                list.push(booking);
-                localStorage.setItem('bookings', JSON.stringify(list));
-                
-                // Agendar lembrete automático
-                scheduleReminder(booking);
-            } catch (e) {
-                /* falha silenciosa */
-            }
+            // Tenta criar via API; se falhar, usa localStorage como fallback
+            const bookingPayload = {
+                cliente: appState.userName,
+                telefone: appState.userPhone,
+                servicoId: appState.selectedService.id,
+                servicoNome: appState.selectedService.name,
+                valor: appState.selectedService.price,
+                duracao: appState.selectedService.duration,
+                hora: appState.selectedTime,
+                dataISO: appState.selectedDate
+            };
 
-            showNotification('Agendamento confirmado!');
-            switchTab('confirmacao');
+            try {
+                const saved = await createBookingAPI(bookingPayload);
+                // Espelhar no localStorage para aparecer no Admin
+                upsertLocalBooking(saved);
+                localStorage.setItem('lastPhone', appState.userPhone);
+                showNotification('Agendamento confirmado!');
+                switchTab('confirmacao');
+            } catch (apiErr) {
+                console.warn('[API] Falha ao criar agendamento, usando armazenamento local:', apiErr?.message);
+                try {
+                    const booking = {
+                        id: Date.now(),
+                        ...bookingPayload,
+                        status: 'Pendente',
+                        reminderSent: false
+                    };
+                    const list = JSON.parse(localStorage.getItem('bookings') || '[]');
+                    list.push(booking);
+                    localStorage.setItem('bookings', JSON.stringify(list));
+                    localStorage.setItem('lastPhone', appState.userPhone);
+                    scheduleReminder(booking);
+                    showNotification('Agendamento confirmado (offline)!');
+                    switchTab('confirmacao');
+                } catch (e) {
+                    showNotification('Erro ao salvar agendamento', 'error');
+                }
+            }
         }
 
         function newBooking() {
@@ -2220,22 +2338,62 @@
 
         // Consulta de Agendamentos
         function showConsultaAgendamento() {
+            console.log('[DEBUG] showConsultaAgendamento chamado');
+            console.log('[DEBUG] appState.userPhone:', appState.userPhone);
+
             const mainContainer = document.getElementById('mainApp');
             const consultaContainer = document.getElementById('consultaContainer');
             const adminContainer = document.getElementById('admin');
-            
+
+            // Use setProperty para não sobrescrever outros estilos inline
             if (mainContainer) {
-                mainContainer.style.cssText = 'display: none !important;';
+                mainContainer.style.setProperty('display', 'none', 'important');
             }
             if (adminContainer) {
                 adminContainer.classList.remove('active');
             }
             if (consultaContainer) {
-                consultaContainer.style.cssText = 'display: block !important;';
+                consultaContainer.style.setProperty('display', 'block', 'important');
+
+                // Garantir que todas as content-sections dentro do container estejam ativas
+                consultaContainer.querySelectorAll('.content-section').forEach(el => el.classList.add('active'));
+
                 const phoneInput = document.getElementById('consultaPhone');
-                if (phoneInput) phoneInput.value = '';
+
+                // Pré-preencher com o telefone do usuário se estiver disponível no appState
+                if (phoneInput) {
+                    let phoneToUse = appState.userPhone;
+                    if (!phoneToUse) {
+                        try { phoneToUse = localStorage.getItem('lastPhone') || ''; } catch (e) { phoneToUse = ''; }
+                    }
+                    if (phoneToUse) {
+                        console.log('[DEBUG] Preenchendo telefone:', appState.userPhone);
+                        phoneInput.value = phoneToUse;
+                        // Forçar foco e buscar automaticamente os agendamentos
+                        phoneInput.focus();
+                        console.log('[DEBUG] Agendando busca automática em 300ms');
+                        setTimeout(() => {
+                            console.log('[DEBUG] Executando busca automática');
+                            buscarAgendamentos();
+                        }, 300);
+                    } else {
+                        console.log('[DEBUG] appState.userPhone está vazio');
+                        phoneInput.value = '';
+                    }
+                }
+
                 const results = document.getElementById('consultaResults');
-                if (results) results.innerHTML = '';
+                if (results && !appState.userPhone) {
+                    results.innerHTML = '';
+                }
+
+                // Garantir que a section-hero esteja visível (retira possíveis overlays)
+                const hero = consultaContainer.querySelector('.section-hero');
+                if (hero) {
+                    hero.style.setProperty('visibility', 'visible');
+                    hero.style.setProperty('opacity', '1');
+                }
+
                 // Scroll to top
                 window.scrollTo(0, 0);
             }
@@ -2255,25 +2413,30 @@
             }
         }
 
-        function buscarAgendamentos() {
+        async function buscarAgendamentos() {
             const phone = document.getElementById('consultaPhone').value.replace(/\D/g, '');
+            
+            console.log('[DEBUG] Buscando agendamentos para:', phone);
             
             if (!phone || phone.length < 11) {
                 showNotification('Por favor, insira um número de celular válido', 'error');
                 return;
             }
 
+            // Primeiro tenta via API
             try {
-                const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-                
-                const userBookings = bookings.filter(b => b.telefone && b.telefone.replace(/\D/g, '') === phone);
+                const userBookings = await getBookingsByPhoneAPI(phone);
+                console.log('[DEBUG] [API] Agendamentos encontrados:', userBookings.length);
 
-                if (userBookings.length === 0) {
+                if (!Array.isArray(userBookings) || userBookings.length === 0) {
                     document.getElementById('consultaResults').innerHTML = `
                         <div class="no-bookings">
                             <i class="fas fa-calendar-times"></i>
                             <h3 style="margin-bottom:10px">Nenhum agendamento encontrado</h3>
                             <p>Não encontramos agendamentos para este número.</p>
+                            <small style="display:block;margin-top:10px;color:var(--text-secondary)">
+                                Telefone buscado: ${phone}
+                            </small>
                         </div>
                     `;
                     return;
@@ -2295,7 +2458,8 @@
                 userBookings.forEach(booking => {
                     const bookingDate = new Date(booking.dataISO + 'T' + booking.hora);
                     const isPast = bookingDate < new Date();
-                    const statusClass = booking.status.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    const statusClass = (booking.status || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    const canCancel = !isPast && booking.status !== 'Cancelado';
                     
                     html += `
                         <div class="booking-card ${statusClass}">
@@ -2331,6 +2495,115 @@
                                     </span>
                                 </div>
                             </div>
+                            ${canCancel ? `
+                            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+                                <button class="action-btn confirm" onclick="sendReminderNow(${booking.id})">
+                                    <i class=\"fas fa-bell\"></i> Enviar lembrete agora
+                                </button>
+                                <button class="action-btn cancel" onclick="cancelBooking(${booking.id})">
+                                    <i class=\"fas fa-times\"></i> Cancelar agendamento
+                                </button>
+                            </div>
+                            ` : ''}
+                            ${isPast ? '<div style="text-align:center;color:var(--text-secondary);font-size:12px;margin-top:8px"><i class="fas fa-info-circle"></i> Este agendamento já passou</div>' : ''}
+                        </div>
+                    `;
+                });
+
+                document.getElementById('consultaResults').innerHTML = html;
+                return; // não cair para o fallback
+            } catch (apiErr) {
+                console.warn('[API] Falha na busca pela API, usando armazenamento local:', apiErr?.message);
+            }
+
+            // Fallback localStorage
+            try {
+                const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+                console.log('[DEBUG] Total de agendamentos no localStorage:', bookings.length);
+                console.log('[DEBUG] Agendamentos:', bookings);
+                
+                const userBookings = bookings.filter(b => {
+                    const bookingPhone = b.telefone ? b.telefone.replace(/\D/g, '') : '';
+                    console.log('[DEBUG] Comparando:', bookingPhone, 'com', phone);
+                    return bookingPhone === phone;
+                });
+                
+                console.log('[DEBUG] Agendamentos encontrados:', userBookings.length);
+
+                if (userBookings.length === 0) {
+                    document.getElementById('consultaResults').innerHTML = `
+                        <div class="no-bookings">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3 style="margin-bottom:10px">Nenhum agendamento encontrado</h3>
+                            <p>Não encontramos agendamentos para este número.</p>
+                            <small style="display:block;margin-top:10px;color:var(--text-secondary)">
+                                Telefone buscado: ${phone}
+                            </small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Ordenar por data (mais recente primeiro)
+                userBookings.sort((a, b) => {
+                    const dateA = new Date(a.dataISO + 'T' + a.hora);
+                    const dateB = new Date(b.dataISO + 'T' + b.hora);
+                    return dateB - dateA;
+                });
+
+                let html = `
+                    <h3 style="color:var(--secondary);margin-bottom:20px;text-align:center">
+                        ${userBookings.length} agendamento${userBookings.length > 1 ? 's' : ''} encontrado${userBookings.length > 1 ? 's' : ''}
+                    </h3>
+                `;
+
+                userBookings.forEach(booking => {
+                    const bookingDate = new Date(booking.dataISO + 'T' + booking.hora);
+                    const isPast = bookingDate < new Date();
+                    const statusClass = booking.status.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    const canCancel = !isPast && booking.status !== 'Cancelado';
+                    
+                    html += `
+                        <div class="booking-card ${statusClass}">
+                            <div class="booking-header">
+                                <div class="booking-service">
+                                    <i class="fas fa-cut"></i> ${booking.servicoNome}
+                                </div>
+                                <span class="booking-status ${statusClass}">${booking.status}</span>
+                            </div>
+                            <div class="booking-info">
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Data</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-calendar"></i> ${formatDateBR(booking.dataISO)}
+                                    </span>
+                                </div>
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Horário</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-clock"></i> ${booking.hora}
+                                    </span>
+                                </div>
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Valor</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-dollar-sign"></i> R$ ${booking.valor}
+                                    </span>
+                                </div>
+                                <div class="booking-info-item">
+                                    <span class="booking-info-label">Duração</span>
+                                    <span class="booking-info-value">
+                                        <i class="fas fa-hourglass-half"></i> ${booking.duracao} min
+                                    </span>
+                                </div>
+                            </div>
+                            ${canCancel ? `
+                            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+                                <button class="action-btn cancel" onclick="cancelBooking(${booking.id})">
+                                    <i class=\"fas fa-times\"></i> Cancelar agendamento
+                                </button>
+                            </div>
+                            ` : ''}
                             ${isPast ? '<div style="text-align:center;color:var(--text-secondary);font-size:12px;margin-top:8px"><i class="fas fa-info-circle"></i> Este agendamento já passou</div>' : ''}
                         </div>
                     `;
@@ -2338,8 +2611,17 @@
 
                 document.getElementById('consultaResults').innerHTML = html;
             } catch (e) {
-                // Silencioso em produção, mas mantém fallback visual
-                showNotification('Erro ao buscar agendamentos', 'error');
+                // Log detalhado do erro para debugging
+                console.error('Erro ao buscar agendamentos:', e);
+                document.getElementById('consultaResults').innerHTML = `
+                    <div class="no-bookings">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3 style="margin-bottom:10px;color:var(--danger)">Erro ao carregar agendamentos</h3>
+                        <p>Ocorreu um erro ao buscar seus agendamentos. Por favor, tente novamente.</p>
+                        <small style="color:var(--text-secondary);display:block;margin-top:10px">${e.message || 'Erro desconhecido'}</small>
+                    </div>
+                `;
+                showNotification('Erro ao buscar agendamentos. Verifique o console.', 'error');
             }
         }
 
@@ -2436,24 +2718,48 @@
             messageType: 'reminder'
         };
 
-        function loadOrdersFromStorage() {
+        async function fetchAllBookingsFromAPI(params = {}) {
+            const url = new URL(`${API_URL}/bookings`);
+            Object.entries(params).forEach(([k, v]) => {
+                if (v != null && v !== '' && v !== 'all') url.searchParams.set(k, v);
+            });
+            const resp = await fetch(url.toString());
+            const data = await resp.json().catch(()=>({}));
+            if (!resp.ok) throw new Error(data.error || 'Falha ao listar agendamentos');
+            return Array.isArray(data.bookings) ? data.bookings : [];
+        }
+
+        async function loadOrdersFromStorage() {
+            // Tenta carregar da API primeiro
+            try {
+                const apiBookings = await fetchAllBookingsFromAPI({ /* status: adminState.statusFilter */ });
+                adminState.orders = apiBookings.map(b => ({
+                    id: b.id,
+                    cliente: b.cliente,
+                    servico: b.servicoNome,
+                    valor: Number(b.valor) || 0,
+                    data: b.dataISO,
+                    status: b.status || 'Pendente'
+                }));
+                // Espelhar no localStorage para manter compatibilidade com outras telas
+                try { localStorage.setItem('bookings', JSON.stringify(apiBookings)); } catch(e) {}
+                return;
+            } catch (apiErr) {
+                console.warn('[API][Admin] Falha ao carregar pedidos, usando localStorage:', apiErr?.message);
+            }
+
+            // Fallback para localStorage
             try {
                 const list = JSON.parse(localStorage.getItem('bookings') || '[]');
-                // mapear para estrutura da tabela Admin
                 adminState.orders = list.map(b => ({
                     id: b.id,
                     cliente: b.cliente,
                     servico: b.servicoNome,
                     valor: Number(b.valor) || 0,
                     data: b.dataISO,
-                    status: b.status || 'Pago'
+                    status: b.status || 'Pendente'
                 }));
             } catch (e) {
-                /* falha silenciosa */
-                adminState.orders = [];
-            }
-            // fallback opcional se vazio (comentar se não quiser seeds)
-            if (!adminState.orders.length) {
                 adminState.orders = [];
             }
         }
@@ -2619,8 +2925,45 @@
             } catch (e) {}
         }
 
+        // Enviar lembrete manual agora
+        async function sendReminderNow(id) {
+            try {
+                await sendReminderAPI(id);
+                showNotification('Lembrete enviado!');
+            } catch (e) {
+                showNotification('Falha ao enviar lembrete: ' + (e.message || 'Erro desconhecido'), 'error');
+            }
+        }
+
         // =====================
         // Backup (Export/Import)
+
+        // Cancelar agendamento pelo cliente (tenta API, fallback local)
+        async function cancelBooking(id) {
+            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+            try {
+                await updateBookingStatusAPI(id, 'Cancelado');
+                showNotification('Agendamento cancelado');
+                buscarAgendamentos();
+                return;
+            } catch (apiErr) {
+                console.warn('[API] Falha ao cancelar via API, usando armazenamento local:', apiErr?.message);
+            }
+            try {
+                const list = JSON.parse(localStorage.getItem('bookings') || '[]');
+                const idx = list.findIndex(b => b.id === id);
+                if (idx >= 0) {
+                    list[idx].status = 'Cancelado';
+                    localStorage.setItem('bookings', JSON.stringify(list));
+                    showNotification('Agendamento cancelado (offline)');
+                    buscarAgendamentos();
+                } else {
+                    showNotification('Agendamento não encontrado', 'error');
+                }
+            } catch (e) {
+                showNotification('Falha ao cancelar agendamento', 'error');
+            }
+        }
         // =====================
         function exportBackup() {
             try {
@@ -2720,13 +3063,26 @@
             adminState.theme = localStorage.getItem('adminTheme') || 'dark';
             adminEl.classList.toggle('light', adminState.theme === 'light');
             // carregar dados reais
-            loadOrdersFromStorage();
-            loadClientsData();
-            // init/update chart
-            if (!adminState.chart) initRevenueChart(); else updateRevenueChart();
-            updateKPIs();
-            bindAdminEvents();
-            renderOrdersTable();
+            Promise.resolve()
+                .then(() => loadOrdersFromStorage())
+                .then(() => {
+                    loadClientsData();
+                    if (!adminState.chart) initRevenueChart(); else updateRevenueChart();
+                    updateKPIs();
+                    bindAdminEvents();
+                    renderOrdersTable();
+                    // Atualizar status do WhatsApp ao abrir Admin
+                    updateWhatsAppStatus();
+                })
+                .catch(() => {
+                    // Mesmo se falhar, garante UI
+                    loadClientsData();
+                    if (!adminState.chart) initRevenueChart(); else updateRevenueChart();
+                    updateKPIs();
+                    bindAdminEvents();
+                    renderOrdersTable();
+                    updateWhatsAppStatus();
+                });
         }
 
         function closeAdmin() {
@@ -2789,6 +3145,7 @@
             if (view === 'settings') {
                 renderClosedDates();
                 updateReminderStats();
+                updateWhatsAppStatus();
                 // inicializa seletor de dia e renderiza slots
                 const sel = document.getElementById('slotDaySelect');
                 if (sel && !sel._bound) {
@@ -2998,7 +3355,21 @@
             document.getElementById('kpiRevenueDelta').textContent = '+12% vs mês anterior';
         }
 
-        function updateOrderStatus(orderId, newStatus) {
+        async function updateOrderStatus(orderId, newStatus) {
+            // Tenta via API
+            try {
+                await updateBookingStatusAPI(orderId, newStatus);
+                await loadOrdersFromStorage();
+                if (adminState.chart) updateRevenueChart();
+                updateKPIs();
+                renderOrdersTable();
+                showNotification(`Status atualizado para ${newStatus}`);
+                return;
+            } catch (apiErr) {
+                console.warn('[API][Admin] Falha ao atualizar status, tentando offline:', apiErr?.message);
+            }
+
+            // Fallback localStorage
             try {
                 const list = JSON.parse(localStorage.getItem('bookings') || '[]');
                 const idx = list.findIndex(b => b.id === orderId);
@@ -3008,14 +3379,12 @@
                 }
                 list[idx].status = newStatus;
                 localStorage.setItem('bookings', JSON.stringify(list));
-                // recarregar
-                loadOrdersFromStorage();
+                await loadOrdersFromStorage();
                 if (adminState.chart) updateRevenueChart();
                 updateKPIs();
                 renderOrdersTable();
-                showNotification(`Status atualizado para ${newStatus}`);
+                showNotification(`Status atualizado para ${newStatus} (offline)`);
             } catch (e) {
-                /* falha silenciosa */
                 showNotification('Erro ao atualizar status', 'error');
             }
         }
@@ -3812,31 +4181,62 @@
             // Mensagem de lembrete
             const message = `Olá ${booking.cliente}! 😊
 
-🔔 *Lembrete de Agendamento*
+🔔 *Lembrete de Agendamento - BRUNO FERREIRA BARBEARIA*
 
 Você tem um horário agendado em 1 hora:
+📅 Data: ${formatDateBR(booking.dataISO)}
 ⏰ Horário: ${booking.hora}
 ✂️ Serviço: ${booking.servicoNome}
+⏱️ Duração: ${booking.duracao} min
 💰 Valor: R$ ${booking.valor}
 
-Aguardamos você! 🙌`;
+📍 Endereço: [Seu endereço aqui]
 
-            // Abrir WhatsApp
+Aguardamos você! 🙌
+
+Para confirmar presença, responda esta mensagem.`;
+
+            // Abrir WhatsApp automaticamente
             const phone = booking.telefone.replace(/\D/g, '');
             const url = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
+            
+            // Tentar abrir em nova janela
+            const whatsappWindow = window.open(url, '_blank');
+            
+            // Se popup bloqueado, mostrar notificação
+            if (!whatsappWindow || whatsappWindow.closed || typeof whatsappWindow.closed === 'undefined') {
+                showNotification(`Lembrete para ${booking.cliente} às ${booking.hora}`, 'info');
+                
+                // Criar notificação com botão
+                const notification = document.createElement('div');
+                notification.className = 'notification info';
+                notification.style.cssText = 'position:fixed;top:20px;right:20px;max-width:350px;padding:20px;z-index:10000;cursor:pointer';
+                notification.innerHTML = `
+                    <div style="font-weight:700;margin-bottom:10px">🔔 Lembrete Agendado!</div>
+                    <div style="margin-bottom:8px">Cliente: ${booking.cliente}</div>
+                    <div style="margin-bottom:8px">Horário: ${booking.hora}</div>
+                    <div style="margin-bottom:12px;font-size:12px;opacity:0.8">Clique para enviar lembrete via WhatsApp</div>
+                `;
+                notification.onclick = () => {
+                    window.open(url, '_blank');
+                    notification.remove();
+                };
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 15000);
+            }
 
             // Marcar como enviado
             current.reminderSent = true;
             localStorage.setItem('bookings', JSON.stringify(bookings));
             
-            /* log removido em produção */
+            console.log('[LEMBRETE] Enviado para', booking.cliente, 'às', new Date().toLocaleTimeString());
         }
 
         function checkPendingReminders() {
             // Verificar lembretes pendentes ao carregar a página
             const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
             const now = new Date();
+            let scheduled = 0;
             
             bookings.forEach(booking => {
                 if (booking.reminderSent || booking.status === 'Cancelado') return;
@@ -3847,15 +4247,115 @@ Aguardamos você! 🙌`;
                 
                 // Se está entre 0 e 5 minutos após o horário do lembrete, enviar agora
                 if (timeUntilReminder < 0 && timeUntilReminder > -5 * 60 * 1000) {
+                    console.log('[LEMBRETE] Enviando agora para', booking.cliente);
                     sendAutomaticReminder(booking);
                 }
                 // Se ainda falta tempo, agendar
                 else if (timeUntilReminder > 0) {
+                    scheduled++;
+                    // Limitar timeout para máximo de 24 horas (evitar problemas com setTimeout muito longo)
+                    const maxTimeout = 24 * 60 * 60 * 1000;
+                    const timeoutDuration = Math.min(timeUntilReminder, maxTimeout);
+                    
                     setTimeout(() => {
+                        console.log('[LEMBRETE] Timeout atingido, enviando para', booking.cliente);
                         sendAutomaticReminder(booking);
-                    }, timeUntilReminder);
+                    }, timeoutDuration);
                 }
             });
+            
+            if (scheduled > 0) {
+                console.log(`[SISTEMA DE LEMBRETES] ${scheduled} lembrete(s) agendado(s)`);
+            }
+        }
+
+        // =====================
+        // WhatsApp Admin Helpers
+        // =====================
+        let whatsStatusInterval = null;
+        async function updateWhatsAppStatus() {
+            try {
+                const resp = await fetch(`${API_URL}/whatsapp/status`);
+                const status = await resp.json();
+                const textEl = document.getElementById('whatsStatusText');
+                const qrBox = document.getElementById('whatsQRContainer');
+                const badgeEl = document.getElementById('whatsStatusBadge');
+                const indicatorEl = document.getElementById('whatsStatusIndicator');
+                
+                if (status && status.connected) {
+                    if (textEl) textEl.textContent = 'Conectado ✅';
+                    if (qrBox) qrBox.style.display = 'none';
+                    if (badgeEl) badgeEl.textContent = 'Conectado';
+                    if (indicatorEl) {
+                        indicatorEl.style.background = '#4ade80';
+                        indicatorEl.style.animation = 'none';
+                        indicatorEl.title = 'WhatsApp conectado';
+                    }
+                    if (whatsStatusInterval) { clearInterval(whatsStatusInterval); whatsStatusInterval = null; }
+                } else {
+                    if (textEl) textEl.textContent = 'Aguardando conexão (escaneie o QR abaixo)';
+                    if (qrBox) qrBox.style.display = 'block';
+                    if (badgeEl) badgeEl.textContent = 'Aguardando';
+                    if (indicatorEl) {
+                        indicatorEl.style.background = '#fb923c';
+                        indicatorEl.style.animation = 'pulse 2s infinite';
+                        indicatorEl.title = 'Aguardando conexão';
+                    }
+                    // Carregar QR imediatamente e agendar refresh
+                    await loadWhatsAppQR();
+                    if (!whatsStatusInterval) {
+                        whatsStatusInterval = setInterval(async () => {
+                            try {
+                                await loadWhatsAppQR();
+                                const r = await fetch(`${API_URL}/whatsapp/status`);
+                                const s = await r.json();
+                                if (s && s.connected) {
+                                    const t = document.getElementById('whatsStatusText');
+                                    const b = document.getElementById('whatsStatusBadge');
+                                    const i = document.getElementById('whatsStatusIndicator');
+                                    if (t) t.textContent = 'Conectado ✅';
+                                    if (qrBox) qrBox.style.display = 'none';
+                                    if (b) b.textContent = 'Conectado';
+                                    if (i) {
+                                        i.style.background = '#4ade80';
+                                        i.style.animation = 'none';
+                                        i.title = 'WhatsApp conectado';
+                                    }
+                                    clearInterval(whatsStatusInterval); whatsStatusInterval = null;
+                                }
+                            } catch (_) {}
+                        }, 15000);
+                    }
+                }
+            } catch (e) {
+                const textEl = document.getElementById('whatsStatusText');
+                const badgeEl = document.getElementById('whatsStatusBadge');
+                const indicatorEl = document.getElementById('whatsStatusIndicator');
+                if (textEl) textEl.textContent = 'Não foi possível obter status';
+                if (badgeEl) badgeEl.textContent = 'Erro';
+                if (indicatorEl) {
+                    indicatorEl.style.background = '#ef4444';
+                    indicatorEl.style.animation = 'none';
+                    indicatorEl.title = 'Erro ao conectar';
+                }
+            }
+        }
+        async function loadWhatsAppQR() {
+            try {
+                const resp = await fetch(`${API_URL}/whatsapp/qr`);
+                const data = await resp.json();
+                const img = document.getElementById('whatsQRImage');
+                const time = document.getElementById('whatsQRTime');
+                if (data && data.dataUrl && img) {
+                    img.src = data.dataUrl;
+                    if (time) time.textContent = data.generatedAt ? `Gerado em: ${new Date(data.generatedAt).toLocaleTimeString('pt-BR')}` : '';
+                } else if (time) {
+                    time.textContent = 'QR ainda não disponível. Aguarde alguns segundos...';
+                }
+            } catch (e) {
+                const time = document.getElementById('whatsQRTime');
+                if (time) time.textContent = 'Erro ao carregar QR';
+            }
         }
 
         function updateReminderStats() {
@@ -3905,8 +4405,11 @@ Aguardamos você! 🙌`;
         // Verificar lembretes ao carregar a página
         checkPendingReminders();
 
-        // Verificar lembretes a cada 5 minutos
-        setInterval(checkPendingReminders, 5 * 60 * 1000);
+        // Verificar lembretes a cada 2 minutos (para garantir envio pontual)
+        setInterval(checkPendingReminders, 2 * 60 * 1000);
+        
+        // Log de sistema ativo
+        console.log('[SISTEMA DE LEMBRETES] Ativo - Verificando a cada 2 minutos');
 
         // Wire admin access button - agora abre tela de login
         document.querySelector('.admin-access-btn').addEventListener('click', openAdminLogin);

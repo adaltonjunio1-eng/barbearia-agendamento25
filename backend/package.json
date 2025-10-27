@@ -1,0 +1,36 @@
+{
+  "name": "barbearia-backend",
+  "version": "1.0.0",
+  "description": "Backend Node.js para sistema de agendamento de barbearia com lembretes automáticos via WhatsApp",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "barbershop",
+    "whatsapp",
+    "booking",
+    "nodejs",
+    "express"
+  ],
+  "author": "Bruno Ferreira Barbearia",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "node-cron": "^3.0.3",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "sqlite3": "^5.1.6",
+    "whatsapp-web.js": "^1.23.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
