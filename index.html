@@ -2219,9 +2219,12 @@
         // ==============================
         // Integração com Backend (API)
         // ==============================
-        const API_URL = 'http://localhost:3333/api';
+        // Se quiser usar o backend, mude para a URL do seu servidor (Railway, Render, VPS, etc)
+        // Deixe como null para usar apenas localStorage (modo offline)
+        const API_URL = null; // ou 'http://localhost:3333/api' para testar local
 
         async function createBookingAPI(bookingData) {
+            if (!API_URL) throw new Error('API desabilitada');
             const resp = await fetch(`${API_URL}/bookings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2233,6 +2236,7 @@
         }
 
         async function getBookingsByPhoneAPI(phone) {
+            if (!API_URL) throw new Error('API desabilitada');
             const clean = (phone || '').replace(/\D/g, '');
             const resp = await fetch(`${API_URL}/bookings/phone/${clean}`);
             const data = await resp.json().catch(() => ({}));
@@ -2241,6 +2245,7 @@
         }
 
         async function updateBookingStatusAPI(id, status) {
+            if (!API_URL) throw new Error('API desabilitada');
             const resp = await fetch(`${API_URL}/bookings/${id}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -2252,6 +2257,7 @@
         }
 
         async function sendReminderAPI(id) {
+            if (!API_URL) throw new Error('API desabilitada');
             const resp = await fetch(`${API_URL}/bookings/${id}/reminder`, { method: 'POST' });
             const data = await resp.json().catch(() => ({}));
             if (!resp.ok) throw new Error(data.error || 'Falha ao enviar lembrete');
@@ -4403,12 +4409,20 @@ Para confirmar presença, responda esta mensagem.`;
         }
 
         function openWhatsAppQR() {
+            if (!API_URL) {
+                alert('Backend não configurado. Para usar lembretes automáticos via WhatsApp, configure a variável API_URL no código.');
+                return;
+            }
             try {
                 window.open(`${API_URL}/whatsapp/qr/html`, '_blank');
             } catch(_) {}
         }
 
         async function reconnectWhatsApp() {
+            if (!API_URL) {
+                alert('Backend não configurado.');
+                return;
+            }
             if (!confirm('Isso irá desconectar o WhatsApp atual e gerar um novo QR Code. Deseja continuar?')) return;
             try {
                 const btn = document.getElementById('reconnectWhatsApp');
