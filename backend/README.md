@@ -30,7 +30,7 @@ notepad .env
 Edite o arquivo `.env`:
 
 ```env
-PORT=3000
+PORT=3333
 FRONTEND_URL=http://localhost:5500
 DB_PATH=./database.sqlite
 BARBERSHOP_NAME=Bruno Ferreira Barbearia
@@ -53,12 +53,21 @@ npm start
 
 ## 📱 Conectar WhatsApp
 
+Forma recomendada (via link em nova aba):
+
 1. Inicie o servidor
-2. Um QR Code aparecerá no terminal
-3. Abra o WhatsApp no celular
-4. Vá em: **Dispositivos Vinculados** > **Vincular Dispositivo**
-5. Escaneie o QR Code
-6. Aguarde a mensagem "✅ WhatsApp conectado e pronto!"
+2. Acesse: http://localhost:3333/api/whatsapp/qr/html
+3. No celular: WhatsApp > Dispositivos conectados > Conectar um dispositivo
+4. Escaneie o QR da página e aguarde conectar
+
+Também pelo Admin:
+
+- Admin > Configurações > "Abrir QR Code em nova aba" (abre a mesma rota acima)
+
+Observações:
+
+- Se já estiver conectado, o QR não será exibido (não é necessário)
+- Se o QR não aparecer, aguarde 10–15s e atualize a página do QR
 
 ## 🔌 API Endpoints
 
@@ -123,6 +132,11 @@ GET /health
 **Status do WhatsApp:**
 ```http
 GET /api/whatsapp/status
+```
+
+**Página HTML com QR (abrir em nova aba):**
+```http
+GET /api/whatsapp/qr/html
 ```
 
 **Estatísticas de lembretes:**
@@ -223,7 +237,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 COPY . .
-EXPOSE 3000
+EXPOSE 3333
 CMD ["node", "src/server.js"]
 ```
 
