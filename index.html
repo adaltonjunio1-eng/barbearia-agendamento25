@@ -1809,23 +1809,59 @@
                     </div>
                 </div>
                 <div id="admin-settings" style="display:none">
-                    <div class="card">
-                        <div class="card-header"><div style="font-weight:700">Conexão WhatsApp</div></div>
-                        <div class="card-body">
-                            <div id="whatsStatus" style="margin-bottom:12px;color:var(--text-secondary)">
-                                Status: <span id="whatsStatusText">Carregando...</span>
+                    <div class="card" style="border:2px solid var(--secondary);background:rgba(200,169,81,0.05)">
+                        <div class="card-header" style="background:rgba(200,169,81,0.1)">
+                            <div style="font-weight:700;display:flex;align-items:center;gap:10px">
+                                <i class="fab fa-whatsapp" style="font-size:24px;color:#25D366"></i>
+                                Conexão WhatsApp
                             </div>
-                            <div id="whatsQRContainer" style="display:none">
-                                <img id="whatsQRImage" alt="QR Code do WhatsApp" style="width:260px;height:260px;border-radius:12px;background:#fff;padding:8px;border:1px solid rgba(255,255,255,0.1)" />
-                                <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
-                                    <button class="action-btn" onclick="loadWhatsAppQR()" style="padding:10px 16px">
-                                        <i class="fas fa-redo"></i> Atualizar QR
-                                    </button>
-                                    <a class="action-btn" href="https://web.whatsapp.com" target="_blank" rel="noopener" style="padding:10px 16px">
+                        </div>
+                        <div class="card-body">
+                            <div style="background:rgba(37,211,102,0.1);padding:15px;border-radius:10px;border-left:3px solid #25D366;margin-bottom:16px">
+                                <div style="font-weight:600;margin-bottom:8px;color:#25D366">
+                                    <i class="fas fa-info-circle"></i> Como conectar seu WhatsApp
+                                </div>
+                                <ol style="margin:8px 0 0 20px;font-size:13px;color:var(--text-secondary);line-height:1.8">
+                                    <li>Abra o WhatsApp no seu celular</li>
+                                    <li>Toque em <strong>Menu (⋮)</strong> ou <strong>Configurações</strong></li>
+                                    <li>Vá em <strong>Dispositivos conectados</strong></li>
+                                    <li>Toque em <strong>Conectar um dispositivo</strong></li>
+                                    <li>Aponte a câmera para o QR Code abaixo</li>
+                                </ol>
+                            </div>
+                            
+                            <div id="whatsStatus" style="margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;gap:12px">
+                                <i class="fas fa-circle" id="whatsStatusIcon" style="font-size:10px;color:#fb923c"></i>
+                                <div>
+                                    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Status</div>
+                                    <div style="font-weight:600;margin-top:2px">
+                                        <span id="whatsStatusText">Carregando...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="whatsQRContainer" style="display:none;text-align:center">
+                                <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+                                    <a class="btn-primary" href="#" onclick="openWhatsAppQR();return false;" style="padding:12px 20px;text-decoration:none;display:inline-flex;align-items:center;gap:8px">
+                                        <i class="fas fa-qrcode"></i> Abrir QR Code em nova aba
+                                    </a>
+                                    <a class="action-btn confirm" href="https://web.whatsapp.com" target="_blank" rel="noopener" style="padding:12px 20px;text-decoration:none;display:inline-flex;align-items:center;gap:8px">
                                         <i class="fab fa-whatsapp"></i> Abrir WhatsApp Web
                                     </a>
                                 </div>
-                                <small id="whatsQRTime" style="display:block;margin-top:8px;color:var(--text-secondary)"></small>
+                                <small id="whatsQRTime" style="display:block;margin-top:12px;color:var(--text-secondary);font-size:12px">Se o QR não abrir, aguarde alguns segundos e clique novamente.</small>
+                            </div>
+                            
+                            <div id="whatsConnectedInfo" style="display:none;background:rgba(74,222,128,0.1);padding:15px;border-radius:10px;border-left:3px solid #4ade80;margin-top:16px">
+                                <div style="display:flex;align-items:center;gap:12px">
+                                    <i class="fas fa-check-circle" style="font-size:32px;color:#4ade80"></i>
+                                    <div>
+                                        <div style="font-weight:700;color:#4ade80;margin-bottom:4px">WhatsApp Conectado!</div>
+                                        <div style="font-size:13px;color:var(--text-secondary)">
+                                            Os lembretes automáticos estão ativos e funcionando.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -4279,48 +4315,55 @@ Para confirmar presença, responda esta mensagem.`;
                 const status = await resp.json();
                 const textEl = document.getElementById('whatsStatusText');
                 const qrBox = document.getElementById('whatsQRContainer');
+                const connectedBox = document.getElementById('whatsConnectedInfo');
                 const badgeEl = document.getElementById('whatsStatusBadge');
                 const indicatorEl = document.getElementById('whatsStatusIndicator');
+                const iconEl = document.getElementById('whatsStatusIcon');
                 
                 if (status && status.connected) {
                     if (textEl) textEl.textContent = 'Conectado ✅';
                     if (qrBox) qrBox.style.display = 'none';
+                    if (connectedBox) connectedBox.style.display = 'block';
                     if (badgeEl) badgeEl.textContent = 'Conectado';
                     if (indicatorEl) {
                         indicatorEl.style.background = '#4ade80';
                         indicatorEl.style.animation = 'none';
                         indicatorEl.title = 'WhatsApp conectado';
                     }
+                    if (iconEl) iconEl.style.color = '#4ade80';
                     if (whatsStatusInterval) { clearInterval(whatsStatusInterval); whatsStatusInterval = null; }
                 } else {
-                    if (textEl) textEl.textContent = 'Aguardando conexão (escaneie o QR abaixo)';
+                    if (textEl) textEl.textContent = 'Aguardando conexão (abra o QR em nova aba)';
                     if (qrBox) qrBox.style.display = 'block';
+                    if (connectedBox) connectedBox.style.display = 'none';
                     if (badgeEl) badgeEl.textContent = 'Aguardando';
                     if (indicatorEl) {
                         indicatorEl.style.background = '#fb923c';
                         indicatorEl.style.animation = 'pulse 2s infinite';
                         indicatorEl.title = 'Aguardando conexão';
                     }
-                    // Carregar QR imediatamente e agendar refresh
-                    await loadWhatsAppQR();
+                    if (iconEl) iconEl.style.color = '#fb923c';
                     if (!whatsStatusInterval) {
                         whatsStatusInterval = setInterval(async () => {
                             try {
-                                await loadWhatsAppQR();
                                 const r = await fetch(`${API_URL}/whatsapp/status`);
                                 const s = await r.json();
                                 if (s && s.connected) {
                                     const t = document.getElementById('whatsStatusText');
                                     const b = document.getElementById('whatsStatusBadge');
-                                    const i = document.getElementById('whatsStatusIndicator');
+                                    const ind = document.getElementById('whatsStatusIndicator');
+                                    const i = document.getElementById('whatsStatusIcon');
+                                    const cb = document.getElementById('whatsConnectedInfo');
                                     if (t) t.textContent = 'Conectado ✅';
                                     if (qrBox) qrBox.style.display = 'none';
+                                    if (cb) cb.style.display = 'block';
                                     if (b) b.textContent = 'Conectado';
-                                    if (i) {
-                                        i.style.background = '#4ade80';
-                                        i.style.animation = 'none';
-                                        i.title = 'WhatsApp conectado';
+                                    if (ind) {
+                                        ind.style.background = '#4ade80';
+                                        ind.style.animation = 'none';
+                                        ind.title = 'WhatsApp conectado';
                                     }
+                                    if (i) i.style.color = '#4ade80';
                                     clearInterval(whatsStatusInterval); whatsStatusInterval = null;
                                 }
                             } catch (_) {}
@@ -4331,7 +4374,9 @@ Para confirmar presença, responda esta mensagem.`;
                 const textEl = document.getElementById('whatsStatusText');
                 const badgeEl = document.getElementById('whatsStatusBadge');
                 const indicatorEl = document.getElementById('whatsStatusIndicator');
-                if (textEl) textEl.textContent = 'Não foi possível obter status';
+                const iconEl = document.getElementById('whatsStatusIcon');
+                if (textEl) textEl.textContent = 'Erro ao conectar';
+                if (iconEl) iconEl.style.color = '#ef4444';
                 if (badgeEl) badgeEl.textContent = 'Erro';
                 if (indicatorEl) {
                     indicatorEl.style.background = '#ef4444';
@@ -4339,6 +4384,12 @@ Para confirmar presença, responda esta mensagem.`;
                     indicatorEl.title = 'Erro ao conectar';
                 }
             }
+        }
+
+        function openWhatsAppQR() {
+            try {
+                window.open(`${API_URL}/whatsapp/qr/html`, '_blank');
+            } catch(_) {}
         }
         async function loadWhatsAppQR() {
             try {

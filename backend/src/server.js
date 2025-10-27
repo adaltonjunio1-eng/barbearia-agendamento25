@@ -10,7 +10,7 @@ const reminderService = require('./services/reminderService');
 const whatsappService = require('./services/whatsappService');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3333;
 
 // Middlewares de segurança
 app.use(helmet());
