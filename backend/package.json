@@ -1,7 +1,7 @@
 {
   "name": "barbearia-backend",
   "version": "1.0.0",
-  "description": "Backend Node.js para sistema de agendamento de barbearia com lembretes automáticos via WhatsApp",
+  "description": "Backend Node.js para sistema de agendamento de barbearia com lembretes automáticos via SMS",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -10,7 +10,8 @@
   },
   "keywords": [
     "barbershop",
-    "whatsapp",
+    "sms",
+    "twilio",
     "booking",
     "nodejs",
     "express"
@@ -25,10 +26,8 @@
     "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
     "node-cron": "^3.0.3",
-    "qrcode": "^1.5.4",
-    "qrcode-terminal": "^0.12.0",
     "sqlite3": "^5.1.6",
-    "whatsapp-web.js": "^1.23.0"
+    "twilio": "^4.19.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

@@ -1,5 +1,5 @@
 const db = require('../models/database');
-const whatsappService = require('../services/whatsappService');
+const smsService = require('../services/smsService');
 
 class BookingController {
   // Criar novo agendamento
@@ -145,11 +145,11 @@ class BookingController {
         return res.status(400).json({ error: 'Não é possível enviar lembrete para agendamento cancelado' });
       }
 
-      await whatsappService.sendReminder(booking);
+      await smsService.sendReminder(booking);
 
       res.json({
         success: true,
-        message: 'Lembrete enviado com sucesso'
+        message: 'Lembrete enviado via SMS com sucesso'
       });
     } catch (error) {
       console.error('❌ Erro ao enviar lembrete:', error);

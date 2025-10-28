@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const db = require('../models/database');
-const whatsappService = require('./whatsappService');
+const smsService = require('./smsService');
 
 class ReminderService {
   constructor() {
@@ -52,11 +52,11 @@ class ReminderService {
         const twoMinutes = 2 * 60 * 1000;
 
         if (diff >= -twoMinutes && diff <= twoMinutes) {
-          console.log(`📨 Enviando lembrete para ${booking.cliente}...`);
+          console.log(`📨 Enviando lembrete por SMS para ${booking.cliente}...`);
           try {
-            await whatsappService.sendReminder(booking);
+            await smsService.sendReminder(booking);
           } catch (error) {
-            console.error(`❌ Falha ao enviar lembrete para ${booking.cliente}:`, error.message);
+            console.error(`❌ Falha ao enviar SMS para ${booking.cliente}:`, error.message);
           }
         }
       }

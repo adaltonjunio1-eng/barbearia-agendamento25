@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
-const whatsappService = require('../services/whatsappService');
+const smsService = require('../services/smsService');
 
 // Rotas de agendamentos
 router.post('/bookings', bookingController.create);
@@ -11,84 +11,87 @@ router.patch('/bookings/:id/status', bookingController.updateStatus);
 router.delete('/bookings/:id', bookingController.delete);
 router.post('/bookings/:id/reminder', bookingController.sendReminder);
 
-// WhatsApp QR Code
-router.get('/whatsapp/qr', async (req, res) => {
+// SMS Status e Configuração
+router.get('/sms/status', async (req, res) => {
   try {
-    const { dataUrl, generatedAt } = await whatsappService.getQRDataURL();
-    if (!dataUrl) {
-      return res.status(404).json({ error: 'QR Code não disponível no momento', generatedAt });
-    }
-    res.json({ success: true, dataUrl, generatedAt });
+    const status = smsService.getStatus();
+    res.json(status);
   } catch (e) {
-    res.status(500).json({ error: 'Erro ao obter QR Code' });
+    res.status(500).json({ error: 'Erro ao obter status do SMS' });
   }
 });
 
-// Página simples com o QR Code em HTML para abrir em nova aba
-router.get('/whatsapp/qr/html', async (req, res) => {
+// Página de configuração SMS (substitui QR Code)
+router.get('/sms/config/html', async (req, res) => {
   try {
-    const { dataUrl, generatedAt } = await whatsappService.getQRDataURL();
-    if (!dataUrl) {
-      return res
-        .status(404)
-        .send(`<!doctype html><html><head><meta charset="utf-8"><title>QR Code WhatsApp</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style>
-            body{background:#0f1115;color:#e5e7eb;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-            .wrap{max-width:640px;margin:24px;padding:24px;border-radius:16px;background:#151822;box-shadow:0 10px 30px rgba(0,0,0,.3);text-align:center}
-            .title{font-weight:700;font-size:20px;margin:0 0 6px}
-            .muted{color:#9ca3af;font-size:14px;margin:0 0 14px}
-            .box{background:#fff;padding:18px;border-radius:12px;display:inline-block}
-            img{width:280px;height:280px;border-radius:8px;display:block}
-          </style>
-        </head><body>
-          <div class="wrap">
-            <h1 class="title">QR Code não disponível</h1>
-            <p class="muted">Abra esta página novamente em alguns segundos ou reinicie o servidor.</p>
-          </div>
-        </body></html>`);
-    }
+    const status = smsService.getStatus();
+    
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(`<!doctype html><html><head><meta charset="utf-8"><title>QR Code WhatsApp</title>
+    res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Configuração SMS</title>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <style>
         body{background:#0f1115;color:#e5e7eb;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-        .wrap{max-width:640px;margin:24px;padding:24px;border-radius:16px;background:#151822;box-shadow:0 10px 30px rgba(0,0,0,.3);text-align:center}
+        .wrap{max-width:640px;margin:24px;padding:24px;border-radius:16px;background:#151822;box-shadow:0 10px 30px rgba(0,0,0,.3)}
         .title{font-weight:700;font-size:20px;margin:0 0 6px}
         .muted{color:#9ca3af;font-size:14px;margin:0 0 14px}
-        .box{background:#fff;padding:18px;border-radius:12px;display:inline-block}
-        img{width:280px;height:280px;border-radius:8px;display:block}
-        .row{display:flex;gap:10px;justify-content:center;margin-top:14px}
-        a.btn{padding:10px 14px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-        .primary{background:#c8a951;color:#0f1115;font-weight:700}
-        .outline{border:1px solid #334155;color:#e5e7eb}
+        .status{padding:16px;border-radius:12px;margin:16px 0}
+        .success{background:rgba(74,222,128,0.1);border-left:3px solid #4ade80}
+        .warning{background:rgba(251,146,60,0.1);border-left:3px solid #fb923c}
+        code{background:rgba(255,255,255,0.1);padding:4px 8px;border-radius:4px;font-size:13px}
+        ol{margin:12px 0 0 20px;line-height:1.8}
+        a{color:#c8a951;text-decoration:none}
       </style>
     </head><body>
       <div class="wrap">
-        <h1 class="title">Conectar WhatsApp</h1>
-        <p class="muted">Abra o WhatsApp no celular » Dispositivos conectados » Conectar um dispositivo e escaneie o QR abaixo.</p>
-        <div class="box">
-          <img src="${dataUrl}" alt="QR Code do WhatsApp" />
+        <h1 class="title">📱 Configuração de SMS</h1>
+        <p class="muted">Configure o serviço de SMS para enviar lembretes automáticos</p>
+        
+        <div class="status ${status.connected ? 'success' : 'warning'}">
+          <strong>${status.connected ? '✅ SMS Ativo' : '⚠️ SMS Não Configurado'}</strong>
+          <p style="margin:8px 0 0;font-size:13px">
+            ${status.connected 
+              ? `Provedor: ${status.provider}<br>Número: ${status.fromNumber}` 
+              : 'Configure as credenciais no arquivo .env do backend'}
+          </p>
         </div>
-        <div class="row">
-          <a class="btn outline" href="https://web.whatsapp.com" target="_blank" rel="noopener">Abrir WhatsApp Web</a>
-          <a class="btn primary" href="/api/whatsapp/qr/html">Atualizar QR</a>
+
+        <h3 style="margin-top:24px">Como configurar:</h3>
+        <ol style="font-size:14px">
+          <li>Crie conta no <a href="https://www.twilio.com/try-twilio" target="_blank">Twilio</a> (grátis)</li>
+          <li>Obtenha suas credenciais (Account SID e Auth Token)</li>
+          <li>Adicione no arquivo <code>.env</code> do backend:
+            <pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;margin:8px 0;overflow-x:auto">SMS_PROVIDER=twilio
+SMS_ACCOUNT_SID=seu_account_sid_aqui
+SMS_AUTH_TOKEN=seu_auth_token_aqui  
+SMS_FROM_NUMBER=+5511999999999</pre>
+          </li>
+          <li>Instale a dependência: <code>npm install twilio</code></li>
+          <li>Reinicie o backend</li>
+        </ol>
+
+        <div style="margin-top:24px;padding:12px;background:rgba(59,130,246,0.1);border-radius:8px;border:1px solid rgba(59,130,246,0.3)">
+          <strong style="color:#3b82f6">💡 Dica:</strong>
+          <p style="margin:8px 0 0;font-size:13px">
+            O Twilio oferece crédito grátis para testes. Outros provedores: 
+            <a href="https://www.zenvia.com" target="_blank">Zenvia</a>, 
+            <a href="https://www.totalvoice.com.br" target="_blank">TotalVoice</a>
+          </p>
         </div>
-        <p class="muted">Gerado em: ${generatedAt ? new Date(generatedAt).toLocaleString('pt-BR') : 'agora'}</p>
       </div>
     </body></html>`);
   } catch (e) {
-    res.status(500).send('Erro ao montar página do QR Code');
+    res.status(500).send('Erro ao carregar página de configuração');
   }
 });
 
-// Forçar logout do WhatsApp e gerar novo QR
-router.get('/whatsapp/logout', async (req, res) => {
+// Forçar reconfiguração do SMS
+router.get('/sms/reconnect', async (req, res) => {
   try {
-    const r = await whatsappService.logoutAndReset();
-    res.json({ success: true, ...r });
+    smsService.initialize();
+    const status = smsService.getStatus();
+    res.json({ success: true, status });
   } catch (e) {
-    res.status(500).json({ error: 'Erro ao reiniciar WhatsApp' });
+    res.status(500).json({ error: 'Erro ao reconectar SMS' });
   }
 });
 
@@ -118,10 +121,10 @@ router.post('/webhook/send-reminder', async (req, res) => {
     const { bookingId, telefone, cliente, servicoNome, hora, dataISO } = req.body;
     console.log('[N8N Webhook] Solicitação de lembrete:', { bookingId, telefone });
     
-    // Tenta enviar via WhatsApp se estiver conectado
-    const status = await whatsappService.getStatus();
+    // Tenta enviar via SMS se estiver configurado
+    const status = smsService.getStatus();
     if (status.connected) {
-      await whatsappService.sendReminder({
+      await smsService.sendReminder({
         telefone,
         cliente,
         servicoNome,
@@ -132,10 +135,10 @@ router.post('/webhook/send-reminder', async (req, res) => {
     
     res.json({ 
       success: true, 
-      whatsappUsed: status.connected,
+      smsUsed: status.connected,
       message: status.connected 
-        ? 'Lembrete enviado via WhatsApp' 
-        : 'WhatsApp não conectado, use n8n para envio'
+        ? 'Lembrete enviado via SMS' 
+        : 'SMS não configurado, use n8n para envio'
     });
   } catch (error) {
     console.error('[N8N Webhook] Erro ao enviar lembrete:', error);

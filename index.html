@@ -1628,8 +1628,8 @@
             </div>
             <div style="padding:12px 20px 0">
                 <button id="openQRQuick" class="action-btn" style="width:100%;justify-content:center;gap:8px;padding:10px 12px">
-                    <i class="fas fa-qrcode"></i>
-                    <span>Abrir QR do WhatsApp</span>
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Configurar SMS</span>
                 </button>
             </div>
             <nav class="admin-nav">
@@ -1640,9 +1640,9 @@
             </nav>
             <div style="position:absolute;bottom:20px;left:20px;right:20px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.1)">
                 <div style="display:flex;align-items:center;gap:10px">
-                    <i class="fab fa-whatsapp" style="font-size:20px;color:#25D366"></i>
+                    <i class="fas fa-sms" style="font-size:20px;color:#3b82f6"></i>
                     <div style="flex:1">
-                        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">WhatsApp</div>
+                        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">SMS</div>
                         <div id="whatsStatusBadge" style="font-size:12px;font-weight:600;margin-top:2px">Carregando...</div>
                     </div>
                     <div id="whatsStatusIndicator" style="width:8px;height:8px;border-radius:50%;background:#fb923c;animation:pulse 2s infinite" title="Verificando status..."></div>
@@ -1654,7 +1654,7 @@
             <div style="font-weight:800;color:var(--secondary)">Admin</div>
             <div class="topbar-actions">
                 <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i><span>Dark</span></button>
-                <button class="btn-secondary" id="openQRTop" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-qrcode"></i> Abrir QR</button>
+                <button class="btn-secondary" id="openQRTop" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-mobile-alt"></i> Config SMS</button>
                 <button class="btn-secondary" id="adminBack" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-arrow-left"></i> Sair</button>
             </div>
         </header>
@@ -1815,24 +1815,24 @@
                     </div>
                 </div>
                 <div id="admin-settings" style="display:none">
-                    <div class="card" style="border:2px solid var(--secondary);background:rgba(200,169,81,0.05)">
-                        <div class="card-header" style="background:rgba(200,169,81,0.1)">
+                    <div class="card" style="border:2px solid #3b82f6;background:rgba(59,130,246,0.05)">
+                        <div class="card-header" style="background:rgba(59,130,246,0.1)">
                             <div style="font-weight:700;display:flex;align-items:center;gap:10px">
-                                <i class="fab fa-whatsapp" style="font-size:24px;color:#25D366"></i>
-                                Conexão WhatsApp
+                                <i class="fas fa-sms" style="font-size:24px;color:#3b82f6"></i>
+                                Configuração SMS
                             </div>
                         </div>
                         <div class="card-body">
-                            <div style="background:rgba(37,211,102,0.1);padding:15px;border-radius:10px;border-left:3px solid #25D366;margin-bottom:16px">
-                                <div style="font-weight:600;margin-bottom:8px;color:#25D366">
-                                    <i class="fas fa-info-circle"></i> Como conectar seu WhatsApp
+                            <div style="background:rgba(59,130,246,0.1);padding:15px;border-radius:10px;border-left:3px solid #3b82f6;margin-bottom:16px">
+                                <div style="font-weight:600;margin-bottom:8px;color:#3b82f6">
+                                    <i class="fas fa-info-circle"></i> Como configurar SMS
                                 </div>
                                 <ol style="margin:8px 0 0 20px;font-size:13px;color:var(--text-secondary);line-height:1.8">
-                                    <li>Abra o WhatsApp no seu celular</li>
-                                    <li>Toque em <strong>Menu (⋮)</strong> ou <strong>Configurações</strong></li>
-                                    <li>Vá em <strong>Dispositivos conectados</strong></li>
-                                    <li>Toque em <strong>Conectar um dispositivo</strong></li>
-                                    <li>Aponte a câmera para o QR Code abaixo</li>
+                                    <li>Crie uma conta no <a href="https://www.twilio.com/try-twilio" target="_blank" style="color:#3b82f6">Twilio</a> (oferece crédito grátis)</li>
+                                    <li>Obtenha suas credenciais (Account SID e Auth Token)</li>
+                                    <li>Configure no arquivo .env do backend</li>
+                                    <li>Instale dependência: <code>npm install twilio</code></li>
+                                    <li>Reinicie o servidor</li>
                                 </ol>
                             </div>
                             
@@ -1849,28 +1849,25 @@
                             <div id="whatsQRContainer" style="display:none;text-align:center">
                                 <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
                                     <a class="btn-primary" href="#" onclick="openWhatsAppQR();return false;" style="padding:12px 20px;text-decoration:none;display:inline-flex;align-items:center;gap:8px">
-                                        <i class="fas fa-qrcode"></i> Abrir QR Code em nova aba
-                                    </a>
-                                    <a class="action-btn confirm" href="https://web.whatsapp.com" target="_blank" rel="noopener" style="padding:12px 20px;text-decoration:none;display:inline-flex;align-items:center;gap:8px">
-                                        <i class="fab fa-whatsapp"></i> Abrir WhatsApp Web
+                                        <i class="fas fa-external-link-alt"></i> Abrir Página de Configuração
                                     </a>
                                 </div>
-                                <small id="whatsQRTime" style="display:block;margin-top:12px;color:var(--text-secondary);font-size:12px">Se o QR não abrir, aguarde alguns segundos e clique novamente.</small>
+                                <small id="whatsQRTime" style="display:block;margin-top:12px;color:var(--text-secondary);font-size:12px">Clique acima para ver instruções detalhadas de configuração.</small>
                             </div>
                             
                             <div id="whatsConnectedInfo" style="display:none;background:rgba(74,222,128,0.1);padding:15px;border-radius:10px;border-left:3px solid #4ade80;margin-top:16px">
                                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
                                     <i class="fas fa-check-circle" style="font-size:32px;color:#4ade80"></i>
                                     <div style="flex:1">
-                                        <div style="font-weight:700;color:#4ade80;margin-bottom:4px">WhatsApp Conectado!</div>
+                                        <div style="font-weight:700;color:#4ade80;margin-bottom:4px">SMS Configurado!</div>
                                         <div style="font-size:13px;color:var(--text-secondary)">
-                                            Os lembretes automáticos estão ativos e funcionando.
+                                            Os lembretes automáticos por SMS estão ativos e funcionando.
                                         </div>
                                     </div>
                                 </div>
                                 <button id="reconnectWhatsApp" class="action-btn" style="width:100%;justify-content:center;gap:8px;padding:10px">
                                     <i class="fas fa-sync-alt"></i>
-                                    <span>Reconectar WhatsApp</span>
+                                    <span>Recarregar Configuração SMS</span>
                                 </button>
                             </div>
                         </div>
@@ -1880,7 +1877,7 @@
                         <div class="card-body">
                             <p style="color:var(--text-secondary);margin-bottom:20px">
                                 <i class="fas fa-bell" style="color:var(--secondary)"></i> 
-                                Os lembretes são enviados automaticamente via WhatsApp <strong></strong>1 hora antes</strong> do agendamento.
+                                Os lembretes são enviados automaticamente via SMS <strong>1 hora antes</strong> do agendamento.
                             </p>
                             <div style="background:rgba(200,169,81,0.1);padding:15px;border-radius:10px;border-left:3px solid var(--secondary);margin-bottom:16px">
                                 <div style="font-weight:600;margin-bottom:8px">📊 Status dos Lembretes</div>
@@ -1893,8 +1890,8 @@
                                     <i class="fas fa-info-circle"></i> <strong>Como funciona:</strong>
                                 </div>
                                 <ul style="margin:8px 0 0 20px;font-size:12px;color:var(--text-secondary);line-height:1.6">
-                                    <li>Sistema verifica agendamentos a cada 2 minutos</li>
-                                    <li>Abre WhatsApp Web automaticamente 1h antes</li>
+                                    <li>Sistema verifica agendamentos a cada minuto</li>
+                                    <li>Envia SMS automaticamente 1h antes do horário</li>
                                     <li>Se popup bloqueado, mostra notificação clicável</li>
                                     <li>Mensagem pré-formatada com detalhes do agendamento</li>
                                 </ul>
@@ -4418,7 +4415,7 @@ Para confirmar presença, responda esta mensagem.`;
         let whatsStatusInterval = null;
         async function updateWhatsAppStatus() {
             try {
-                const resp = await fetch(`${API_URL}/whatsapp/status`);
+                const resp = await fetch(`${API_URL}/sms/status`);
                 const status = await resp.json();
                 const textEl = document.getElementById('whatsStatusText');
                 const qrBox = document.getElementById('whatsQRContainer');
@@ -4428,32 +4425,32 @@ Para confirmar presença, responda esta mensagem.`;
                 const iconEl = document.getElementById('whatsStatusIcon');
                 
                 if (status && status.connected) {
-                    if (textEl) textEl.textContent = 'Conectado ✅';
+                    if (textEl) textEl.textContent = 'SMS Configurado ✅';
                     if (qrBox) qrBox.style.display = 'none';
                     if (connectedBox) connectedBox.style.display = 'block';
-                    if (badgeEl) badgeEl.textContent = 'Conectado';
+                    if (badgeEl) badgeEl.textContent = 'Ativo';
                     if (indicatorEl) {
                         indicatorEl.style.background = '#4ade80';
                         indicatorEl.style.animation = 'none';
-                        indicatorEl.title = 'WhatsApp conectado';
+                        indicatorEl.title = 'SMS configurado';
                     }
                     if (iconEl) iconEl.style.color = '#4ade80';
                     if (whatsStatusInterval) { clearInterval(whatsStatusInterval); whatsStatusInterval = null; }
                 } else {
-                    if (textEl) textEl.textContent = 'Aguardando conexão (abra o QR em nova aba)';
+                    if (textEl) textEl.textContent = 'SMS não configurado (clique para configurar)';
                     if (qrBox) qrBox.style.display = 'block';
                     if (connectedBox) connectedBox.style.display = 'none';
-                    if (badgeEl) badgeEl.textContent = 'Aguardando';
+                    if (badgeEl) badgeEl.textContent = 'Não configurado';
                     if (indicatorEl) {
-                        indicatorEl.style.background = '#fb923c';
-                        indicatorEl.style.animation = 'pulse 2s infinite';
-                        indicatorEl.title = 'Aguardando conexão';
+                        indicatorEl.style.background = '#ef4444';
+                        indicatorEl.style.animation = 'none';
+                        indicatorEl.title = 'SMS não configurado';
                     }
-                    if (iconEl) iconEl.style.color = '#fb923c';
+                    if (iconEl) iconEl.style.color = '#ef4444';
                     if (!whatsStatusInterval) {
                         whatsStatusInterval = setInterval(async () => {
                             try {
-                                const r = await fetch(`${API_URL}/whatsapp/status`);
+                                const r = await fetch(`${API_URL}/sms/status`);
                                 const s = await r.json();
                                 if (s && s.connected) {
                                     const t = document.getElementById('whatsStatusText');
@@ -4461,14 +4458,14 @@ Para confirmar presença, responda esta mensagem.`;
                                     const ind = document.getElementById('whatsStatusIndicator');
                                     const i = document.getElementById('whatsStatusIcon');
                                     const cb = document.getElementById('whatsConnectedInfo');
-                                    if (t) t.textContent = 'Conectado ✅';
+                                    if (t) t.textContent = 'SMS Configurado ✅';
                                     if (qrBox) qrBox.style.display = 'none';
                                     if (cb) cb.style.display = 'block';
-                                    if (b) b.textContent = 'Conectado';
+                                    if (b) b.textContent = 'Ativo';
                                     if (ind) {
                                         ind.style.background = '#4ade80';
                                         ind.style.animation = 'none';
-                                        ind.title = 'WhatsApp conectado';
+                                        ind.title = 'SMS configurado';
                                     }
                                     if (i) i.style.color = '#4ade80';
                                     clearInterval(whatsStatusInterval); whatsStatusInterval = null;
@@ -4495,11 +4492,11 @@ Para confirmar presença, responda esta mensagem.`;
 
         function openWhatsAppQR() {
             if (!API_URL) {
-                alert('Backend não configurado. Para usar lembretes automáticos via WhatsApp, configure a variável API_URL no código.');
+                alert('Backend não configurado. Para usar lembretes automáticos via SMS, configure a variável API_URL no código.');
                 return;
             }
             try {
-                window.open(`${API_URL}/whatsapp/qr/html`, '_blank');
+                window.open(`${API_URL}/sms/config/html`, '_blank');
             } catch(_) {}
         }
 
@@ -4508,19 +4505,19 @@ Para confirmar presença, responda esta mensagem.`;
                 alert('Backend não configurado.');
                 return;
             }
-            if (!confirm('Isso irá desconectar o WhatsApp atual e gerar um novo QR Code. Deseja continuar?')) return;
+            if (!confirm('Isso irá recarregar as configurações de SMS. Deseja continuar?')) return;
             try {
                 const btn = document.getElementById('reconnectWhatsApp');
                 if (btn) {
                     btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reconectando...';
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recarregando...';
                 }
-                await fetch(`${API_URL}/whatsapp/logout`);
+                await fetch(`${API_URL}/sms/reconnect`);
                 setTimeout(() => {
                     openWhatsAppQR();
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Reconectar WhatsApp';
+                        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Recarregar Configuração SMS';
                     }
                     updateWhatsAppStatus();
                 }, 2000);
