@@ -1,0 +1,134 @@
+{
+  "name": "Barbearia - Novo Agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-created",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Novo Agendamento",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "booking-created"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "cliente",
+              "value": "={{ $json.booking.cliente }}"
+            },
+            {
+              "name": "telefone",
+              "value": "={{ $json.booking.telefone }}"
+            },
+            {
+              "name": "servico",
+              "value": "={{ $json.booking.servicoNome }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json.booking.dataISO }}"
+            },
+            {
+              "name": "hora",
+              "value": "={{ $json.booking.hora }}"
+            },
+            {
+              "name": "valor",
+              "value": "={{ $json.booking.valor }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-data",
+      "name": "Extrair Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const cliente = $json.cliente;\nconst telefone = $json.telefone;\nconst servico = $json.servico;\nconst data = $json.data;\nconst hora = $json.hora;\nconst valor = $json.valor;\n\n// Formatar data para dd/mm/yyyy\nconst [ano, mes, dia] = data.split('-');\nconst dataFormatada = `${dia}/${mes}/${ano}`;\n\n// Mensagem de confirmação\nconst mensagem = `Olá ${cliente}! 😊\n\n✅ *Agendamento Confirmado*\n\n📅 Data: ${dataFormatada}\n⏰ Horário: ${hora}\n✂️ Serviço: ${servico}\n💰 Valor: R$ ${valor}\n\n📍 Endereço: [Seu endereço aqui]\n\nAguardamos você! 🙌\n\n_Responda esta mensagem para confirmar presença._`;\n\nreturn {\n  telefone: telefone,\n  mensagem: mensagem\n};"
+      },
+      "id": "format-message",
+      "name": "Formatar Mensagem",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.whatsapp.com/send?phone={{ $json.telefone }}&text={{ encodeURIComponent($json.mensagem) }}",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "={{ $json.telefone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.mensagem }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-whatsapp",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 300],
+      "notes": "Substitua esta URL pela API do seu provedor WhatsApp (Twilio, MessageBird, etc)"
+    }
+  ],
+  "connections": {
+    "Webhook - Novo Agendamento": {
+      "main": [
+        [
+          {
+            "node": "Extrair Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Dados": {
+      "main": [
+        [
+          {
+            "node": "Formatar Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "barbearia-novo-agendamento",
+  "tags": []
+}

@@ -1,0 +1,198 @@
+{
+  "name": "Barbearia - Lembrete Automático (Cron)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "A cada 15 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://baz.ngrok.dev/api/bookings",
+        "method": "GET",
+        "options": {}
+      },
+      "id": "fetch-bookings",
+      "name": "Buscar Agendamentos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300],
+      "notes": "Altere a URL para a do seu backend"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Filtrar agendamentos que estão entre 55 e 65 minutos no futuro\n// (para enviar lembrete ~1h antes)\n\nconst agora = new Date();\nconst items = $input.all();\nconst agendamentos = items[0].json;\n\nconst proximosAgendamentos = agendamentos.filter(agendamento => {\n  // Ignorar se já enviou lembrete\n  if (agendamento.reminderSent) return false;\n  \n  // Ignorar se cancelado\n  if (agendamento.status === 'Cancelado') return false;\n  \n  // Calcular diferença de tempo\n  const dataHora = new Date(`${agendamento.dataISO}T${agendamento.hora}:00`);\n  const diferencaMs = dataHora - agora;\n  const diferencaMinutos = diferencaMs / (1000 * 60);\n  \n  // Apenas agendamentos entre 55-65 minutos no futuro\n  return diferencaMinutos >= 55 && diferencaMinutos <= 65;\n});\n\n// Retornar array de agendamentos\nreturn proximosAgendamentos.map(a => ({ json: a }));"
+      },
+      "id": "filter-upcoming",
+      "name": "Filtrar Próximos 1h",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "split-batches",
+      "name": "Processar Um por Um",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const agendamento = $json;\nconst telefone = agendamento.telefone;\nconst cliente = agendamento.cliente;\nconst servico = agendamento.servicoNome;\nconst hora = agendamento.hora;\nconst data = agendamento.dataISO;\n\n// Formatar data\nconst [ano, mes, dia] = data.split('-');\nconst dataFormatada = `${dia}/${mes}/${ano}`;\n\n// Mensagem de lembrete\nconst mensagem = `Olá ${cliente}! 😊\n\n🔔 *Lembrete de Agendamento*\n\nSeu horário é em 1 hora:\n📅 Data: ${dataFormatada}\n⏰ Horário: ${hora}\n✂️ Serviço: ${servico}\n\n📍 Endereço: [Seu endereço aqui]\n\nAguardamos você! 🙌\n\n_Confirme sua presença respondendo esta mensagem._`;\n\nreturn {\n  telefone: telefone,\n  mensagem: mensagem,\n  bookingId: agendamento.id\n};"
+      },
+      "id": "format-reminder",
+      "name": "Formatar Lembrete",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.whatsapp.com/send",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "={{ $json.telefone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.mensagem }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-reminder",
+      "name": "Enviar Lembrete",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1250, 300],
+      "notes": "Substitua pela API do seu provedor WhatsApp"
+    },
+    {
+      "parameters": {
+        "url": "=https://baz.ngrok.dev/api/bookings/{{ $json.bookingId }}/status",
+        "method": "PATCH",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "reminderSent",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "mark-sent",
+      "name": "Marcar Como Enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1450, 300],
+      "notes": "Atualiza o banco para não enviar novamente"
+    }
+  ],
+  "connections": {
+    "A cada 15 minutos": {
+      "main": [
+        [
+          {
+            "node": "Buscar Agendamentos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Agendamentos": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Próximos 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Próximos 1h": {
+      "main": [
+        [
+          {
+            "node": "Processar Um por Um",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processar Um por Um": {
+      "main": [
+        [
+          {
+            "node": "Formatar Lembrete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Lembrete": {
+      "main": [
+        [
+          {
+            "node": "Enviar Lembrete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Lembrete": {
+      "main": [
+        [
+          {
+            "node": "Marcar Como Enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar Como Enviado": {
+      "main": [
+        [
+          {
+            "node": "Processar Um por Um",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "barbearia-lembrete-automatico",
+  "tags": []
+}
