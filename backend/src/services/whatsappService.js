@@ -148,6 +148,23 @@ Para confirmar presença, responda esta mensagem.`;
       return { dataUrl: null, generatedAt: this.lastQRTimestamp };
     }
   }
+
+  async logoutAndReset() {
+    try {
+      console.log('🔌 Solicitado logout do WhatsApp...');
+      if (this.client) {
+        try { await this.client.logout(); } catch (_) {}
+        try { await this.client.destroy(); } catch (_) {}
+      }
+    } finally {
+      this.isReady = false;
+      this.lastQR = null;
+      this.lastQRTimestamp = null;
+      // Re-inicializa para gerar novo QR
+      this.initialize();
+    }
+    return { success: true };
+  }
 }
 
 module.exports = new WhatsAppService();

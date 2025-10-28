@@ -82,4 +82,14 @@ router.get('/whatsapp/qr/html', async (req, res) => {
   }
 });
 
+// Forçar logout do WhatsApp e gerar novo QR
+router.get('/whatsapp/logout', async (req, res) => {
+  try {
+    const r = await whatsappService.logoutAndReset();
+    res.json({ success: true, ...r });
+  } catch (e) {
+    res.status(500).json({ error: 'Erro ao reiniciar WhatsApp' });
+  }
+});
+
 module.exports = router;
