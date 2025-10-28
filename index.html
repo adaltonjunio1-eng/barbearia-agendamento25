@@ -2221,7 +2221,7 @@
         // ==============================
         // Se quiser usar o backend, mude para a URL do seu servidor (Railway, Render, VPS, etc)
         // Deixe como null para usar apenas localStorage (modo offline)
-        const API_URL = null; // ou 'http://localhost:3333/api' para testar local
+        const API_URL = 'https://baz.ngrok.dev/api'; // Ngrok URL
 
         async function createBookingAPI(bookingData) {
             if (!API_URL) throw new Error('API desabilitada');
