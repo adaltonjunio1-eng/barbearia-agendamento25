@@ -1902,6 +1902,69 @@
                         </div>
                     </div>
 
+                    <!-- Integração com n8n -->
+                    <div class="card" style="margin-top:20px;border:2px solid #ff6d5a;background:rgba(255,109,90,0.05)">
+                        <div class="card-header" style="background:rgba(255,109,90,0.1)">
+                            <div style="font-weight:700;display:flex;align-items:center;gap:10px">
+                                <i class="fas fa-network-wired" style="font-size:24px;color:#ff6d5a"></i>
+                                Integração n8n
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div style="background:rgba(255,109,90,0.1);padding:15px;border-radius:10px;border-left:3px solid #ff6d5a;margin-bottom:16px">
+                                <div style="font-weight:600;margin-bottom:8px;color:#ff6d5a">
+                                    <i class="fas fa-rocket"></i> Automação Externa com n8n
+                                </div>
+                                <p style="margin:8px 0;font-size:13px;color:var(--text-secondary);line-height:1.8">
+                                    Configure workflows no n8n para enviar lembretes via WhatsApp, SMS, Email ou qualquer outro canal. 
+                                    O n8n é mais robusto e confiável que o WhatsApp Web.js integrado.
+                                </p>
+                            </div>
+                            
+                            <div style="margin-bottom:16px">
+                                <label style="display:block;margin-bottom:8px;font-weight:600">
+                                    <i class="fas fa-link"></i> URL do Webhook n8n
+                                </label>
+                                <input 
+                                    type="url" 
+                                    id="n8nWebhookUrl" 
+                                    placeholder="https://seu-n8n.com/webhook/booking-reminder"
+                                    style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);font-size:14px"
+                                />
+                                <small style="display:block;margin-top:6px;color:var(--text-secondary);font-size:12px">
+                                    Cole aqui a URL do webhook do seu workflow no n8n
+                                </small>
+                            </div>
+                            
+                            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+                                <button class="btn-primary" onclick="saveN8nConfig()" style="flex:1;min-width:150px">
+                                    <i class="fas fa-save"></i> Salvar Configuração
+                                </button>
+                                <button class="action-btn" onclick="testN8nWebhook()" style="flex:1;min-width:150px">
+                                    <i class="fas fa-flask"></i> Testar Webhook
+                                </button>
+                            </div>
+                            
+                            <div id="n8nStatus" style="padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;gap:12px">
+                                <i class="fas fa-circle" style="font-size:10px;color:#64748b"></i>
+                                <div style="font-size:13px;color:var(--text-secondary)">
+                                    Configure o webhook acima para começar
+                                </div>
+                            </div>
+                            
+                            <div style="background:rgba(59,130,246,0.1);padding:12px;border-radius:8px;border:1px solid rgba(59,130,246,0.3);margin-top:16px">
+                                <div style="font-size:12px;color:#3b82f6;margin-bottom:8px">
+                                    <i class="fas fa-book"></i> <strong>Endpoints disponíveis:</strong>
+                                </div>
+                                <div style="font-size:12px;color:var(--text-secondary);font-family:monospace;line-height:1.8">
+                                    <div><strong>POST</strong> /api/webhook/booking-created - Novo agendamento</div>
+                                    <div><strong>POST</strong> /api/webhook/send-reminder - Enviar lembrete</div>
+                                    <div><strong>GET</strong> /api/webhook/status - Status da integração</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card" style="margin-top:20px">
                         <div class="card-header">
                             <div style="font-weight:700">Horários Disponíveis</div>
@@ -2338,6 +2401,15 @@
                 // Espelhar no localStorage para aparecer no Admin
                 upsertLocalBooking(saved);
                 localStorage.setItem('lastPhone', appState.userPhone);
+                
+                // Envia para n8n se configurado
+                sendToN8n({
+                    event: 'booking-created',
+                    booking: saved
+                }).then(success => {
+                    if (success) console.log('[N8N] Agendamento enviado para n8n');
+                });
+                
                 showNotification('Agendamento confirmado!');
                 switchTab('confirmacao');
             } catch (apiErr) {
@@ -2354,6 +2426,15 @@
                     localStorage.setItem('bookings', JSON.stringify(list));
                     localStorage.setItem('lastPhone', appState.userPhone);
                     scheduleReminder(booking);
+                    
+                    // Envia para n8n mesmo em modo offline
+                    sendToN8n({
+                        event: 'booking-created',
+                        booking: booking
+                    }).then(success => {
+                        if (success) console.log('[N8N] Agendamento enviado para n8n (offline mode)');
+                    });
+                    
                     showNotification('Agendamento confirmado (offline)!');
                     switchTab('confirmacao');
                 } catch (e) {
@@ -3125,6 +3206,8 @@
                     renderOrdersTable();
                     // Atualizar status do WhatsApp ao abrir Admin
                     updateWhatsAppStatus();
+                    // Carregar configurações do n8n
+                    loadN8nConfig();
                 })
                 .catch(() => {
                     // Mesmo se falhar, garante UI
@@ -3133,6 +3216,8 @@
                     updateKPIs();
                     bindAdminEvents();
                     renderOrdersTable();
+                    updateWhatsAppStatus();
+                    loadN8nConfig();
                     updateWhatsAppStatus();
                 });
         }
@@ -4448,6 +4533,138 @@ Para confirmar presença, responda esta mensagem.`;
                 }
             }
         }
+
+        // ===== FUNÇÕES N8N =====
+        function saveN8nConfig() {
+            const url = document.getElementById('n8nWebhookUrl')?.value?.trim();
+            if (!url) {
+                alert('Por favor, insira a URL do webhook do n8n');
+                return;
+            }
+            try {
+                new URL(url); // Valida URL
+                localStorage.setItem('n8nWebhookUrl', url);
+                localStorage.setItem('n8nEnabled', 'true');
+                updateN8nStatus('success', 'Webhook n8n configurado com sucesso!');
+                alert('✅ Configuração salva! Agora o sistema enviará dados para o n8n.');
+            } catch(e) {
+                alert('❌ URL inválida. Use formato: https://seu-n8n.com/webhook/...');
+            }
+        }
+
+        async function testN8nWebhook() {
+            const url = localStorage.getItem('n8nWebhookUrl');
+            if (!url) {
+                alert('Configure a URL do webhook antes de testar');
+                return;
+            }
+            
+            updateN8nStatus('loading', 'Testando conexão com n8n...');
+            
+            const testData = {
+                test: true,
+                cliente: 'João da Silva (TESTE)',
+                telefone: '5511999999999',
+                servicoNome: 'Corte + Barba',
+                hora: '14:00',
+                dataISO: new Date().toISOString(),
+                message: 'Este é um teste de integração do sistema de barbearia'
+            };
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    updateN8nStatus('success', `✅ Webhook respondeu: ${response.status} ${response.statusText}`);
+                    alert('✅ Teste bem-sucedido! O n8n recebeu os dados. Verifique seu workflow.');
+                } else {
+                    updateN8nStatus('error', `❌ Erro: ${response.status} ${response.statusText}`);
+                    alert(`❌ Webhook retornou erro: ${response.status}. Verifique a URL e o workflow no n8n.`);
+                }
+            } catch(e) {
+                updateN8nStatus('error', '❌ Falha ao conectar com n8n');
+                alert(`❌ Erro ao testar webhook:\n${e.message}\n\nVerifique:\n- URL está correta\n- n8n está rodando\n- Workflow está ativo`);
+            }
+        }
+
+        function updateN8nStatus(type, message) {
+            const statusDiv = document.getElementById('n8nStatus');
+            if (!statusDiv) return;
+            
+            const colors = {
+                success: '#4ade80',
+                error: '#ef4444',
+                loading: '#fb923c',
+                idle: '#64748b'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                loading: 'fa-spinner fa-spin',
+                idle: 'fa-circle'
+            };
+            
+            statusDiv.innerHTML = `
+                <i class="fas ${icons[type]}" style="font-size:10px;color:${colors[type]}"></i>
+                <div style="font-size:13px;color:var(--text-secondary)">${message}</div>
+            `;
+        }
+
+        async function sendToN8n(bookingData) {
+            const url = localStorage.getItem('n8nWebhookUrl');
+            const enabled = localStorage.getItem('n8nEnabled') === 'true';
+            
+            if (!url || !enabled) {
+                console.log('[N8N] Webhook não configurado ou desabilitado');
+                return false;
+            }
+            
+            try {
+                console.log('[N8N] Enviando dados:', bookingData);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...bookingData,
+                        timestamp: new Date().toISOString(),
+                        source: 'barbearia-agendamento'
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('[N8N] Dados enviados com sucesso');
+                    return true;
+                } else {
+                    console.error('[N8N] Erro ao enviar:', response.status);
+                    return false;
+                }
+            } catch(e) {
+                console.error('[N8N] Falha ao enviar:', e);
+                return false;
+            }
+        }
+
+        function loadN8nConfig() {
+            const url = localStorage.getItem('n8nWebhookUrl');
+            const enabled = localStorage.getItem('n8nEnabled') === 'true';
+            
+            const input = document.getElementById('n8nWebhookUrl');
+            if (input && url) {
+                input.value = url;
+            }
+            
+            if (url && enabled) {
+                updateN8nStatus('success', '✅ Webhook n8n configurado e ativo');
+            } else {
+                updateN8nStatus('idle', 'Configure o webhook acima para começar');
+            }
+        }
+
         async function loadWhatsAppQR() {
             try {
                 const resp = await fetch(`${API_URL}/whatsapp/qr`);

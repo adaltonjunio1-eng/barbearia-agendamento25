@@ -92,4 +92,67 @@ router.get('/whatsapp/logout', async (req, res) => {
   }
 });
 
+// ===== WEBHOOKS PARA N8N =====
+// Endpoint para receber dados de agendamentos do frontend e repassar para n8n
+router.post('/webhook/booking-created', async (req, res) => {
+  try {
+    const booking = req.body;
+    console.log('[N8N Webhook] Novo agendamento recebido:', booking);
+    
+    // Retorna sucesso imediatamente
+    // O n8n deve chamar este endpoint ou você pode configurar para o backend chamar o n8n
+    res.json({ 
+      success: true, 
+      message: 'Agendamento recebido para processamento',
+      booking 
+    });
+  } catch (error) {
+    console.error('[N8N Webhook] Erro:', error);
+    res.status(500).json({ error: 'Erro ao processar webhook' });
+  }
+});
+
+// Endpoint para n8n solicitar envio de lembretes
+router.post('/webhook/send-reminder', async (req, res) => {
+  try {
+    const { bookingId, telefone, cliente, servicoNome, hora, dataISO } = req.body;
+    console.log('[N8N Webhook] Solicitação de lembrete:', { bookingId, telefone });
+    
+    // Tenta enviar via WhatsApp se estiver conectado
+    const status = await whatsappService.getStatus();
+    if (status.connected) {
+      await whatsappService.sendReminder({
+        telefone,
+        cliente,
+        servicoNome,
+        hora,
+        dataISO
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      whatsappUsed: status.connected,
+      message: status.connected 
+        ? 'Lembrete enviado via WhatsApp' 
+        : 'WhatsApp não conectado, use n8n para envio'
+    });
+  } catch (error) {
+    console.error('[N8N Webhook] Erro ao enviar lembrete:', error);
+    res.status(500).json({ error: 'Erro ao enviar lembrete' });
+  }
+});
+
+// Status da integração
+router.get('/webhook/status', (req, res) => {
+  res.json({
+    success: true,
+    webhooks: {
+      bookingCreated: '/api/webhook/booking-created',
+      sendReminder: '/api/webhook/send-reminder'
+    },
+    instructions: 'Configure seu workflow no n8n para chamar estes endpoints'
+  });
+});
+
 module.exports = router;

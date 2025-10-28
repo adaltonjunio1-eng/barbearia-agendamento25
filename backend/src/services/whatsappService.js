@@ -15,56 +15,64 @@ class WhatsAppService {
   initialize() {
     console.log('🔄 Inicializando WhatsApp Web...');
 
-    this.client = new Client({
-      authStrategy: new LocalAuth({
-        dataPath: './.wwebjs_auth'
-      }),
-      puppeteer: {
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--disable-gpu'
-        ]
-      }
-    });
+    try {
+      this.client = new Client({
+        authStrategy: new LocalAuth({
+          dataPath: './.wwebjs_auth'
+        }),
+        puppeteer: {
+          headless: true,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+          ]
+        }
+      });
 
-    this.client.on('qr', (qr) => {
-      // Armazenar QR para consumo pelo frontend
-      this.lastQR = qr;
-      this.lastQRTimestamp = new Date().toISOString();
+      this.client.on('qr', (qr) => {
+        // Armazenar QR para consumo pelo frontend
+        this.lastQR = qr;
+        this.lastQRTimestamp = new Date().toISOString();
 
-      console.log('\n📱 Escaneie o QR Code abaixo com o WhatsApp:\n');
-      qrcodeTerminal.generate(qr, { small: true });
-      console.log('\n👆 Abra o WhatsApp > Dispositivos Vinculados > Vincular Dispositivo\n');
-    });
+        console.log('\n📱 Escaneie o QR Code abaixo com o WhatsApp:\n');
+        qrcodeTerminal.generate(qr, { small: true });
+        console.log('\n👆 Abra o WhatsApp > Dispositivos Vinculados > Vincular Dispositivo\n');
+      });
 
-    this.client.on('ready', () => {
-      console.log('✅ WhatsApp conectado e pronto!');
-      this.isReady = true;
-      // Limpar QR após conexão
-      this.lastQR = null;
-      this.lastQRTimestamp = null;
-    });
+      this.client.on('ready', () => {
+        console.log('✅ WhatsApp conectado e pronto!');
+        this.isReady = true;
+        // Limpar QR após conexão
+        this.lastQR = null;
+        this.lastQRTimestamp = null;
+      });
 
-    this.client.on('authenticated', () => {
-      console.log('✅ WhatsApp autenticado');
-    });
+      this.client.on('authenticated', () => {
+        console.log('✅ WhatsApp autenticado');
+      });
 
-    this.client.on('auth_failure', (msg) => {
-      console.error('❌ Falha na autenticação:', msg);
-    });
+      this.client.on('auth_failure', (msg) => {
+        console.error('❌ Falha na autenticação:', msg);
+      });
 
-    this.client.on('disconnected', (reason) => {
-      console.log('⚠️ WhatsApp desconectado:', reason);
-      this.isReady = false;
-    });
+      this.client.on('disconnected', (reason) => {
+        console.log('⚠️ WhatsApp desconectado:', reason);
+        this.isReady = false;
+      });
 
-    this.client.initialize();
+      this.client.initialize().catch(err => {
+        console.error('❌ Erro ao inicializar WhatsApp (não-crítico):', err.message);
+        console.log('ℹ️ Sistema continuará funcionando. Use n8n para automações.');
+      });
+    } catch (error) {
+      console.error('❌ Erro ao configurar WhatsApp (não-crítico):', error.message);
+      console.log('ℹ️ Sistema continuará funcionando. Use n8n para automações.');
+    }
   }
 
   async sendReminder(booking) {
