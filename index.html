@@ -1360,12 +1360,6 @@
             </button>
         </div>
 
-        <!-- Debug Info (Remover depois) -->
-        <div id="debugInfo" style="position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#00ff41;padding:10px;border-radius:8px;font-size:12px;z-index:9999;font-family:monospace;">
-            <div>Aba Ativa: <span id="debugTab">login</span></div>
-            <div>JS Carregado: <span id="debugJS">❌</span></div>
-        </div>
-
         <!-- Phone Login Section -->
         <div class="content-section active" id="login">
             <div class="section-hero phone-login-section">
@@ -1591,20 +1585,55 @@
     
 
     <script>
-        let appState = {
-            userPhone: '',
-            userName: '',
-            selectedService: null,
-            selectedTime: null,
-            selectedDate: null,
-            services: [
+        // Carregar serviços do localStorage (sincronizado com dashboard admin)
+        function loadServicesFromStorage() {
+            try {
+                const stored = localStorage.getItem('services');
+                if (stored) {
+                    const servicesFromAdmin = JSON.parse(stored);
+                    // Converter formato do admin para formato do app
+                    return servicesFromAdmin.map((s, index) => ({
+                        id: s.id || index + 1,
+                        name: s.name,
+                        price: s.value || s.price,
+                        duration: s.duration,
+                        icon: getServiceIcon(s.name),
+                        featured: index === 2 // Marca o terceiro como featured
+                    }));
+                }
+            } catch(e) {
+                console.error('[SERVICES] Erro ao carregar do localStorage:', e);
+            }
+            // Retorna serviços padrão se não houver no localStorage
+            return [
                 { id: 1, name: "Corte Geral", price: 40, duration: 45, icon: "fa-cut" },
                 { id: 2, name: "Alinhamento de Cabelo", price: 40, duration: 30, icon: "fa-ruler-combined" },
                 { id: 3, name: "Combo Premium", price: 60, duration: 90, icon: "fa-crown", featured: true },
                 { id: 4, name: "Luzes", price: 110, duration: 120, icon: "fa-sun" },
                 { id: 5, name: "Pesinho", price: 15, duration: 15, icon: "fa-eraser" },
                 { id: 6, name: "Barba", price: 30, duration: 30, icon: "fa-air-freshener" }
-            ]
+            ];
+        }
+
+        // Mapear nome do serviço para ícone
+        function getServiceIcon(name) {
+            const nameLower = name.toLowerCase();
+            if (nameLower.includes('corte')) return 'fa-cut';
+            if (nameLower.includes('barba')) return 'fa-air-freshener';
+            if (nameLower.includes('combo') || nameLower.includes('premium')) return 'fa-crown';
+            if (nameLower.includes('luz') || nameLower.includes('coloração')) return 'fa-sun';
+            if (nameLower.includes('alinhamento') || nameLower.includes('acabamento')) return 'fa-ruler-combined';
+            if (nameLower.includes('pesinho') || nameLower.includes('sobrancelha')) return 'fa-eraser';
+            return 'fa-scissors'; // Ícone padrão
+        }
+
+        let appState = {
+            userPhone: '',
+            userName: '',
+            selectedService: null,
+            selectedTime: null,
+            selectedDate: null,
+            services: loadServicesFromStorage() // Carrega do localStorage
         };
 
         function verifyPhone() {
@@ -1949,10 +1978,6 @@
         function switchTab(tabName) {
             console.log('[SWITCH_TAB] Mudando para:', tabName);
             
-            // Atualizar debug visual
-            const debugTab = document.getElementById('debugTab');
-            if (debugTab) debugTab.textContent = tabName;
-            
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             
@@ -2276,9 +2301,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('[INIT] Inicializando sistema de agendamento...');
             
-            // Atualizar debug visual
-            const debugJS = document.getElementById('debugJS');
-            if (debugJS) debugJS.textContent = '✅';
 
             // Event listeners para as abas de navegação
             document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -2330,6 +2352,27 @@
 
             // Renderizar serviços
             renderServices();
+            
+            // Monitorar mudanças no localStorage para atualizar serviços automaticamente
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'services') {
+                    console.log('[STORAGE_SYNC] Serviços atualizados no localStorage');
+                    appState.services = loadServicesFromStorage();
+                    renderServices();
+                    showNotification('Serviços atualizados!', 'success');
+                }
+            });
+            
+            // Também verificar periodicamente (para mudanças na mesma aba)
+            setInterval(function() {
+                const currentServices = JSON.stringify(appState.services);
+                const newServices = JSON.stringify(loadServicesFromStorage());
+                if (currentServices !== newServices) {
+                    console.log('[SERVICES_CHECK] Mudança detectada, atualizando...');
+                    appState.services = loadServicesFromStorage();
+                    renderServices();
+                }
+            }, 2000); // Verifica a cada 2 segundos
             
             console.log('[INIT] Sistema inicializado com sucesso!');
         });
