@@ -776,6 +776,7 @@
   // Executar ao carregar - UNIFICADO
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+      console.log('[INIT] DOMContentLoaded disparado');
       checkAuthDW();
       bindNavDW();
       
@@ -800,8 +801,29 @@
       if (overlay) overlay.addEventListener('click', closeSidebar);
     });
   } else {
+    console.log('[INIT] DOM já carregado, executando imediatamente');
     checkAuthDW();
     bindNavDW();
+    
+    // Sidebar mobile functionality
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    const openSidebar = () => {
+      if (sidebar) sidebar.classList.remove('-translate-x-full');
+      if (overlay) overlay.classList.remove('hidden');
+    };
+
+    const closeSidebar = () => {
+      if (sidebar) sidebar.classList.add('-translate-x-full');
+      if (overlay) overlay.classList.add('hidden');
+    };
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
   }
 
   function currencyBRL(v) {
