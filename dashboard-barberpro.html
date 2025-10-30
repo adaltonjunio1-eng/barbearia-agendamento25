@@ -636,7 +636,7 @@
     <div class="scan-line"></div>
     <div id="loginBox" class="hacker-login-box">
         <h2 class="hacker-title" data-text="Acesso Restrito">Acesso Restrito</h2>
-        <form id="loginForm" class="hacker-form" onsubmit="event.preventDefault(); validateLogin();">
+        <form id="loginForm" class="hacker-form">
           <!-- Username Field (hidden but required for form) -->
           <div class="mb-6">
             <label for="adminUser" class="block mb-3">
@@ -822,6 +822,20 @@
       checkAuthDW();
       bindNavDW();
       
+      // Configurar formulário de login
+      console.log('[INIT] Configurando formulário de login...');
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        console.log('[INIT] Formulário de login encontrado, adicionando listener');
+        loginForm.addEventListener('submit', (e) => {
+          console.log('[FORM] Evento submit disparado!');
+          e.preventDefault();
+          validateLogin();
+        });
+      } else {
+        console.error('[INIT] ✗ Formulário de login NÃO encontrado!');
+      }
+      
       // Sidebar mobile functionality
       console.log('[INIT] Configurando menu mobile...');
       const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -866,6 +880,20 @@
     console.log('[INIT] DOM já carregado, executando imediatamente');
     checkAuthDW();
     bindNavDW();
+    
+    // Configurar formulário de login
+    console.log('[INIT] Configurando formulário de login...');
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      console.log('[INIT] Formulário de login encontrado, adicionando listener');
+      loginForm.addEventListener('submit', (e) => {
+        console.log('[FORM] Evento submit disparado!');
+        e.preventDefault();
+        validateLogin();
+      });
+    } else {
+      console.error('[INIT] ✗ Formulário de login NÃO encontrado!');
+    }
     
     // Sidebar mobile functionality
     console.log('[INIT] Configurando menu mobile...');
