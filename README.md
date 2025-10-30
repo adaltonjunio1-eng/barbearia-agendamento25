@@ -97,6 +97,26 @@ SMS_FROM_NUMBER=+1555...
 
 ## Contribuição
 
+## Ícones PWA e Logo do App
+
+Você pode personalizar a logo (favicon/apple-touch-icon) e os ícones de instalação (PWA):
+
+1) Aplicar logo imediatamente no navegador
+
+- No Admin > Configurações > Marca e Logo, faça o upload da sua logo.
+- O favicon e o apple-touch-icon serão atualizados na hora (persistidos no navegador via localStorage).
+
+2) Gerar ícones PWA estáveis (recomendado)
+
+- Abra `logo-generator.html` e clique em “Baixar icon-192.png” e “Baixar icon-512.png”.
+- Coloque esses arquivos na raiz do projeto (mesma pasta do `manifest.json`).
+- Faça commit e push.
+- Reinstale o app no celular para que o PWA use os novos ícones.
+
+Alternativa: no Admin > Configurações > Marca e Logo, use o botão “Baixar ícones PWA (192/512)” para gerar os PNGs via canvas a partir da logo enviada.
+
+Observação: O `manifest.json` aponta para `icon-192.png` e `icon-512.png`. Substituir esses arquivos garante que o ícone instalado do app será atualizado de forma consistente.
+
 Sinta-se à vontade para contribuir com melhorias ou correções. Abra um pull request ou crie uma issue para discutir mudanças.
 
 ## Licença
