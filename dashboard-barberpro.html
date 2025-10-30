@@ -754,23 +754,12 @@
 
   // Verificar autenticação e decidir o que mostrar
   function checkAuthDW() {
-    console.log('[CHECKAUTH] Verificando autenticação...');
-    const isAuth = sessionStorage.getItem('admin_authenticated');
-    const authTime = sessionStorage.getItem('admin_auth_time');
-    const now = Date.now();
-    const fourHours = 4 * 60 * 60 * 1000;
-    const valid = isAuth && authTime && ((now - parseInt(authTime)) <= fourHours);
-    console.log('[CHECKAUTH] isAuth:', isAuth, 'authTime:', authTime, 'valid:', valid);
-    if (!valid) {
-      console.log('[CHECKAUTH] Sessão inválida, mostrando login');
-      sessionStorage.removeItem('admin_authenticated');
-      sessionStorage.removeItem('admin_auth_time');
-      showLogin();
-    } else {
-      console.log('[CHECKAUTH] Sessão válida, mostrando dashboard');
-      // Já está autenticado, garante que o dashboard está visível
-      hideLogin();
-    }
+    console.log('[CHECKAUTH] Limpando sessão e mostrando login');
+    // Sempre limpa a sessão ao carregar a página
+    sessionStorage.removeItem('admin_authenticated');
+    sessionStorage.removeItem('admin_auth_time');
+    // Sempre mostra o login primeiro
+    showLogin();
   }
   
   // Executar ao carregar - UNIFICADO
