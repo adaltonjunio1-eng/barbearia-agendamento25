@@ -3,16 +3,24 @@ const path = require('path');
 const sharp = require('sharp');
 
 async function generateIcon(size) {
-  const src = path.resolve(__dirname, '..', 'assets', 'logo', 'icon.svg');
+  // Prioriza PNG, depois SVG
+  const pngSrc = path.resolve(__dirname, '..', 'assets', 'logo', 'icon.png');
+  const svgSrc = path.resolve(__dirname, '..', 'assets', 'logo', 'icon.svg');
+  const src = fs.existsSync(pngSrc) ? pngSrc : svgSrc;
+  
   const out = path.resolve(__dirname, '..', `icon-${size}.png`);
-  const svgBuffer = fs.readFileSync(src);
-  const bg = { r: 15, g: 20, b: 25, alpha: 1 }; // #0f1419
-  await sharp(svgBuffer, { density: 384 })
+  const bg = { r: 47, g: 56, b: 64, alpha: 1 }; // dark background
+  
+  const sharpInstance = src.endsWith('.svg') 
+    ? sharp(fs.readFileSync(src), { density: 384 })
+    : sharp(src);
+  
+  await sharpInstance
     .resize(size, size, { fit: 'contain', background: bg })
-    .flatten({ background: bg }) // garante fundo sólido
+    .flatten({ background: bg })
     .png({ compressionLevel: 9 })
     .toFile(out);
-  console.log(`✓ Gerado ${path.basename(out)}`);
+  console.log(`✓ Gerado ${path.basename(out)} de ${path.basename(src)}`);
 }
 
 (async () => {

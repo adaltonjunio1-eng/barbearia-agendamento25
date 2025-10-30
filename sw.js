@@ -1,5 +1,5 @@
 // Service Worker para BarberPro PWA
-const CACHE_NAME = 'barberpro-v1';
+const CACHE_NAME = 'barberpro-v2';
 const urlsToCache = [
   '/barbearia-agendamento25/',
   '/barbearia-agendamento25/index.html',
