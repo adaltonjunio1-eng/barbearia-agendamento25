@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Ícones PWA - BarberPro</title>
+  <meta name="theme-color" content="#00ff41" />
+  <style>
+    :root { --bg:#0f1419; --fg:#00ff41; --gold:#C8A951; }
+    body{background:var(--bg);color:#e5e7eb;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;margin:0}
+    .container{max-width:880px;margin:0 auto;padding:24px}
+    .card{background:#1A1F2C;border:1px solid rgba(200,169,81,.2);border-radius:16px;padding:20px;margin-top:16px}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .btn{background:transparent;border:2px solid var(--fg);color:var(--fg);padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn:hover{background:rgba(0,255,65,.08)}
+    .muted{color:#9ca3af}
+    img.preview{width:160px;height:160px;border-radius:24px;border:1px solid rgba(255,255,255,.08);background:#0f1419;object-fit:cover}
+    .inline{display:inline-flex;align-items:center;gap:8px}
+    code{background:#111827;color:#e5e7eb;padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="color:var(--fg);margin:0 0 8px 0">Gerador de Ícones PWA</h1>
+    <p class="muted">Use sua logo SVG para gerar <code>icon-192.png</code> e <code>icon-512.png</code> e salvar no app.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">1) Logo pronta (padrão)</h3>
+      <p class="muted">Vamos usar o ícone pronto do projeto: <code>assets/logo/icon.svg</code></p>
+      <div class="row" style="align-items:center">
+        <img id="svgPreview" class="preview" src="assets/logo/icon.svg" alt="preview" />
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="downloadPng(192)">Baixar icon-192.png</button>
+          <button class="btn" onclick="downloadPng(512)">Baixar icon-512.png</button>
+          <button class="btn" style="border-color:#C8A951;color:#C8A951" onclick="saveAsAppLogo()">Salvar como logo do app</button>
+        </div>
+      </div>
+      <p class="muted" id="status"></p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">2) Usar um SVG personalizado</h3>
+      <p class="muted">Carregue seu próprio arquivo <code>.svg</code> (quadrado recomendado) para gerar os PNGs.</p>
+      <div class="inline">
+        <input id="customSvg" type="file" accept="image/svg+xml" />
+        <button class="btn" onclick="useCustomSvg()">Carregar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">3) Logo horizontal (wordmark)</h3>
+      <p class="muted">Arquivo pronto: <a href="assets/logo/brand.svg" target="_blank">assets/logo/brand.svg</a></p>
+      <img src="assets/logo/brand.svg" alt="brand" style="width:100%;max-width:720px;border-radius:12px;border:1px solid rgba(255,255,255,.08)"/>
+    </div>
+  </div>
+
+  <canvas id="canvas" width="1024" height="1024" style="display:none"></canvas>
+  <script>
+    let currentSvgUrl = 'assets/logo/icon.svg';
+
+    function msg(text){ const s=document.getElementById('status'); if(s) s.textContent=text; }
+
+    async function svgToPngBlob(svgUrl, size){
+      const svgText = await fetch(svgUrl).then(r => r.text());
+      const blob = new Blob([svgText], {type:'image/svg+xml'});
+      const url = URL.createObjectURL(blob);
+      try{
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const p = new Promise((res,rej)=>{ img.onload=()=>res(); img.onerror=rej; });
+        img.src = url;
+        await p;
+        const canvas = document.getElementById('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#0f1419';
+        ctx.fillRect(0,0,size,size);
+        // cover
+        const iw = img.naturalWidth || 1024; const ih = img.naturalHeight || 1024;
+        const scale = Math.max(size/iw, size/ih);
+        const dw = iw*scale, dh = ih*scale;
+        const dx = (size-dw)/2, dy = (size-dh)/2;
+        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, dx, dy, dw, dh);
+        return await new Promise((resolve)=> canvas.toBlob(b=>resolve(b),'image/png'));
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    async function downloadPng(size){
+      try{
+        const blob = await svgToPngBlob(currentSvgUrl, size);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `icon-${size}.png`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+        msg(`Ícone ${size} gerado e baixado.`);
+      }catch(e){ msg('Falha ao gerar PNG.'); }
+    }
+
+    async function saveAsAppLogo(){
+      try{
+        const blob = await svgToPngBlob(currentSvgUrl, 512);
+        const reader = new FileReader();
+        const p = new Promise((res) => { reader.onload = ()=>res(); });
+        reader.readAsDataURL(blob);
+        await p;
+        localStorage.setItem('appLogo', reader.result);
+        msg('Logo salva no app. Recarregue o dashboard e a página pública para ver a mudança.');
+      }catch(e){ msg('Não foi possível salvar a logo.'); }
+    }
+
+    function useCustomSvg(){
+      const input = document.getElementById('customSvg');
+      const file = input.files && input.files[0];
+      if (!file){ msg('Selecione um arquivo .svg'); return; }
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const data = e.target.result;
+        const blob = new Blob([data], {type:'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        currentSvgUrl = url;
+        document.getElementById('svgPreview').src = url;
+        msg('SVG personalizado carregado.');
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>

@@ -1069,6 +1069,27 @@
         </div>
       </div>
 
+      <!-- Marca e Logo -->
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-200 text-lg font-semibold mb-2">Marca e Logo</h3>
+        <p class="text-gray-400 text-sm mb-4">Envie sua logo para aparecer como ícone do app (PWA) e favicon</p>
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div class="flex items-center gap-3">
+            <img id="brandLogoPreviewDW" src="" alt="Logo preview" class="w-16 h-16 rounded-lg bg-[#1A1A1A] border border-gray-700 object-cover hidden" />
+            <div class="text-xs text-gray-400">PNG/JPG quadrado recomendado (512x512)</div>
+          </div>
+          <div class="flex gap-2">
+            <label class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm cursor-pointer">
+              Enviar logo
+              <input id="brandLogoInputDW" type="file" accept="image/*" class="hidden" onchange="handleBrandLogoChangeDW(this)" />
+            </label>
+            <button onclick="generateAndDownloadPwaIconsDW()" class="px-3 py-2 rounded-md border border-green-700 text-green-300 hover:bg-green-900/30 text-sm">Baixar ícones PWA (192/512)</button>
+            <button onclick="clearLogoDW()" class="px-3 py-2 rounded-md border border-red-700 text-red-300 hover:bg-red-900/30 text-sm">Remover logo</button>
+          </div>
+        </div>
+        <p id="brandLogoStatusDW" class="text-xs text-gray-500 mt-3"></p>
+      </div>
+
       <!-- Limpeza de Dados -->
       <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-red-900/50">
         <h3 class="text-red-400 text-lg font-semibold mb-2">⚠️ Limpeza de Dados</h3>
@@ -1856,7 +1877,8 @@
 
   // Boot
   (function init() {
-    // Inicializar menu mobile
+    // Branding e menu mobile
+    applyBrandingFromStorage();
     initMobileMenu();
     
     const isAuth = sessionStorage.getItem('admin_authenticated');
@@ -2314,6 +2336,120 @@
   // Segurança (senha admin)
   function changeAdminPasswordDW(){ const current=document.getElementById('currentAdminPasswordDW')?.value||''; const next=document.getElementById('newAdminPasswordDW')?.value||''; const confirm=document.getElementById('confirmAdminPasswordDW')?.value||''; if (current!==getAdminPassword()) { toastDW('Senha atual incorreta','error'); return; } if (!next || next.length<6){ toastDW('Nova senha deve ter 6+ caracteres','error'); return; } if (next!==confirm){ toastDW('Confirmação não confere','error'); return; } try{ localStorage.setItem('adminPassword', next); toastDW('Senha alterada com sucesso'); document.getElementById('currentAdminPasswordDW').value=''; document.getElementById('newAdminPasswordDW').value=''; document.getElementById('confirmAdminPasswordDW').value=''; }catch{ toastDW('Não foi possível salvar','error'); } }
   function resetAdminPasswordToDefaultDW(){ try{ localStorage.removeItem('adminPassword'); toastDW('Senha restaurada para o padrão'); }catch{} }
+
+  // Marca e Logo
+  function handleBrandLogoChangeDW(input){
+    const file = input?.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const dataUrl = e.target.result;
+        localStorage.setItem('appLogo', dataUrl);
+        const prev = document.getElementById('brandLogoPreviewDW');
+        if (prev){ prev.src = dataUrl; prev.classList.remove('hidden'); }
+        const status = document.getElementById('brandLogoStatusDW');
+        if (status) status.textContent = 'Logo salva com sucesso. Atualize o app instalado para ver o novo ícone.';
+        applyBrandingFromStorage();
+        toastDW('Logo atualizada');
+      }catch(err){
+        console.error(err);
+        toastDW('Não foi possível salvar a logo','error');
+      }finally{
+        input.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearLogoDW(){
+    localStorage.removeItem('appLogo');
+    const prev = document.getElementById('brandLogoPreviewDW');
+    if (prev){ prev.src=''; prev.classList.add('hidden'); }
+    const status = document.getElementById('brandLogoStatusDW');
+    if (status) status.textContent = 'Logo removida. Usando ícone padrão.';
+    applyBrandingFromStorage();
+    toastDW('Logo removida');
+  }
+
+  function applyBrandingFromStorage(){
+    try{
+      const logo = localStorage.getItem('appLogo');
+      // Atualiza preview se existir
+      const prev = document.getElementById('brandLogoPreviewDW');
+      if (prev){
+        if (logo){ prev.src = logo; prev.classList.remove('hidden'); }
+        else { prev.src=''; prev.classList.add('hidden'); }
+      }
+
+      // Helper para criar/atualizar link
+      function upsertLink(rel){
+        let el = document.querySelector(`link[rel="${rel}"]`);
+        if (!el){ el = document.createElement('link'); el.setAttribute('rel', rel); document.head.appendChild(el); }
+        return el;
+      }
+
+      // Favicon e Apple Touch Icon
+      if (logo){
+        upsertLink('icon').setAttribute('href', logo);
+        upsertLink('apple-touch-icon').setAttribute('href', logo);
+      }
+
+      // Manifest estável: mantemos o arquivo manifest.json do projeto.
+    }catch(e){
+      console.warn('Branding update skip:', e);
+    }
+  }
+
+  // Gera PNGs 192x192 e 512x512 a partir da logo e oferece para download
+  function generateAndDownloadPwaIconsDW(){
+    const logo = localStorage.getItem('appLogo');
+    if (!logo){ toastDW('Envie uma logo primeiro.', 'error'); return; }
+
+    const sizes = [192, 512];
+    Promise.all(sizes.map(sz => createPngFromDataUrlDW(logo, sz)))
+      .then(blobs => {
+        blobs.forEach((blob, idx) => {
+          const sz = sizes[idx];
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `icon-${sz}.png`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+        });
+        const status = document.getElementById('brandLogoStatusDW');
+        if (status) status.textContent = 'Ícones gerados. Substitua os arquivos icon-192.png e icon-512.png no repositório para tornar permanente.';
+      })
+      .catch(() => toastDW('Não foi possível gerar os ícones', 'error'));
+  }
+
+  function createPngFromDataUrlDW(dataUrl, size){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try{
+          const canvas = document.createElement('canvas');
+          canvas.width = size; canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          // Fundo sólido (melhor para maskable)
+          ctx.fillStyle = '#0f1419';
+          ctx.fillRect(0, 0, size, size);
+          // "cover" para manter proporção
+          const iw = img.naturalWidth || img.width; const ih = img.naturalHeight || img.height;
+          const scale = Math.max(size/iw, size/ih);
+          const dw = iw * scale; const dh = ih * scale;
+          const dx = (size - dw) / 2; const dy = (size - dh) / 2;
+          ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, dx, dy, dw, dh);
+          canvas.toBlob(b => b ? resolve(b) : reject(new Error('blob-null')), 'image/png');
+        }catch(e){ reject(e); }
+      };
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+  }
 
   // Data Cleanup
   function clearBookingsDW() {
