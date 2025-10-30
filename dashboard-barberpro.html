@@ -775,30 +775,51 @@
   
   // Executar ao carregar - UNIFICADO
   if (document.readyState === 'loading') {
+    console.log('[INIT] DOM ainda carregando, aguardando DOMContentLoaded...');
     document.addEventListener('DOMContentLoaded', () => {
       console.log('[INIT] DOMContentLoaded disparado');
       checkAuthDW();
       bindNavDW();
       
       // Sidebar mobile functionality
+      console.log('[INIT] Configurando menu mobile...');
       const hamburgerBtn = document.getElementById('hamburgerBtn');
       const closeSidebarBtn = document.getElementById('closeSidebarBtn');
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebarOverlay');
+      
+      console.log('[INIT] Elementos mobile:', {
+        hamburgerBtn: !!hamburgerBtn,
+        closeSidebarBtn: !!closeSidebarBtn,
+        sidebar: !!sidebar,
+        overlay: !!overlay
+      });
 
       const openSidebar = () => {
+        console.log('[MOBILE] Abrindo sidebar');
         if (sidebar) sidebar.classList.remove('-translate-x-full');
         if (overlay) overlay.classList.remove('hidden');
       };
 
       const closeSidebar = () => {
+        console.log('[MOBILE] Fechando sidebar');
         if (sidebar) sidebar.classList.add('-translate-x-full');
         if (overlay) overlay.classList.add('hidden');
       };
 
-      if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
-      if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
-      if (overlay) overlay.addEventListener('click', closeSidebar);
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', openSidebar);
+        console.log('[INIT] Listener do hamburger adicionado');
+      }
+      if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+        console.log('[INIT] Listener do close sidebar adicionado');
+      }
+      if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+        console.log('[INIT] Listener do overlay adicionado');
+      }
+      console.log('[INIT] Configuração mobile concluída');
     });
   } else {
     console.log('[INIT] DOM já carregado, executando imediatamente');
@@ -806,24 +827,44 @@
     bindNavDW();
     
     // Sidebar mobile functionality
+    console.log('[INIT] Configurando menu mobile...');
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const closeSidebarBtn = document.getElementById('closeSidebarBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
+    
+    console.log('[INIT] Elementos mobile:', {
+      hamburgerBtn: !!hamburgerBtn,
+      closeSidebarBtn: !!closeSidebarBtn,
+      sidebar: !!sidebar,
+      overlay: !!overlay
+    });
 
     const openSidebar = () => {
+      console.log('[MOBILE] Abrindo sidebar');
       if (sidebar) sidebar.classList.remove('-translate-x-full');
       if (overlay) overlay.classList.remove('hidden');
     };
 
     const closeSidebar = () => {
+      console.log('[MOBILE] Fechando sidebar');
       if (sidebar) sidebar.classList.add('-translate-x-full');
       if (overlay) overlay.classList.add('hidden');
     };
 
-    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
-    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
-    if (overlay) overlay.addEventListener('click', closeSidebar);
+    if (hamburgerBtn) {
+      hamburgerBtn.addEventListener('click', openSidebar);
+      console.log('[INIT] Listener do hamburger adicionado');
+    }
+    if (closeSidebarBtn) {
+      closeSidebarBtn.addEventListener('click', closeSidebar);
+      console.log('[INIT] Listener do close sidebar adicionado');
+    }
+    if (overlay) {
+      overlay.addEventListener('click', closeSidebar);
+      console.log('[INIT] Listener do overlay adicionado');
+    }
+    console.log('[INIT] Configuração mobile concluída');
   }
 
   function currencyBRL(v) {
@@ -949,16 +990,33 @@
   // Views handling
   // ==============
   function bindNavDW(){
+    console.log('[BINDNAV] Iniciando bind da navegação...');
     const nav = document.getElementById('sidebarNav');
-    if (!nav || bindNavDW._bound) return; bindNavDW._bound = true;
-    nav.querySelectorAll('button[data-view]').forEach(btn => {
+    console.log('[BINDNAV] Nav element:', nav);
+    if (!nav) {
+      console.error('[BINDNAV] Elemento sidebarNav não encontrado!');
+      return;
+    }
+    if (bindNavDW._bound) {
+      console.log('[BINDNAV] Já foi feito bind anteriormente');
+      return;
+    }
+    bindNavDW._bound = true;
+    
+    const buttons = nav.querySelectorAll('button[data-view]');
+    console.log('[BINDNAV] Botões encontrados:', buttons.length);
+    
+    buttons.forEach(btn => {
+      const view = btn.getAttribute('data-view');
+      console.log('[BINDNAV] Adicionando listener para botão:', view);
       btn.addEventListener('click', () => {
-        const view = btn.getAttribute('data-view');
+        console.log('[BINDNAV] Botão clicado:', view);
         switchViewDW(view);
         nav.querySelectorAll('button[data-view]').forEach(b => b.classList.remove('bg-[#A38F5F]/20','text-[#A38F5F]'));
         btn.classList.add('bg-[#A38F5F]/20','text-[#A38F5F]');
       });
     });
+    console.log('[BINDNAV] Bind da navegação concluído!');
   }
 
   function switchViewDW(view){
