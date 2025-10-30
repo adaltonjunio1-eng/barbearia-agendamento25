@@ -773,11 +773,35 @@
     }
   }
   
-  // Executar ao carregar
+  // Executar ao carregar - UNIFICADO
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkAuthDW);
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuthDW();
+      bindNavDW();
+      
+      // Sidebar mobile functionality
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+
+      const openSidebar = () => {
+        if (sidebar) sidebar.classList.remove('-translate-x-full');
+        if (overlay) overlay.classList.remove('hidden');
+      };
+
+      const closeSidebar = () => {
+        if (sidebar) sidebar.classList.add('-translate-x-full');
+        if (overlay) overlay.classList.add('hidden');
+      };
+
+      if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+      if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
+      if (overlay) overlay.addEventListener('click', closeSidebar);
+    });
   } else {
     checkAuthDW();
+    bindNavDW();
   }
 
   function currencyBRL(v) {
@@ -1230,39 +1254,4 @@
     setTimeout(()=>{ el.remove(); }, 2500);
   }
 
-  <!-- Bind nav after DOM ready -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      bindNavDW();
-      
-      const hamburgerBtn = document.getElementById('hamburgerBtn');
-      const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-
-      const openSidebar = () => {
-        sidebar.classList.remove('-translate-x-full');
-        sidebar.classList.add('translate-x-0');
-        overlay.classList.remove('hidden');
-      };
-
-      const closeSidebar = () => {
-        sidebar.classList.remove('translate-x-0');
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-      };
-
-      if (hamburgerBtn) {
-        hamburgerBtn.addEventListener('click', openSidebar);
-      }
-      if (closeSidebarBtn) {
-        closeSidebarBtn.addEventListener('click', closeSidebar);
-      }
-      if (overlay) {
-        overlay.addEventListener('click', closeSidebar);
-      }
-    });
-  </script>
-  <script>
-  console.log('[INIT] Script carregando...');
-  const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:3333';
+  // Safety: se nada estiver visível após 1s, força exibição do dashboard
