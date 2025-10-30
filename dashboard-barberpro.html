@@ -729,26 +729,42 @@
     if (main) {
       main.style.display = 'none';
     }
+    // Focar no campo de senha após 500ms
+    setTimeout(() => {
+      const pwdInput = document.getElementById('adminPwd');
+      if (pwdInput) {
+        pwdInput.focus();
+        console.log('[SHOWLOGIN] Foco aplicado no campo de senha');
+      }
+    }, 500);
   }
 
   function validateLogin() {
+    console.log('[LOGIN] ===== FUNÇÃO validateLogin CHAMADA =====');
     const input = document.getElementById('adminPwd');
     const pwd = input ? input.value : '';
+    console.log('[LOGIN] Valor do input:', pwd);
     console.log('[LOGIN] Tentando validar senha...');
     if (!pwd) {
-      console.log('[LOGIN] Campo vazio');
+      console.log('[LOGIN] Campo vazio - abortando');
+      alert('Por favor, digite a senha!');
       return;
     }
     const expected = getAdminPassword();
+    console.log('[LOGIN] Senha esperada:', expected);
+    console.log('[LOGIN] Senha digitada:', pwd);
     console.log('[LOGIN] Comparando senha (length):', pwd.length, 'vs', expected.length);
     if (pwd === expected) {
-      console.log('[LOGIN] Senha correta! Autenticando...');
+      console.log('[LOGIN] ✓ Senha correta! Autenticando...');
       sessionStorage.setItem('admin_authenticated', 'true');
       sessionStorage.setItem('admin_auth_time', Date.now());
+      console.log('[LOGIN] Chamando hideLogin()...');
       hideLogin();
+      console.log('[LOGIN] Chamando refreshDashboard()...');
       refreshDashboard();
     } else {
-      console.log('[LOGIN] Senha incorreta');
+      console.log('[LOGIN] ✗ Senha incorreta');
+      alert('Senha incorreta! Tente: bf12025');
       // feedback simples
       if (input) {
         input.value = '';
