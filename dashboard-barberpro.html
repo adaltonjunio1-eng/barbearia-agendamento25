@@ -256,13 +256,16 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-<div id="dashboardMain" class="flex h-screen bg-[#1A1A1A] text-gray-100">
+<body class="bg-[#1A1A1A]">
+<div id="dashboardMain" class="relative min-h-screen md:flex">
   <!-- Sidebar -->
-  <aside class="w-64 bg-[#121212] p-6 flex flex-col">
+  <aside id="sidebar" class="w-64 bg-[#121212] p-6 flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
     <div>
-      <div class="flex items-center mb-10">
+      <div class="flex items-center justify-between mb-10">
         <span class="text-2xl font-bold" style="color: #e0e0e0; letter-spacing: 1px;">BARBER<span style="color: #00ff41; font-weight: 700;">PRO</span></span>
+        <button id="closeSidebarBtn" class="md:hidden text-gray-400 hover:text-white">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
       </div>
       <nav>
         <ul id="sidebarNav">
@@ -313,15 +316,22 @@
     </div>
   </aside>
 
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-20 hidden md:hidden"></div>
+
   <!-- Main -->
-  <main class="flex-1 p-8 overflow-y-auto">
+  <main class="flex-1 md:p-8 p-4 overflow-y-auto">
     <!-- Header -->
     <header class="flex justify-between items-center mb-8">
-      <div class="relative w-full max-w-md">
-        <input type="text" placeholder="Pesquisar..." class="w-full bg-[#2A2A2A] text-gray-200 border border-gray-700 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#A38F5F]" />
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      <div class="flex items-center gap-4">
+        <button id="hamburgerBtn" class="md:hidden text-gray-400 hover:text-white">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+        <div class="relative w-full max-w-md hidden md:block">
+          <input type="text" placeholder="Pesquisar..." class="w-full bg-[#2A2A2A] text-gray-200 border border-gray-700 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#A38F5F]" />
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
       </div>
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2 md:space-x-4">
         <button onclick="refreshDashboard()" class="text-gray-400 hover:text-[#A38F5F] transition-colors duration-200" title="Atualizar dados">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
         </button>
@@ -334,9 +344,16 @@
       </div>
     </header>
 
+    <div class="md:hidden mb-6">
+        <div class="relative w-full">
+            <input type="text" placeholder="Pesquisar..." class="w-full bg-[#2A2A2A] text-gray-200 border border-gray-700 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#A38F5F]" />
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+    </div>
+
   <section id="view-dashboard">
   <!-- Stat cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
         <h3 class="text-gray-400 text-sm mb-2">RECEITA TOTAL</h3>
         <p class="text-3xl font-bold text-[#A38F5F]"><span id="revenueValue">$0</span> <span class="text-green-500 text-base ml-2">↑</span></p>
@@ -355,7 +372,7 @@
     </div>
 
   <!-- Charts row -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-gray-200 text-lg font-semibold">GANHOS MENSAIS</h3>
@@ -553,7 +570,7 @@
           <label class="text-sm">Fim <input id="genEndDW" type="time" value="18:00" class="ml-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-1 px-2 text-sm" /></label>
           <label class="text-sm">Passo (min) <input id="genStepDW" type="number" value="30" min="5" step="5" class="ml-2 w-20 bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-1 px-2 text-sm" /></label>
           <button onclick="generateForSelectedDayDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Gerar para este dia</button>
-          <button onclick="applyPresetTueFriSatDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Aplicar Ter–Sex 09–18 / Sáb 09–16 (30m)</button>
+          <button onclick="applyPresetTueFriSatDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Aplicar
         </div>
         <div id="availableSlotsListDW" class="flex flex-wrap gap-2"></div>
       </div>
@@ -1213,63 +1230,39 @@
     setTimeout(()=>{ el.remove(); }, 2500);
   }
 
-  // Bind nav after DOM ready
-  document.addEventListener('DOMContentLoaded', bindNavDW);
+  <!-- Bind nav after DOM ready -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      bindNavDW();
+      
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
 
-  // Safety: se nada estiver visível após 1s, força exibição do dashboard
-  setTimeout(() => {
-    try {
-      const overlay = document.getElementById('loginOverlay');
-      const main = document.getElementById('dashboardMain');
-      const overlayVisible = overlay ? getComputedStyle(overlay).display !== 'none' : false;
-      const mainVisible = main ? getComputedStyle(main).display !== 'none' : false;
-      if (!overlayVisible && !mainVisible) {
-        console.warn('[SAFETY] Nenhuma view visível; forçando dashboard');
-        if (overlay) { overlay.classList.add('hidden'); overlay.style.display = 'none'; }
-        if (main) { main.style.display = 'flex'; }
+      const openSidebar = () => {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        overlay.classList.remove('hidden');
+      };
+
+      const closeSidebar = () => {
+        sidebar.classList.remove('translate-x-0');
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      };
+
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', openSidebar);
       }
-    } catch (e) { console.warn('[SAFETY] Falha ao aplicar verificação de visibilidade', e); }
-  }, 1000);
-
-  function showLogin() {
-    const loginOverlay = document.getElementById('loginOverlay');
-    if (loginOverlay) {
-      loginOverlay.style.display = 'flex';
-      document.getElementById('password').focus();
-    }
-  }
-
-  function initTypewriter() {
-    // This function is no longer needed for the new theme, but kept to avoid breaking calls.
-  }
-
-  function createMatrixRain() {
-    // This function is no longer needed for the new theme, but kept to avoid breaking calls.
-  }
-
-  function checkAuth() {
-    const authTimestamp = sessionStorage.getItem('authTimestamp');
-    const now = Date.now();
-    const fourHours = 4 * 60 * 60 * 1000;
-    const valid = authTimestamp && (now - parseInt(authTimestamp)) <= fourHours;
-    console.log('[CHECKAUTH] authTimestamp:', authTimestamp, 'valid:', valid);
-    if (!valid) {
-      console.log('[CHECKAUTH] Sessão inválida, mostrando login');
-      sessionStorage.removeItem('admin_authenticated');
-      sessionStorage.removeItem('admin_auth_time');
-      showLogin();
-    } else {
-      console.log('[CHECKAUTH] Sessão válida, mostrando dashboard');
-      hideLogin();
-    }
-  }
-  
-  // Executar ao carregar
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkAuth);
-  } else {
-    checkAuth();
-  }
-</script>
-</body>
-</html>
+      if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+      }
+      if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+      }
+    });
+  </script>
+  <script>
+  console.log('[INIT] Script carregando...');
+  const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:3333';
