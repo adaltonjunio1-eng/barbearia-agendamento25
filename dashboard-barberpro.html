@@ -715,13 +715,18 @@
     if (overlay) {
       overlay.classList.add('hidden');
       overlay.style.display = 'none';
-      console.log('[HIDELOGIN] Overlay display:', overlay.style.display);
+      overlay.style.visibility = 'hidden';
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+      console.log('[HIDELOGIN] Overlay escondido - display:', overlay.style.display);
     } else {
       console.error('[HIDELOGIN] ✗ Elemento loginOverlay NÃO ENCONTRADO!');
     }
     if (main) {
       main.style.display = 'flex';
-      console.log('[HIDELOGIN] Main display:', main.style.display);
+      main.style.visibility = 'visible';
+      main.style.opacity = '1';
+      console.log('[HIDELOGIN] Main visível - display:', main.style.display);
     } else {
       console.error('[HIDELOGIN] ✗ Elemento dashboardMain NÃO ENCONTRADO!');
     }
@@ -768,9 +773,13 @@
     sessionStorage.setItem('admin_auth_time', Date.now());
     console.log('[LOGIN] Chamando hideLogin()...');
     hideLogin();
-    console.log('[LOGIN] Chamando refreshDashboard()...');
-    refreshDashboard();
-    console.log('[LOGIN] ===== FIM validateLogin =====');
+    
+    // Aguardar um pouco e depois chamar refreshDashboard
+    setTimeout(() => {
+      console.log('[LOGIN] Chamando refreshDashboard()...');
+      refreshDashboard();
+      console.log('[LOGIN] ===== FIM validateLogin =====');
+    }, 100);
     
     /* CÓDIGO ORIGINAL COMENTADO PARA DEBUG
     const expected = getAdminPassword();
@@ -1043,9 +1052,16 @@
 
   // Refresh function
   function refreshDashboard() {
-    loadStats();
-    loadRecent();
-    loadEarnings();
+    console.log('[REFRESH] Iniciando refreshDashboard...');
+    try {
+      loadStats();
+      loadRecent();
+      loadEarnings();
+      console.log('[REFRESH] refreshDashboard concluído');
+    } catch (error) {
+      console.error('[REFRESH] Erro ao carregar dados:', error);
+      // Continua mesmo com erro - o dashboard deve aparecer
+    }
   }
 
   // Logout function
