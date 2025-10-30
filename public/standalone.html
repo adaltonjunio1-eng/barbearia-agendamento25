@@ -1734,61 +1734,7 @@
                         </div>
                     </div>
 
-                    <div class="card" style="margin-top:20px">
-                        <div class="card-header"><div style="font-weight:700">Mensagens em Massa</div></div>
-                        <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:20px">Envie mensagens via WhatsApp para seus clientes</p>
-                            
-                            <div style="margin-bottom:20px">
-                                <label style="display:block;margin-bottom:10px;font-weight:600">Selecione o grupo:</label>
-                                <div style="display:flex;gap:10px;flex-wrap:wrap">
-                                    <button class="action-btn" onclick="selectGroup('all')" id="groupAll" style="padding:10px 16px;background:rgba(200,169,81,0.1);color:var(--secondary);border:1px solid var(--secondary)">
-                                        <i class="fas fa-users"></i> Todos (<span id="countAll">0</span>)
-                                    </button>
-                                    <button class="action-btn" onclick="selectGroup('recent')" id="groupRecent" style="padding:10px 16px">
-                                        <i class="fas fa-clock"></i> Últ. 30 dias (<span id="countRecent">0</span>)
-                                    </button>
-                                    <button class="action-btn" onclick="selectGroup('inactive')" id="groupInactive" style="padding:10px 16px">
-                                        <i class="fas fa-user-clock"></i> Inativos 60+ dias (<span id="countInactive">0</span>)
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div style="margin-bottom:20px">
-                                <label style="display:block;margin-bottom:10px;font-weight:600">Tipo de mensagem:</label>
-                                <select id="messageType" class="search-input" style="width:100%;margin-bottom:15px">
-                                    <option value="reminder">Lembrete de agendamento</option>
-                                    <option value="promo">Promoção</option>
-                                    <option value="custom">Mensagem personalizada</option>
-                                </select>
-                            </div>
-
-                            <div style="margin-bottom:20px">
-                                <label style="display:block;margin-bottom:10px;font-weight:600">Mensagem:</label>
-                                <textarea id="messageText" class="search-input" style="width:100%;min-height:120px;padding:12px;resize:vertical" placeholder="Digite sua mensagem..."></textarea>
-                                <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-                                    <button class="action-btn" onclick="insertVar('{nome}')" style="font-size:11px;padding:6px 10px">
-                                        + {nome}
-                                    </button>
-                                    <button class="action-btn" onclick="insertVar('{servico}')" style="font-size:11px;padding:6px 10px">
-                                        + {servico}
-                                    </button>
-                                    <button class="action-btn" onclick="insertVar('{valor}')" style="font-size:11px;padding:6px 10px">
-                                        + {valor}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:10px;margin-bottom:20px">
-                                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Prévia:</div>
-                                <div id="messagePreview" style="color:var(--text-primary);white-space:pre-wrap">Selecione um tipo de mensagem</div>
-                            </div>
-
-                            <button class="btn-primary" onclick="sendBulkMessages()" id="sendBtn">
-                                <i class="fas fa-paper-plane"></i> Enviar para <span id="sendCount">0</span> cliente(s)
-                            </button>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div id="admin-settings" style="display:none">
                     <div class="card">
@@ -1796,7 +1742,7 @@
                         <div class="card-body">
                             <p style="color:var(--text-secondary);margin-bottom:20px">
                                 <i class="fas fa-bell" style="color:var(--secondary)"></i> 
-                                Os lembretes são enviados automaticamente via WhatsApp 1 hora antes do agendamento.
+                                Lembretes automáticos gerenciados pelo sistema.
                             </p>
                             <div style="background:rgba(200,169,81,0.1);padding:15px;border-radius:10px;border-left:3px solid var(--secondary)">
                                 <div style="font-weight:600;margin-bottom:8px">📊 Status dos Lembretes</div>
@@ -2965,6 +2911,12 @@
         }
 
         function updateGroupCounts() {
+            const countAllEl = document.getElementById('countAll');
+            const countRecentEl = document.getElementById('countRecent');
+            const countInactiveEl = document.getElementById('countInactive');
+            const sendCountEl = document.getElementById('sendCount');
+            if (!(countAllEl && countRecentEl && countInactiveEl && sendCountEl)) return; // seção removida
+
             const now = new Date();
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
@@ -2973,10 +2925,10 @@
             const recent = adminState.clients.filter(c => new Date(c.lastVisit) >= thirtyDaysAgo).length;
             const inactive = adminState.clients.filter(c => new Date(c.lastVisit) < sixtyDaysAgo).length;
 
-            document.getElementById('countAll').textContent = all;
-            document.getElementById('countRecent').textContent = recent;
-            document.getElementById('countInactive').textContent = inactive;
-            document.getElementById('sendCount').textContent = getSelectedClients().length;
+            countAllEl.textContent = all;
+            countRecentEl.textContent = recent;
+            countInactiveEl.textContent = inactive;
+            sendCountEl.textContent = getSelectedClients().length;
         }
 
         function getSelectedClients() {
@@ -3036,8 +2988,11 @@
                     .replace(/{valor}/g, 'R$ ' + (example.bookings[0]?.valor || '0.00'));
             }
 
-            document.getElementById('messagePreview').textContent = preview;
-            updateGroupCounts();
+            const previewEl = document.getElementById('messagePreview');
+            if (previewEl) {
+                previewEl.textContent = preview;
+                updateGroupCounts();
+            }
         }
 
         function sendBulkMessages() {
@@ -3068,23 +3023,8 @@
                 return;
             }
 
-            // Abrir WhatsApp para cada cliente
-            let delay = 0;
-            clients.forEach(client => {
-                setTimeout(() => {
-                    const msg = template
-                        .replace(/{nome}/g, client.nome)
-                        .replace(/{servico}/g, client.bookings[0]?.servicoNome || '')
-                        .replace(/{valor}/g, 'R$ ' + (client.bookings[0]?.valor || '0.00'));
-                    
-                    const phone = client.telefone.replace(/\D/g, '');
-                    const url = `https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`;
-                    window.open(url, '_blank');
-                }, delay);
-                delay += 2000; // 2 segundos entre cada mensagem
-            });
-
-            alert(`Abrindo WhatsApp para ${clients.length} cliente(s). Aguarde...`);
+            // Envio em massa desativado
+            alert('Envio em massa está desativado.');
         }
 
         // Event listeners para mensagens
@@ -3152,10 +3092,8 @@ Você tem um horário agendado em 1 hora:
 
 Aguardamos você! 🙌`;
 
-            // Abrir WhatsApp
-            const phone = booking.telefone.replace(/\D/g, '');
-            const url = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
+            // Envio desativado
+            /* envio de mensagens desativado */
 
             // Marcar como enviado
             current.reminderSent = true;

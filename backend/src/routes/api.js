@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
+const db = require('../models/database');
+const dashboardController = require('../controllers/dashboardController');
 const smsService = require('../services/smsService');
 
 // Rotas de agendamentos
@@ -21,13 +23,55 @@ router.get('/sms/status', async (req, res) => {
   }
 });
 
-// Página de configuração SMS (substitui QR Code)
+// ===== DASHBOARD =====
+router.get('/dashboard/stats', dashboardController.stats);
+router.get('/dashboard/recent-appointments', dashboardController.recentAppointments);
+router.get('/dashboard/earnings', dashboardController.earningsSeries);
+
+// ===== SETTINGS (genéricas) =====
+router.get('/settings/:key', async (req, res) => {
+  try {
+    const { key } = req.params;
+    const row = await db.get('SELECT value FROM settings WHERE key = ?', [key]);
+    res.json({ success: true, key, value: row ? row.value : null });
+  } catch (error) {
+    console.error('[Settings] GET error:', error);
+    res.status(500).json({ error: 'Erro ao obter configuração' });
+  }
+});
+
+router.put('/settings/:key', async (req, res) => {
+  try {
+    const { key } = req.params;
+    const { value } = req.body || {};
+    if (typeof value === 'undefined') {
+      return res.status(400).json({ error: 'Campo "value" é obrigatório' });
+    }
+
+    const update = await db.run('UPDATE settings SET value = ?, updatedAt = CURRENT_TIMESTAMP WHERE key = ?', [String(value), key]);
+    if (!update.changes) {
+      await db.run('INSERT INTO settings (key, value) VALUES (?, ?)', [key, String(value)]);
+    }
+
+    res.json({ success: true, key, value: String(value) });
+  } catch (error) {
+    console.error('[Settings] PUT error:', error);
+    res.status(500).json({ error: 'Erro ao salvar configuração' });
+  }
+});
+
+// Página de configuração de Mensageria (SMS/WhatsApp via Twilio)
 router.get('/sms/config/html', async (req, res) => {
   try {
     const status = smsService.getStatus();
+    const channel = status.channel || 'sms';
+    const channelName = channel === 'whatsapp' ? 'WhatsApp' : 'SMS';
+    const accent = channel === 'whatsapp' ? '#25D366' : '#3b82f6';
+    const bgAccent = channel === 'whatsapp' ? 'rgba(37,211,102,0.1)' : 'rgba(59,130,246,0.1)';
+    const borderAccent = channel === 'whatsapp' ? 'rgba(37,211,102,0.3)' : 'rgba(59,130,246,0.3)';
     
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Configuração SMS</title>
+    res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Configuração ${channelName}</title>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <style>
         body{background:#0f1115;color:#e5e7eb;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
@@ -43,11 +87,11 @@ router.get('/sms/config/html', async (req, res) => {
       </style>
     </head><body>
       <div class="wrap">
-        <h1 class="title">📱 Configuração de SMS</h1>
-        <p class="muted">Configure o serviço de SMS para enviar lembretes automáticos</p>
+        <h1 class="title">📱 Configuração de ${channelName}</h1>
+        <p class="muted">Configure o serviço de ${channelName} para enviar lembretes automáticos</p>
         
         <div class="status ${status.connected ? 'success' : 'warning'}">
-          <strong>${status.connected ? '✅ SMS Ativo' : '⚠️ SMS Não Configurado'}</strong>
+          <strong>${status.connected ? `✅ ${channelName} Ativo` : `⚠️ ${channelName} Não Configurado`}</strong>
           <p style="margin:8px 0 0;font-size:13px">
             ${status.connected 
               ? `Provedor: ${status.provider}<br>Número: ${status.fromNumber}` 
@@ -60,21 +104,29 @@ router.get('/sms/config/html', async (req, res) => {
           <li>Crie conta no <a href="https://www.twilio.com/try-twilio" target="_blank">Twilio</a> (grátis)</li>
           <li>Obtenha suas credenciais (Account SID e Auth Token)</li>
           <li>Adicione no arquivo <code>.env</code> do backend:
-            <pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;margin:8px 0;overflow-x:auto">SMS_PROVIDER=twilio
-SMS_ACCOUNT_SID=seu_account_sid_aqui
-SMS_AUTH_TOKEN=seu_auth_token_aqui  
-SMS_FROM_NUMBER=+5511999999999</pre>
+            ${channel === 'whatsapp' 
+              ? `<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;margin:8px 0;overflow-x:auto">SMS_PROVIDER=twilio
+SMS_CHANNEL=whatsapp
+SMS_ACCOUNT_SID=SEU_ACCOUNT_SID
+SMS_AUTH_TOKEN=SEU_AUTH_TOKEN
+WHATSAPP_SANDBOX_NUMBER=+14155238886</pre>`
+              : `<pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;margin:8px 0;overflow-x:auto">SMS_PROVIDER=twilio
+SMS_CHANNEL=sms
+SMS_ACCOUNT_SID=SEU_ACCOUNT_SID
+SMS_AUTH_TOKEN=SEU_AUTH_TOKEN
+SMS_FROM_NUMBER=+5511999999999</pre>`}
           </li>
           <li>Instale a dependência: <code>npm install twilio</code></li>
           <li>Reinicie o backend</li>
+          ${channel === 'whatsapp' 
+            ? '<li>No WhatsApp do seu celular, envie "join &lt;código&gt;" para o número do Sandbox que aparece no Twilio</li>'
+            : ''}
         </ol>
 
-        <div style="margin-top:24px;padding:12px;background:rgba(59,130,246,0.1);border-radius:8px;border:1px solid rgba(59,130,246,0.3)">
-          <strong style="color:#3b82f6">💡 Dica:</strong>
+        <div style="margin-top:24px;padding:12px;background:${bgAccent};border-radius:8px;border:1px solid ${borderAccent}">
+          <strong style="color:${accent}">💡 Dica:</strong>
           <p style="margin:8px 0 0;font-size:13px">
-            O Twilio oferece crédito grátis para testes. Outros provedores: 
-            <a href="https://www.zenvia.com" target="_blank">Zenvia</a>, 
-            <a href="https://www.totalvoice.com.br" target="_blank">TotalVoice</a>
+            Para ${channelName} com Twilio Trial: ${channel === 'whatsapp' ? 'não precisa verificar números, basta parear com o Sandbox.' : 'é necessário verificar o número de destino.'}
           </p>
         </div>
       </div>

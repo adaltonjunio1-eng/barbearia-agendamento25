@@ -1360,6 +1360,12 @@
             </button>
         </div>
 
+        <!-- Debug Info (Remover depois) -->
+        <div id="debugInfo" style="position:fixed;bottom:10px;right:10px;background:rgba(0,0,0,0.8);color:#00ff41;padding:10px;border-radius:8px;font-size:12px;z-index:9999;font-family:monospace;">
+            <div>Aba Ativa: <span id="debugTab">login</span></div>
+            <div>JS Carregado: <span id="debugJS">❌</span></div>
+        </div>
+
         <!-- Phone Login Section -->
         <div class="content-section active" id="login">
             <div class="section-hero phone-login-section">
@@ -1582,529 +1588,7 @@
         </div>
     </div>
 
-    <!-- Admin Login Screen -->
-    <div class="admin-login-screen" id="adminLoginScreen" style="display:none">
-        <div class="admin-login-overlay"></div>
-        <div class="admin-login-container">
-            <div class="admin-login-header">
-                <i class="fas fa-shield-alt"></i>
-                <h2>Área Administrativa</h2>
-                <p>Digite a senha para acessar</p>
-            </div>
-            <div class="admin-login-form">
-                <div class="form-group">
-                    <label for="adminPassword">
-                        <i class="fas fa-lock"></i>
-                        Senha de Administrador
-                    </label>
-                    <input 
-                        type="password" 
-                        id="adminPassword" 
-                        placeholder="Digite a senha"
-                        autocomplete="off"
-                    >
-                </div>
-                <div class="admin-login-actions">
-                    <button class="btn-secondary" onclick="closeAdminLogin()">
-                        <i class="fas fa-times"></i>
-                        Cancelar
-                    </button>
-                    <button class="btn-primary" onclick="validateAdminPassword()">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Entrar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Fullscreen App -->
-    <div class="admin-app" id="admin">
-        <div class="admin-overlay"></div>
-        <aside class="admin-sidebar">
-            <div class="admin-brand">
-                <i class="fas fa-gem"></i>
-                <span>adim barber</span>
-            </div>
-            <div style="padding:12px 20px 0">
-                <button id="openQRQuick" class="action-btn" style="width:100%;justify-content:center;gap:8px;padding:10px 12px">
-                    <i class="fas fa-mobile-alt"></i>
-                    <span>Configurar SMS</span>
-                </button>
-            </div>
-            <nav class="admin-nav">
-                <button class="active" data-admin-view="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></button>
-                <button data-admin-view="orders"><i class="fas fa-receipt"></i><span>Vendas</span></button>
-                <button data-admin-view="clients"><i class="fas fa-user-friends"></i><span>Clientes</span></button>
-                <button data-admin-view="settings"><i class="fas fa-cog"></i><span>Configurações</span></button>
-            </nav>
-            <div style="position:absolute;bottom:20px;left:20px;right:20px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.1)">
-                <div style="display:flex;align-items:center;gap:10px">
-                    <i class="fas fa-sms" style="font-size:20px;color:#3b82f6"></i>
-                    <div style="flex:1">
-                        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">SMS</div>
-                        <div id="whatsStatusBadge" style="font-size:12px;font-weight:600;margin-top:2px">Carregando...</div>
-                    </div>
-                    <div id="whatsStatusIndicator" style="width:8px;height:8px;border-radius:50%;background:#fb923c;animation:pulse 2s infinite" title="Verificando status..."></div>
-                </div>
-            </div>
-        </aside>
-        <header class="admin-topbar">
-            <button class="hamburger" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            <div style="font-weight:800;color:var(--secondary)">Admin</div>
-            <div class="topbar-actions">
-                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i><span>Dark</span></button>
-                <button class="btn-secondary" id="openQRTop" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-mobile-alt"></i> Config SMS</button>
-                <button class="btn-secondary" id="adminBack" style="width:auto;padding:10px 14px;border-radius:10px"><i class="fas fa-arrow-left"></i> Sair</button>
-            </div>
-        </header>
-        <div class="admin-main">
-            <div class="admin-content">
-                <div id="admin-dashboard">
-                    <div class="kpi-grid">
-                        <div class="kpi-card">
-                            <div class="kpi-title">Faturamento (mês)</div>
-                            <div class="kpi-value" id="kpiRevenue">R$ 0</div>
-                            <div class="kpi-delta" id="kpiRevenueDelta">+0%</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Agendamentos</div>
-                            <div class="kpi-value" id="kpiOrders">0</div>
-                            <div class="kpi-delta">Hoje</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Ticket Médio</div>
-                            <div class="kpi-value" id="kpiTicket">R$ 0</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Clientes</div>
-                            <div class="kpi-value" id="kpiClients">0</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div style="font-weight:700">Gráfico de Faturamento</div>
-                            <div></div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="revenueChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div style="font-weight:700">Vendas Recentes</div>
-                            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-                                <select id="statusFilter" class="search-input" style="width:auto;padding:8px 12px">
-                                    <option value="all">Todos</option>
-                                    <option value="Pendente">Pendentes</option>
-                                    <option value="Pago">Pagos</option>
-                                    <option value="Cancelado">Cancelados</option>
-                                </select>
-                                <input type="text" class="search-input" id="tableSearch" placeholder="Buscar..." style="flex:1;min-width:180px">
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                            <table class="table" id="ordersTable">
-                                <thead>
-                                    <tr>
-                                        <th data-sort="id">ID</th>
-                                        <th data-sort="cliente">Cliente</th>
-                                        <th data-sort="servico">Serviço</th>
-                                        <th data-sort="valor">Valor</th>
-                                        <th data-sort="data">Data</th>
-                                        <th data-sort="status">Status</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="admin-orders" style="display:none">
-                    <div class="card">
-                        <div class="card-header"><div style="font-weight:700">Pedidos</div></div>
-                        <div class="card-body">Em breve…</div>
-                    </div>
-                </div>
-                <div id="admin-clients" style="display:none">
-                    <div class="card">
-                        <div class="card-header">
-                            <div style="font-weight:700">Clientes</div>
-                            <input type="text" class="search-input" id="clientSearch" placeholder="Buscar cliente...">
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table" id="clientsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th>Telefone</th>
-                                            <th>Últ. Visita</th>
-                                            <th>Total Gasto</th>
-                                            <th>Agendamentos</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card" style="margin-top:20px">
-                        <div class="card-header"><div style="font-weight:700">Mensagens em Massa</div></div>
-                        <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:20px">Envie mensagens via WhatsApp para seus clientes</p>
-                            
-                            <div style="margin-bottom:20px">
-                                <label style="display:block;margin-bottom:10px;font-weight:600">Selecione o grupo:</label>
-                                <div style="display:flex;gap:10px;flex-wrap:wrap">
-                                    <button class="action-btn" onclick="selectGroup('all')" id="groupAll" style="padding:10px 16px;background:rgba(200,169,81,0.1);color:var(--secondary);border:1px solid var(--secondary)">
-                                        <i class="fas fa-users"></i> Todos (<span id="countAll">0</span>)
-                                    </button>
-                                    <button class="action-btn" onclick="selectGroup('recent')" id="groupRecent" style="padding:10px 16px">
-                                        <i class="fas fa-clock"></i> Últ. 30 dias (<span id="countRecent">0</span>)
-                                    </button>
-                                    <button class="action-btn" onclick="selectGroup('inactive')" id="groupInactive" style="padding:10px 16px">
-                                        <i class="fas fa-user-clock"></i> Inativos 60+ dias (<span id="countInactive">0</span>)
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div style="margin-bottom:20px">
-                                <label style="display:block;margin-bottom:10px;font-weight:600">Tipo de mensagem:</label>
-                                <select id="messageType" class="search-input" style="width:100%;margin-bottom:15px">
-                                    <option value="reminder">Lembrete de agendamento</option>
-                                    <option value="promo">Promoção</option>
-                                    <option value="custom">Mensagem personalizada</option>
-                                </select>
-                            </div>
-
-                            <div style="margin-bottom:20px">
-                                <label style="display:block;margin-bottom:10px;font-weight:600">Mensagem:</label>
-                                <textarea id="messageText" class="search-input" style="width:100%;min-height:120px;padding:12px;resize:vertical" placeholder="Digite sua mensagem..."></textarea>
-                                <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-                                    <button class="action-btn" onclick="insertVar('{nome}')" style="font-size:11px;padding:6px 10px">
-                                        + {nome}
-                                    </button>
-                                    <button class="action-btn" onclick="insertVar('{servico}')" style="font-size:11px;padding:6px 10px">
-                                        + {servico}
-                                    </button>
-                                    <button class="action-btn" onclick="insertVar('{valor}')" style="font-size:11px;padding:6px 10px">
-                                        + {valor}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:10px;margin-bottom:20px">
-                                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Prévia:</div>
-                                <div id="messagePreview" style="color:var(--text-primary);white-space:pre-wrap">Selecione um tipo de mensagem</div>
-                            </div>
-
-                            <button class="btn-primary" onclick="sendBulkMessages()" id="sendBtn">
-                                <i class="fas fa-paper-plane"></i> Enviar para <span id="sendCount">0</span> cliente(s)
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div id="admin-settings" style="display:none">
-                    <div class="card" style="border:2px solid #3b82f6;background:rgba(59,130,246,0.05)">
-                        <div class="card-header" style="background:rgba(59,130,246,0.1)">
-                            <div style="font-weight:700;display:flex;align-items:center;gap:10px">
-                                <i class="fas fa-sms" style="font-size:24px;color:#3b82f6"></i>
-                                Configuração SMS
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div style="background:rgba(59,130,246,0.1);padding:15px;border-radius:10px;border-left:3px solid #3b82f6;margin-bottom:16px">
-                                <div style="font-weight:600;margin-bottom:8px;color:#3b82f6">
-                                    <i class="fas fa-info-circle"></i> Como configurar SMS
-                                </div>
-                                <ol style="margin:8px 0 0 20px;font-size:13px;color:var(--text-secondary);line-height:1.8">
-                                    <li>Crie uma conta no <a href="https://www.twilio.com/try-twilio" target="_blank" style="color:#3b82f6">Twilio</a> (oferece crédito grátis)</li>
-                                    <li>Obtenha suas credenciais (Account SID e Auth Token)</li>
-                                    <li>Configure no arquivo .env do backend</li>
-                                    <li>Instale dependência: <code>npm install twilio</code></li>
-                                    <li>Reinicie o servidor</li>
-                                </ol>
-                            </div>
-                            
-                            <div id="whatsStatus" style="margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;gap:12px">
-                                <i class="fas fa-circle" id="whatsStatusIcon" style="font-size:10px;color:#fb923c"></i>
-                                <div>
-                                    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Status</div>
-                                    <div style="font-weight:600;margin-top:2px">
-                                        <span id="whatsStatusText">Carregando...</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="whatsQRContainer" style="display:none;text-align:center">
-                                <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-                                    <a class="btn-primary" href="#" onclick="openWhatsAppQR();return false;" style="padding:12px 20px;text-decoration:none;display:inline-flex;align-items:center;gap:8px">
-                                        <i class="fas fa-external-link-alt"></i> Abrir Página de Configuração
-                                    </a>
-                                </div>
-                                <small id="whatsQRTime" style="display:block;margin-top:12px;color:var(--text-secondary);font-size:12px">Clique acima para ver instruções detalhadas de configuração.</small>
-                            </div>
-                            
-                            <div id="whatsConnectedInfo" style="display:none;background:rgba(74,222,128,0.1);padding:15px;border-radius:10px;border-left:3px solid #4ade80;margin-top:16px">
-                                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-                                    <i class="fas fa-check-circle" style="font-size:32px;color:#4ade80"></i>
-                                    <div style="flex:1">
-                                        <div style="font-weight:700;color:#4ade80;margin-bottom:4px">SMS Configurado!</div>
-                                        <div style="font-size:13px;color:var(--text-secondary)">
-                                            Os lembretes automáticos por SMS estão ativos e funcionando.
-                                        </div>
-                                    </div>
-                                </div>
-                                <button id="reconnectWhatsApp" class="action-btn" style="width:100%;justify-content:center;gap:8px;padding:10px">
-                                    <i class="fas fa-sync-alt"></i>
-                                    <span>Recarregar Configuração SMS</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header"><div style="font-weight:700">Lembretes Automáticos</div></div>
-                        <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:20px">
-                                <i class="fas fa-bell" style="color:var(--secondary)"></i> 
-                                Os lembretes são enviados automaticamente via SMS <strong>1 hora antes</strong> do agendamento.
-                            </p>
-                            <div style="background:rgba(200,169,81,0.1);padding:15px;border-radius:10px;border-left:3px solid var(--secondary);margin-bottom:16px">
-                                <div style="font-weight:600;margin-bottom:8px">📊 Status dos Lembretes</div>
-                                <div id="reminderStats" style="font-size:14px;color:var(--text-secondary)">
-                                    Carregando...
-                                </div>
-                            </div>
-                            <div style="background:rgba(52,152,219,0.1);padding:12px;border-radius:8px;border:1px solid rgba(52,152,219,0.3);margin-top:12px">
-                                <div style="font-size:12px;color:#3498DB">
-                                    <i class="fas fa-info-circle"></i> <strong>Como funciona:</strong>
-                                </div>
-                                <ul style="margin:8px 0 0 20px;font-size:12px;color:var(--text-secondary);line-height:1.6">
-                                    <li>Sistema verifica agendamentos a cada minuto</li>
-                                    <li>Envia SMS automaticamente 1h antes do horário</li>
-                                    <li>Se popup bloqueado, mostra notificação clicável</li>
-                                    <li>Mensagem pré-formatada com detalhes do agendamento</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Integração com n8n -->
-                    <div class="card" style="margin-top:20px;border:2px solid #ff6d5a;background:rgba(255,109,90,0.05)">
-                        <div class="card-header" style="background:rgba(255,109,90,0.1)">
-                            <div style="font-weight:700;display:flex;align-items:center;gap:10px">
-                                <i class="fas fa-network-wired" style="font-size:24px;color:#ff6d5a"></i>
-                                Integração n8n
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div style="background:rgba(255,109,90,0.1);padding:15px;border-radius:10px;border-left:3px solid #ff6d5a;margin-bottom:16px">
-                                <div style="font-weight:600;margin-bottom:8px;color:#ff6d5a">
-                                    <i class="fas fa-rocket"></i> Automação Externa com n8n
-                                </div>
-                                <p style="margin:8px 0;font-size:13px;color:var(--text-secondary);line-height:1.8">
-                                    Configure workflows no n8n para enviar lembretes via WhatsApp, SMS, Email ou qualquer outro canal. 
-                                    O n8n é mais robusto e confiável que o WhatsApp Web.js integrado.
-                                </p>
-                            </div>
-                            
-                            <div style="margin-bottom:16px">
-                                <label style="display:block;margin-bottom:8px;font-weight:600">
-                                    <i class="fas fa-link"></i> URL do Webhook n8n
-                                </label>
-                                <input 
-                                    type="url" 
-                                    id="n8nWebhookUrl" 
-                                    placeholder="https://seu-n8n.com/webhook/booking-reminder"
-                                    style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--text);font-size:14px"
-                                />
-                                <small style="display:block;margin-top:6px;color:var(--text-secondary);font-size:12px">
-                                    Cole aqui a URL do webhook do seu workflow no n8n
-                                </small>
-                            </div>
-                            
-                            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-                                <button class="btn-primary" onclick="saveN8nConfig()" style="flex:1;min-width:150px">
-                                    <i class="fas fa-save"></i> Salvar Configuração
-                                </button>
-                                <button class="action-btn" onclick="testN8nWebhook()" style="flex:1;min-width:150px">
-                                    <i class="fas fa-flask"></i> Testar Webhook
-                                </button>
-                            </div>
-                            
-                            <div id="n8nStatus" style="padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;gap:12px">
-                                <i class="fas fa-circle" style="font-size:10px;color:#64748b"></i>
-                                <div style="font-size:13px;color:var(--text-secondary)">
-                                    Configure o webhook acima para começar
-                                </div>
-                            </div>
-                            
-                            <div style="background:rgba(59,130,246,0.1);padding:12px;border-radius:8px;border:1px solid rgba(59,130,246,0.3);margin-top:16px">
-                                <div style="font-size:12px;color:#3b82f6;margin-bottom:8px">
-                                    <i class="fas fa-book"></i> <strong>Endpoints disponíveis:</strong>
-                                </div>
-                                <div style="font-size:12px;color:var(--text-secondary);font-family:monospace;line-height:1.8">
-                                    <div><strong>POST</strong> /api/webhook/booking-created - Novo agendamento</div>
-                                    <div><strong>POST</strong> /api/webhook/send-reminder - Enviar lembrete</div>
-                                    <div><strong>GET</strong> /api/webhook/status - Status da integração</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card" style="margin-top:20px">
-                        <div class="card-header">
-                            <div style="font-weight:700">Horários Disponíveis</div>
-                            <button class="action-btn" onclick="toggleWeeklyCalendar()" id="toggleCalendarBtn" style="padding:8px 14px">
-                                <i class="fas fa-calendar-week"></i> Ver calendário semanal
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:16px">
-                                Defina os horários que aparecem para o cliente ao agendar. Você pode adicionar e remover horários conforme sua agenda.
-                            </p>
-                            
-                            <!-- Visualização em Calendário Semanal -->
-                            <div id="weeklyCalendarView" style="display:none;margin-bottom:20px;padding:16px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(200,169,81,0.15)">
-                                <h4 style="color:var(--secondary);margin-bottom:16px;text-align:center">
-                                    <i class="fas fa-calendar-week"></i> Grade Semanal de Horários
-                                </h4>
-                                <div id="weeklyCalendarGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px"></div>
-                            </div>
-                            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
-                                <label>Dia da semana:</label>
-                                <select id="slotDaySelect" class="search-input" style="min-width:180px">
-                                    <option value="0">Domingo</option>
-                                    <option value="1">Segunda-feira</option>
-                                    <option value="2">Terça-feira</option>
-                                    <option value="3">Quarta-feira</option>
-                                    <option value="4">Quinta-feira</option>
-                                    <option value="5">Sexta-feira</option>
-                                    <option value="6">Sábado</option>
-                                </select>
-                                <button class="action-btn" onclick="copySlotsFromDay()" style="padding:10px 16px">
-                                    <i class="fas fa-copy"></i> Copiar de outro dia
-                                </button>
-                                <button class="action-btn" onclick="useGlobalDefaultSlots()" style="padding:10px 16px">
-                                    <i class="fas fa-sync-alt"></i> Usar padrão global
-                                </button>
-                            </div>
-                            <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-                                <input type="time" id="newSlotInput" class="search-input" style="min-width:160px" step="300" value="09:00">
-                                <button class="action-btn confirm" onclick="addAvailableSlot()" style="padding:10px 16px">
-                                    <i class="fas fa-plus"></i> Adicionar neste dia
-                                </button>
-                                <button class="action-btn" onclick="addAvailableSlotToAllDays()" style="padding:10px 16px;background:rgba(157,78,221,0.1);color:#9D4EDD;border:1px solid #9D4EDD">
-                                    <i class="fas fa-calendar-plus"></i> Adicionar em todos os dias
-                                </button>
-                            </div>
-                            <div style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;align-items:center;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px">
-                                <strong style="font-size:13px;color:var(--text-secondary)">Gerar intervalos:</strong>
-                                <label>Início <input type="time" id="genStart" class="search-input" value="09:00" style="width:140px"></label>
-                                <label>Fim <input type="time" id="genEnd" class="search-input" value="18:00" style="width:140px"></label>
-                                <label>Passo (min) <input type="number" id="genStep" class="search-input" value="30" min="5" step="5" style="width:120px"></label>
-                                <button class="action-btn" onclick="generateForSelectedDay()" style="padding:10px 16px">
-                                    <i class="fas fa-clock"></i> Gerar para este dia
-                                </button>
-                                <button class="action-btn" onclick="applyPresetTueFriSat()" style="padding:10px 16px">
-                                    <i class="fas fa-calendar-check"></i> Aplicar Ter–Sex 09–18 / Sáb 09–16 (30m)
-                                </button>
-                            </div>
-                            <div id="availableSlotsList" style="display:flex;flex-wrap:wrap;gap:10px"></div>
-                        </div>
-                    </div>
-
-                    <div class="card" style="margin-top:20px">
-                        <div class="card-header"><div style="font-weight:700">Dias Fechados</div></div>
-                        <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:20px">Selecione datas em que a barbearia estará fechada para agendamentos.</p>
-                            
-                            <div style="margin-bottom:24px;display:flex;gap:10px;flex-wrap:wrap">
-                                <button class="action-btn" onclick="toggleAllSundays()" style="padding:10px 16px;background:rgba(200,169,81,0.1);color:var(--secondary);border:1px solid var(--secondary)">
-                                    <i class="fas fa-calendar-times"></i> <span id="sundayBtnText">Fechar todos os domingos</span>
-                                </button>
-                                <button class="action-btn" onclick="toggleAllMondays()" style="padding:10px 16px;background:rgba(200,169,81,0.1);color:var(--secondary);border:1px solid var(--secondary)">
-                                    <i class="fas fa-calendar-times"></i> <span id="mondayBtnText">Fechar todas as segundas</span>
-                                </button>
-                            </div>
-
-                            <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-                                <input type="date" id="closedDateInput" class="search-input" style="flex:1;min-width:200px">
-                                <button class="action-btn confirm" onclick="addClosedDate()" style="padding:10px 16px">
-                                    <i class="fas fa-plus"></i> Adicionar
-                                </button>
-                            </div>
-                            <div id="closedDatesList"></div>
-                        </div>
-                    </div>
-                    <div class="card" style="margin-top:20px">
-                        <div class="card-header"><div style="font-weight:700">Segurança</div></div>
-                        <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:12px">
-                                Altere a senha de acesso do administrador. A senha é guardada no seu navegador (apenas neste dispositivo).
-                            </p>
-                            <div style="display:grid;gap:12px;grid-template-columns:1fr">
-                                <div>
-                                    <label style="display:block;margin-bottom:6px">Senha atual</label>
-                                    <input type="password" id="currentAdminPassword" class="search-input" placeholder="Senha atual">
-                                </div>
-                                <div>
-                                    <label style="display:block;margin-bottom:6px">Nova senha</label>
-                                    <input type="password" id="newAdminPassword" class="search-input" placeholder="Nova senha (mín. 6 caracteres)">
-                                </div>
-                                <div>
-                                    <label style="display:block;margin-bottom:6px">Confirmar nova senha</label>
-                                    <input type="password" id="confirmAdminPassword" class="search-input" placeholder="Confirmar nova senha">
-                                </div>
-                            </div>
-                            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-                                <button class="action-btn confirm" onclick="changeAdminPassword()" style="padding:10px 16px">
-                                    <i class="fas fa-lock"></i> Salvar nova senha
-                                </button>
-                                <button class="action-btn" onclick="resetAdminPasswordToDefault()" style="padding:10px 16px">
-                                    <i class="fas fa-undo"></i> Restaurar padrão
-                                </button>
-                            </div>
-                            <small style="color:var(--text-secondary);display:block;margin-top:8px">Dica: use 6+ caracteres com números e letras.</small>
-                        </div>
-                    </div>
-
-                    <div class="card" style="margin-top:20px">
-                        <div class="card-header"><div style="font-weight:700">Backup e Restauração</div></div>
-                        <div class="card-body">
-                            <p style="color:var(--text-secondary);margin-bottom:12px">
-                                Exporte seus dados para um arquivo e importe em outro dispositivo quando precisar.
-                            </p>
-                            <div style="display:flex;gap:10px;flex-wrap:wrap">
-                                <button class="action-btn confirm" onclick="exportBackup()" style="padding:10px 16px">
-                                    <i class="fas fa-download"></i> Exportar Backup
-                                </button>
-                                <label class="action-btn" style="padding:10px 16px;display:inline-flex;align-items:center;gap:8px;cursor:pointer">
-                                    <i class="fas fa-upload"></i> Importar Backup
-                                    <input type="file" id="importBackupInput" accept="application/json" style="display:none" onchange="importBackup(this)">
-                                </label>
-                            </div>
-                            <small style="color:var(--text-secondary);display:block;margin-top:8px">
-                                Inclui: agendamentos, dias fechados, horários disponíveis (global e por dia), tema e senha do admin.
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
 
     <script>
         let appState = {
@@ -2124,29 +1608,42 @@
         };
 
         function verifyPhone() {
+            console.log('[VERIFY_PHONE] Iniciando verificação...');
+            
             const phone = document.getElementById('phoneNumber').value;
             const name = document.getElementById('userName').value;
             
+            console.log('[VERIFY_PHONE] Telefone:', phone);
+            console.log('[VERIFY_PHONE] Nome:', name);
+            
             if (!phone || phone.replace(/\D/g, '').length < 11) {
                 showNotification('Por favor, insira um número de celular válido', 'error');
+                console.error('[VERIFY_PHONE] Telefone inválido');
                 return;
             }
 
             if (!name) {
                 showNotification('Por favor, insira seu nome', 'error');
+                console.error('[VERIFY_PHONE] Nome não preenchido');
                 return;
             }
 
             appState.userPhone = phone;
             appState.userName = name;
 
+            console.log('[VERIFY_PHONE] Dados salvos no appState:', appState);
+
             // Persistir último telefone/nome para reuso na consulta
             try {
                 localStorage.setItem('lastPhone', appState.userPhone);
                 localStorage.setItem('lastName', appState.userName);
-            } catch (e) {}
+                console.log('[VERIFY_PHONE] Dados salvos no localStorage');
+            } catch (e) {
+                console.error('[VERIFY_PHONE] Erro ao salvar no localStorage:', e);
+            }
 
             showNotification('Verificado com sucesso!');
+            console.log('[VERIFY_PHONE] Mudando para aba "servicos" em 1.5s...');
             setTimeout(() => switchTab('servicos'), 1500);
         }
 
@@ -2450,11 +1947,31 @@
         }
 
         function switchTab(tabName) {
+            console.log('[SWITCH_TAB] Mudando para:', tabName);
+            
+            // Atualizar debug visual
+            const debugTab = document.getElementById('debugTab');
+            if (debugTab) debugTab.textContent = tabName;
+            
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(tabName).classList.add('active');
+            const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
+            const tabContent = document.getElementById(tabName);
+            
+            if (tabButton) {
+                tabButton.classList.add('active');
+                console.log('[SWITCH_TAB] Botão da aba encontrado:', tabName);
+            } else {
+                console.error('[SWITCH_TAB] Botão da aba NÃO encontrado:', tabName);
+            }
+            
+            if (tabContent) {
+                tabContent.classList.add('active');
+                console.log('[SWITCH_TAB] Conteúdo da aba encontrado e exibido:', tabName);
+            } else {
+                console.error('[SWITCH_TAB] Conteúdo da aba NÃO encontrado:', tabName);
+            }
         }
 
         function showNotification(message, type = 'success') {
@@ -2755,49 +2272,67 @@
             }
         }
 
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                switchTab(this.getAttribute('data-tab'));
+        // Inicializar tudo após o DOM estar pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[INIT] Inicializando sistema de agendamento...');
+            
+            // Atualizar debug visual
+            const debugJS = document.getElementById('debugJS');
+            if (debugJS) debugJS.textContent = '✅';
+
+            // Event listeners para as abas de navegação
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    console.log('[NAV] Mudando para aba:', this.getAttribute('data-tab'));
+                    switchTab(this.getAttribute('data-tab'));
+                });
             });
-        });
 
-        document.getElementById('phoneNumber').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.substring(0, 11);
-            
-            if (value.length > 0) {
-                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-                if (value.length > 10) {
-                    value = value.replace(/(\d{5})(\d)/, '$1-$2');
-                } else {
-                    value = value.replace(/(\d{4})(\d)/, '$1-$2');
-                }
-            }
-            
-            e.target.value = value;
-        });
-
-        // Máscara para o telefone de consulta - adicionar com segurança
-        const consultaPhoneInput = document.getElementById('consultaPhone');
-        if (consultaPhoneInput) {
-            consultaPhoneInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 11) value = value.substring(0, 11);
-                
-                if (value.length > 0) {
-                    value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-                    if (value.length > 10) {
-                        value = value.replace(/(\d{5})(\d)/, '$1-$2');
-                    } else {
-                        value = value.replace(/(\d{4})(\d)/, '$1-$2');
+            // Máscara para o telefone principal
+            const phoneInput = document.getElementById('phoneNumber');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 11) value = value.substring(0, 11);
+                    
+                    if (value.length > 0) {
+                        value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                        if (value.length > 10) {
+                            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                        } else {
+                            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                        }
                     }
-                }
-                
-                e.target.value = value;
-            });
-        }
+                    
+                    e.target.value = value;
+                });
+            }
 
-        renderServices();
+            // Máscara para o telefone de consulta
+            const consultaPhoneInput = document.getElementById('consultaPhone');
+            if (consultaPhoneInput) {
+                consultaPhoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 11) value = value.substring(0, 11);
+                    
+                    if (value.length > 0) {
+                        value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                        if (value.length > 10) {
+                            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                        } else {
+                            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                        }
+                    }
+                    
+                    e.target.value = value;
+                });
+            }
+
+            // Renderizar serviços
+            renderServices();
+            
+            console.log('[INIT] Sistema inicializado com sucesso!');
+        });
 
         // Data picker: inicializar com hoje e vincular ao estado
         function formatDateISO(d) {
@@ -3009,9 +2544,13 @@
             }
             
             if (inputPassword === getAdminPassword()) {
-                showNotification('Acesso liberado! Bem-vindo(a)', 'success');
-                closeAdminLogin();
-                openAdmin();
+                showNotification('Redirecionando para o Dashboard...', 'success');
+                // Salvar autenticação e redirecionar para dashboard novo
+                sessionStorage.setItem('admin_authenticated', 'true');
+                sessionStorage.setItem('admin_auth_time', Date.now());
+                setTimeout(() => {
+                    window.location.href = 'dashboard-barberpro.html';
+                }, 500);
             } else {
                 showNotification('Senha incorreta. Tente novamente.', 'error');
                 document.getElementById('adminPassword').value = '';
@@ -3201,10 +2740,7 @@
                     updateKPIs();
                     bindAdminEvents();
                     renderOrdersTable();
-                    // Atualizar status do WhatsApp ao abrir Admin
-                    updateWhatsAppStatus();
-                    // Carregar configurações do n8n
-                    loadN8nConfig();
+                    // Removido: status de mensageria e n8n
                 })
                 .catch(() => {
                     // Mesmo se falhar, garante UI
@@ -3213,9 +2749,7 @@
                     updateKPIs();
                     bindAdminEvents();
                     renderOrdersTable();
-                    updateWhatsAppStatus();
-                    loadN8nConfig();
-                    updateWhatsAppStatus();
+                    // Removido: status de mensageria e n8n
                 });
         }
 
@@ -3237,12 +2771,7 @@
             document.getElementById('themeToggle').addEventListener('click', toggleAdminTheme);
             document.getElementById('sidebarToggle').addEventListener('click', () => document.getElementById('admin').classList.toggle('sidebar-open'));
             document.querySelector('.admin-overlay').addEventListener('click', () => document.getElementById('admin').classList.remove('sidebar-open'));
-            const quickQRBtn = document.getElementById('openQRQuick');
-            if (quickQRBtn) quickQRBtn.addEventListener('click', (e) => { e.preventDefault(); openWhatsAppQR(); });
-            const topQRBtn = document.getElementById('openQRTop');
-            if (topQRBtn) topQRBtn.addEventListener('click', (e) => { e.preventDefault(); openWhatsAppQR(); });
-            const reconnectBtn = document.getElementById('reconnectWhatsApp');
-            if (reconnectBtn) reconnectBtn.addEventListener('click', (e) => { e.preventDefault(); reconnectWhatsApp(); });
+            // Removido: botões de configuração/reconexão de mensageria
 
             document.querySelectorAll('#ordersTable th').forEach(th => {
                 th.addEventListener('click', () => {
@@ -3285,7 +2814,7 @@
             if (view === 'settings') {
                 renderClosedDates();
                 updateReminderStats();
-                updateWhatsAppStatus();
+                // Removido: status de mensageria na view de configurações
                 // inicializa seletor de dia e renderiza slots
                 const sel = document.getElementById('slotDaySelect');
                 if (sel && !sel._bound) {
@@ -4143,6 +3672,12 @@
         }
 
         function updateGroupCounts() {
+            const countAllEl = document.getElementById('countAll');
+            const countRecentEl = document.getElementById('countRecent');
+            const countInactiveEl = document.getElementById('countInactive');
+            const sendCountEl = document.getElementById('sendCount');
+            if (!(countAllEl && countRecentEl && countInactiveEl && sendCountEl)) return; // seção removida
+
             const now = new Date();
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
@@ -4151,10 +3686,10 @@
             const recent = adminState.clients.filter(c => new Date(c.lastVisit) >= thirtyDaysAgo).length;
             const inactive = adminState.clients.filter(c => new Date(c.lastVisit) < sixtyDaysAgo).length;
 
-            document.getElementById('countAll').textContent = all;
-            document.getElementById('countRecent').textContent = recent;
-            document.getElementById('countInactive').textContent = inactive;
-            document.getElementById('sendCount').textContent = getSelectedClients().length;
+            countAllEl.textContent = all;
+            countRecentEl.textContent = recent;
+            countInactiveEl.textContent = inactive;
+            sendCountEl.textContent = getSelectedClients().length;
         }
 
         function getSelectedClients() {
@@ -4214,8 +3749,11 @@
                     .replace(/{valor}/g, 'R$ ' + (example.bookings[0]?.valor || '0.00'));
             }
 
-            document.getElementById('messagePreview').textContent = preview;
-            updateGroupCounts();
+            const previewEl = document.getElementById('messagePreview');
+            if (previewEl) {
+                previewEl.textContent = preview;
+                updateGroupCounts();
+            }
         }
 
         function sendBulkMessages() {
@@ -4409,276 +3947,8 @@ Para confirmar presença, responda esta mensagem.`;
             }
         }
 
-        // =====================
-        // WhatsApp Admin Helpers
-        // =====================
-        let whatsStatusInterval = null;
-        async function updateWhatsAppStatus() {
-            try {
-                const resp = await fetch(`${API_URL}/sms/status`);
-                const status = await resp.json();
-                const textEl = document.getElementById('whatsStatusText');
-                const qrBox = document.getElementById('whatsQRContainer');
-                const connectedBox = document.getElementById('whatsConnectedInfo');
-                const badgeEl = document.getElementById('whatsStatusBadge');
-                const indicatorEl = document.getElementById('whatsStatusIndicator');
-                const iconEl = document.getElementById('whatsStatusIcon');
-                
-                if (status && status.connected) {
-                    if (textEl) textEl.textContent = 'SMS Configurado ✅';
-                    if (qrBox) qrBox.style.display = 'none';
-                    if (connectedBox) connectedBox.style.display = 'block';
-                    if (badgeEl) badgeEl.textContent = 'Ativo';
-                    if (indicatorEl) {
-                        indicatorEl.style.background = '#4ade80';
-                        indicatorEl.style.animation = 'none';
-                        indicatorEl.title = 'SMS configurado';
-                    }
-                    if (iconEl) iconEl.style.color = '#4ade80';
-                    if (whatsStatusInterval) { clearInterval(whatsStatusInterval); whatsStatusInterval = null; }
-                } else {
-                    if (textEl) textEl.textContent = 'SMS não configurado (clique para configurar)';
-                    if (qrBox) qrBox.style.display = 'block';
-                    if (connectedBox) connectedBox.style.display = 'none';
-                    if (badgeEl) badgeEl.textContent = 'Não configurado';
-                    if (indicatorEl) {
-                        indicatorEl.style.background = '#ef4444';
-                        indicatorEl.style.animation = 'none';
-                        indicatorEl.title = 'SMS não configurado';
-                    }
-                    if (iconEl) iconEl.style.color = '#ef4444';
-                    if (!whatsStatusInterval) {
-                        whatsStatusInterval = setInterval(async () => {
-                            try {
-                                const r = await fetch(`${API_URL}/sms/status`);
-                                const s = await r.json();
-                                if (s && s.connected) {
-                                    const t = document.getElementById('whatsStatusText');
-                                    const b = document.getElementById('whatsStatusBadge');
-                                    const ind = document.getElementById('whatsStatusIndicator');
-                                    const i = document.getElementById('whatsStatusIcon');
-                                    const cb = document.getElementById('whatsConnectedInfo');
-                                    if (t) t.textContent = 'SMS Configurado ✅';
-                                    if (qrBox) qrBox.style.display = 'none';
-                                    if (cb) cb.style.display = 'block';
-                                    if (b) b.textContent = 'Ativo';
-                                    if (ind) {
-                                        ind.style.background = '#4ade80';
-                                        ind.style.animation = 'none';
-                                        ind.title = 'SMS configurado';
-                                    }
-                                    if (i) i.style.color = '#4ade80';
-                                    clearInterval(whatsStatusInterval); whatsStatusInterval = null;
-                                }
-                            } catch (_) {}
-                        }, 15000);
-                    }
-                }
-            } catch (e) {
-                const textEl = document.getElementById('whatsStatusText');
-                const badgeEl = document.getElementById('whatsStatusBadge');
-                const indicatorEl = document.getElementById('whatsStatusIndicator');
-                const iconEl = document.getElementById('whatsStatusIcon');
-                if (textEl) textEl.textContent = 'Erro ao conectar';
-                if (iconEl) iconEl.style.color = '#ef4444';
-                if (badgeEl) badgeEl.textContent = 'Erro';
-                if (indicatorEl) {
-                    indicatorEl.style.background = '#ef4444';
-                    indicatorEl.style.animation = 'none';
-                    indicatorEl.title = 'Erro ao conectar';
-                }
-            }
-        }
-
-        function openWhatsAppQR() {
-            if (!API_URL) {
-                alert('Backend não configurado. Para usar lembretes automáticos via SMS, configure a variável API_URL no código.');
-                return;
-            }
-            try {
-                window.open(`${API_URL}/sms/config/html`, '_blank');
-            } catch(_) {}
-        }
-
-        async function reconnectWhatsApp() {
-            if (!API_URL) {
-                alert('Backend não configurado.');
-                return;
-            }
-            if (!confirm('Isso irá recarregar as configurações de SMS. Deseja continuar?')) return;
-            try {
-                const btn = document.getElementById('reconnectWhatsApp');
-                if (btn) {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recarregando...';
-                }
-                await fetch(`${API_URL}/sms/reconnect`);
-                setTimeout(() => {
-                    openWhatsAppQR();
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Recarregar Configuração SMS';
-                    }
-                    updateWhatsAppStatus();
-                }, 2000);
-            } catch(e) {
-                alert('Erro ao reconectar WhatsApp. Verifique se o backend está rodando.');
-                const btn = document.getElementById('reconnectWhatsApp');
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Reconectar WhatsApp';
-                }
-            }
-        }
-
-        // ===== FUNÇÕES N8N =====
-        function saveN8nConfig() {
-            const url = document.getElementById('n8nWebhookUrl')?.value?.trim();
-            if (!url) {
-                alert('Por favor, insira a URL do webhook do n8n');
-                return;
-            }
-            try {
-                new URL(url); // Valida URL
-                localStorage.setItem('n8nWebhookUrl', url);
-                localStorage.setItem('n8nEnabled', 'true');
-                updateN8nStatus('success', 'Webhook n8n configurado com sucesso!');
-                alert('✅ Configuração salva! Agora o sistema enviará dados para o n8n.');
-            } catch(e) {
-                alert('❌ URL inválida. Use formato: https://seu-n8n.com/webhook/...');
-            }
-        }
-
-        async function testN8nWebhook() {
-            const url = localStorage.getItem('n8nWebhookUrl');
-            if (!url) {
-                alert('Configure a URL do webhook antes de testar');
-                return;
-            }
-            
-            updateN8nStatus('loading', 'Testando conexão com n8n...');
-            
-            const testData = {
-                test: true,
-                cliente: 'João da Silva (TESTE)',
-                telefone: '5511999999999',
-                servicoNome: 'Corte + Barba',
-                hora: '14:00',
-                dataISO: new Date().toISOString(),
-                message: 'Este é um teste de integração do sistema de barbearia'
-            };
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(testData)
-                });
-                
-                if (response.ok) {
-                    updateN8nStatus('success', `✅ Webhook respondeu: ${response.status} ${response.statusText}`);
-                    alert('✅ Teste bem-sucedido! O n8n recebeu os dados. Verifique seu workflow.');
-                } else {
-                    updateN8nStatus('error', `❌ Erro: ${response.status} ${response.statusText}`);
-                    alert(`❌ Webhook retornou erro: ${response.status}. Verifique a URL e o workflow no n8n.`);
-                }
-            } catch(e) {
-                updateN8nStatus('error', '❌ Falha ao conectar com n8n');
-                alert(`❌ Erro ao testar webhook:\n${e.message}\n\nVerifique:\n- URL está correta\n- n8n está rodando\n- Workflow está ativo`);
-            }
-        }
-
-        function updateN8nStatus(type, message) {
-            const statusDiv = document.getElementById('n8nStatus');
-            if (!statusDiv) return;
-            
-            const colors = {
-                success: '#4ade80',
-                error: '#ef4444',
-                loading: '#fb923c',
-                idle: '#64748b'
-            };
-            
-            const icons = {
-                success: 'fa-check-circle',
-                error: 'fa-exclamation-circle',
-                loading: 'fa-spinner fa-spin',
-                idle: 'fa-circle'
-            };
-            
-            statusDiv.innerHTML = `
-                <i class="fas ${icons[type]}" style="font-size:10px;color:${colors[type]}"></i>
-                <div style="font-size:13px;color:var(--text-secondary)">${message}</div>
-            `;
-        }
-
-        async function sendToN8n(bookingData) {
-            const url = localStorage.getItem('n8nWebhookUrl');
-            const enabled = localStorage.getItem('n8nEnabled') === 'true';
-            
-            if (!url || !enabled) {
-                console.log('[N8N] Webhook não configurado ou desabilitado');
-                return false;
-            }
-            
-            try {
-                console.log('[N8N] Enviando dados:', bookingData);
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ...bookingData,
-                        timestamp: new Date().toISOString(),
-                        source: 'barbearia-agendamento'
-                    })
-                });
-                
-                if (response.ok) {
-                    console.log('[N8N] Dados enviados com sucesso');
-                    return true;
-                } else {
-                    console.error('[N8N] Erro ao enviar:', response.status);
-                    return false;
-                }
-            } catch(e) {
-                console.error('[N8N] Falha ao enviar:', e);
-                return false;
-            }
-        }
-
-        function loadN8nConfig() {
-            const url = localStorage.getItem('n8nWebhookUrl');
-            const enabled = localStorage.getItem('n8nEnabled') === 'true';
-            
-            const input = document.getElementById('n8nWebhookUrl');
-            if (input && url) {
-                input.value = url;
-            }
-            
-            if (url && enabled) {
-                updateN8nStatus('success', '✅ Webhook n8n configurado e ativo');
-            } else {
-                updateN8nStatus('idle', 'Configure o webhook acima para começar');
-            }
-        }
-
-        async function loadWhatsAppQR() {
-            try {
-                const resp = await fetch(`${API_URL}/whatsapp/qr`);
-                const data = await resp.json();
-                const img = document.getElementById('whatsQRImage');
-                const time = document.getElementById('whatsQRTime');
-                if (data && data.dataUrl && img) {
-                    img.src = data.dataUrl;
-                    if (time) time.textContent = data.generatedAt ? `Gerado em: ${new Date(data.generatedAt).toLocaleTimeString('pt-BR')}` : '';
-                } else if (time) {
-                    time.textContent = 'QR ainda não disponível. Aguarde alguns segundos...';
-                }
-            } catch (e) {
-                const time = document.getElementById('whatsQRTime');
-                if (time) time.textContent = 'Erro ao carregar QR';
-            }
-        }
+        // Mensageria e n8n removidos da Admin
+        async function sendToN8n(bookingData) { return false; }
 
         function updateReminderStats() {
             const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
@@ -4733,8 +4003,11 @@ Para confirmar presença, responda esta mensagem.`;
         // Log de sistema ativo
         console.log('[SISTEMA DE LEMBRETES] Ativo - Verificando a cada 2 minutos');
 
-        // Wire admin access button - agora abre tela de login
-        document.querySelector('.admin-access-btn').addEventListener('click', openAdminLogin);
+        // Wire admin access button - agora vai direto para o novo Dashboard
+        (function(){
+            const btn = document.querySelector('.admin-access-btn');
+            if (btn) btn.addEventListener('click', function(){ window.location.href = 'dashboard-barberpro.html'; });
+        })();
 
         // Aplicar automaticamente a grade solicitada (uma única vez), sem sobrescrever futuras edições
         (function oneTimeApplyPreset(){
@@ -4745,6 +4018,46 @@ Para confirmar presença, responda esta mensagem.`;
                     localStorage.setItem('slotsPreset_TerSexSab_30m', '1');
                 }
             } catch (e) {}
+        })();
+
+        // ====== Configuração: Barbeiros Ativos ======
+        (function initActiveBarbers(){
+            const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:3333';
+            async function loadActiveBarbers(){
+                try {
+                    const res = await fetch(`${API_BASE}/api/settings/active_barbers`);
+                    const data = await res.json();
+                    const input = document.getElementById('activeBarbersInput');
+                    if (input && data && data.value !== null && data.value !== undefined) {
+                        const n = parseInt(data.value, 10);
+                        if (!isNaN(n)) input.value = n;
+                    }
+                } catch(e) { /* silencioso */ }
+            }
+
+            async function saveActiveBarbers(){
+                try {
+                    const input = document.getElementById('activeBarbersInput');
+                    const statusEl = document.getElementById('activeBarbersStatus');
+                    const value = parseInt(input?.value || '0', 10);
+                    const res = await fetch(`${API_BASE}/api/settings/active_barbers`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ value })
+                    });
+                    const ok = res.ok;
+                    if (statusEl) statusEl.textContent = ok ? 'Salvo com sucesso.' : 'Falha ao salvar.';
+                    if (!ok) return;
+                } catch(e) {
+                    const statusEl = document.getElementById('activeBarbersStatus');
+                    if (statusEl) statusEl.textContent = 'Erro ao salvar.';
+                }
+            }
+
+            // Expor função ao escopo global (para o onclick do botão)
+            window.saveActiveBarbers = saveActiveBarbers;
+            // Carregar valor ao iniciar
+            document.addEventListener('DOMContentLoaded', loadActiveBarbers);
         })();
     </script>
 </body>

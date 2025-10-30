@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BARBERPRO • Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#00ff41',
+            cyber: {
+              green: '#00ff41',
+              cyan: '#00d4ff',
+              magenta: '#ff00ff'
+            },
+            dark: {
+              900: '#0a0e27',
+              800: '#001428',
+              700: '#0a1a2a',
+              600: '#122030'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body { 
+      background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); 
+      color: #e0e0e0; 
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    #dashboardMain { display: flex; background: transparent; }
+    #loginOverlay { display: none; }
+
+    /* === HACKER LOGIN STYLES === */
+    .hacker-login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(10, 15, 28, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .hacker-login-box {
+      background: #1A1F2C; /* --surface */
+      border: 1px solid rgba(200, 169, 81, 0.3); /* --secondary com opacidade */
+      border-radius: 16px; /* --radius */
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      z-index: 9999;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .hacker-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #C8A951; /* --secondary */
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(200, 169, 81, 0.2);
+    }
+
+    .hacker-form {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .hacker-form .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hacker-form label {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #B0B0B0; /* --text-secondary */
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .hacker-input {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(200, 169, 81, 0.3);
+      color: #FFFFFF; /* --text-primary */
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .hacker-input:focus {
+      border-color: #C8A951; /* --secondary */
+      box-shadow: 0 0 0 3px rgba(200, 169, 81, 0.15);
+    }
+
+    .hacker-button {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #C8A951; /* --secondary */
+      color: #0A0F1C; /* --primary */
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hacker-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(200, 169, 81, 0.3);
+    }
+    
+    .login-error-message {
+      color: #ff4757;
+      text-align: center;
+      margin-top: 15px;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      display: none; /* Oculto por padrão */
+    }
+
+    /* ======================================== */
+    /* Premium Login Screen (New Theme)       */
+    /* ======================================== */
+    .hacker-login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(10, 15, 28, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .hacker-login-box {
+      background: #1A1F2C; /* --surface */
+      border: 1px solid rgba(200, 169, 81, 0.3); /* --secondary com opacidade */
+      border-radius: 16px; /* --radius */
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      z-index: 9999;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .hacker-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #C8A951; /* --secondary */
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(200, 169, 81, 0.2);
+    }
+
+    .hacker-form {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .hacker-form .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hacker-form label {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #B0B0B0; /* --text-secondary */
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .hacker-input {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(200, 169, 81, 0.3);
+      color: #FFFFFF; /* --text-primary */
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .hacker-input:focus {
+      border-color: #C8A951; /* --secondary */
+      box-shadow: 0 0 0 3px rgba(200, 169, 81, 0.15);
+    }
+
+    .hacker-button {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #C8A951; /* --secondary */
+      color: #0A0F1C; /* --primary */
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hacker-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(200, 169, 81, 0.3);
+    }
+    
+    /* REMOVED: .matrix-bg, .scan-line, .glitch-title, .typewriter-label and related animations */
+    .matrix-bg { display: none; }
+    .scan-line { display: none; }
+    .glitch-title::before, .glitch-title::after { display: none; }
+    .typewriter-label { opacity: 1; } /* Garante que o label seja visível sem a animação */
+
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div id="dashboardMain" class="flex h-screen bg-[#1A1A1A] text-gray-100">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-[#121212] p-6 flex flex-col">
+    <div>
+      <div class="flex items-center mb-10">
+        <span class="text-2xl font-bold" style="color: #e0e0e0; letter-spacing: 1px;">BARBER<span style="color: #00ff41; font-weight: 700;">PRO</span></span>
+      </div>
+      <nav>
+        <ul id="sidebarNav">
+          <li class="mb-4">
+            <button data-view="dashboard" class="w-full text-left flex items-center px-4 py-2 rounded-lg bg-[#00ff41]/15 text-[#00ff41]">
+              <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+              Dashboard
+            </button>
+          </li>
+          <li class="mb-4">
+            <button data-view="orders" class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-200">
+              <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zm0 0h14"></path></svg>
+              Agendamentos
+            </button>
+          </li>
+          <li class="mb-4">
+            <button data-view="barbers" disabled class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-500 opacity-60 cursor-not-allowed">
+              <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              Barbeiros
+            </button>
+          </li>
+          <li class="mb-4">
+            <button data-view="services" disabled class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-500 opacity-60 cursor-not-allowed">
+              <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v2a2 2 0 01-2 2m0 0H5m14 0a2 2 0 002-2V9a2 2 0 00-2-2M5 11h14"></path></svg>
+              Serviços
+            </button>
+          </li>
+          <li class="mb-4">
+            <button data-view="finance" disabled class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-500 opacity-60 cursor-not-allowed">
+              <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6m6 0h6m-6 0v-6a2 2 0 012-2h2a2 2 0 012 2v6m0 0h6a2 2 0 002-2v-4a2 2 0 00-2-2H9m11 0V7a2 2 0 00-2-2H5a2 2 0 00-2 2v4"></path></svg>
+              Financeiro
+            </button>
+          </li>
+          <li class="mb-4">
+            <button data-view="clients" class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-200">
+              <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h-10A3 3 0 014 17V7a3 3 0 013-3h10a3 3 0 013 3v10a3 3 0 01-3 3z"></path></svg>
+              Clientes
+            </button>
+          </li>
+          <li class="mb-4">
+            <button data-view="settings" class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-200">
+              <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37h.001z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              Configurações
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-8">
+      <div class="relative w-full max-w-md">
+        <input type="text" placeholder="Pesquisar..." class="w-full bg-[#2A2A2A] text-gray-200 border border-gray-700 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#A38F5F]" />
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button onclick="refreshDashboard()" class="text-gray-400 hover:text-[#A38F5F] transition-colors duration-200" title="Atualizar dados">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        </button>
+        <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition-colors duration-200" title="Sair">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        </button>
+        <div class="relative">
+          <img class="h-9 w-9 rounded-full object-cover cursor-pointer" src="https://via.placeholder.com/150/A38F5F/FFFFFF?text=J" alt="User Avatar" />
+        </div>
+      </div>
+    </header>
+
+  <section id="view-dashboard">
+  <!-- Stat cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-400 text-sm mb-2">RECEITA TOTAL</h3>
+        <p class="text-3xl font-bold text-[#A38F5F]"><span id="revenueValue">$0</span> <span class="text-green-500 text-base ml-2">↑</span></p>
+        <p class="text-gray-500 text-xs mt-1">Visão geral do mês</p>
+      </div>
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-400 text-sm mb-2">NOVOS AGENDAMENTOS</h3>
+        <p class="text-3xl font-bold text-white" id="appointmentsValue">0</p>
+        <p class="text-gray-500 text-xs mt-1">Visão geral do mês</p>
+      </div>
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-400 text-sm mb-2">BARBEIROS ATIVOS</h3>
+        <p class="text-3xl font-bold text-white" id="barbersValue">0</p>
+        <p class="text-gray-500 text-xs mt-1">Atualmente online</p>
+      </div>
+    </div>
+
+  <!-- Charts row -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-gray-200 text-lg font-semibold">GANHOS MENSAIS</h3>
+          <div class="flex space-x-2 text-sm">
+            <button class="px-3 py-1 rounded-md bg-[#A38F5F] text-white">Este Mês</button>
+            <button class="px-3 py-1 rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600">Último Mês</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="earningsChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-200 text-lg font-semibold mb-4">RANKING DE PRODUTIVIDADE DO BARBEIRO</h3>
+        <div class="h-64 flex items-end justify-between px-4 text-gray-600">
+          <div class="flex flex-col items-center">
+            <div class="w-8 bg-blue-500 h-[80px] rounded-t-sm"></div>
+            <span class="text-xs mt-2">1</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-8 bg-blue-500 h-[100px] rounded-t-sm"></div>
+            <span class="text-xs mt-2">2</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-8 bg-blue-500 h-[60px] rounded-t-sm"></div>
+            <span class="text-xs mt-2">3</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-8 bg-blue-500 h-[120px] rounded-t-sm"></div>
+            <span class="text-xs mt-2">4</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-8 bg-blue-500 h-[150px] rounded-t-sm"></div>
+            <span class="text-xs mt-2">5</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-8 bg-green-500 h-[180px] rounded-t-sm"></div>
+            <span class="text-xs mt-2">6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Recent appointments -->
+  <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-gray-200 text-lg font-semibold">AGENDAMENTOS RECENTES</h3>
+        <div class="flex items-center space-x-2">
+          <input type="text" placeholder="Pesquisar..." class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-1 px-3 text-sm focus:outline-none focus:border-[#A38F5F]" />
+          <button class="px-3 py-1 rounded-md bg-[#A38F5F] text-white text-sm">Filtros</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-gray-300">
+          <thead class="text-xs text-gray-400 uppercase bg-gray-800">
+            <tr>
+              <th scope="col" class="px-6 py-3">Cliente</th>
+              <th scope="col" class="px-6 py-3">Barbeiro</th>
+              <th scope="col" class="px-6 py-3">Data</th>
+              <th scope="col" class="px-6 py-3">Serviço</th>
+              <th scope="col" class="px-6 py-3">Hora</th>
+              <th scope="col" class="px-6 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody id="recentTbody">
+            <tr>
+              <td class="px-6 py-4 text-gray-400" colspan="6">Carregando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </section>
+
+    <!-- Orders View -->
+    <section id="view-orders" class="hidden">
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800 mb-4">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <h3 class="text-gray-200 text-lg font-semibold">Agendamentos</h3>
+            <p class="text-gray-400 text-sm">Gerencie o status dos agendamentos</p>
+          </div>
+          <div class="flex gap-2">
+            <select id="ordersStatusFilter" class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm">
+              <option value="all">Todos</option>
+              <option value="Pendente">Pendentes</option>
+              <option value="Pago">Pagos</option>
+              <option value="Cancelado">Cancelados</option>
+            </select>
+            <input id="ordersSearch" type="text" placeholder="Buscar..." class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" />
+          </div>
+        </div>
+      </div>
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800 overflow-x-auto">
+        <table class="w-full text-left text-gray-300">
+          <thead class="text-xs text-gray-400 uppercase bg-gray-800">
+            <tr>
+              <th class="px-6 py-3">ID</th>
+              <th class="px-6 py-3">Cliente</th>
+              <th class="px-6 py-3">Serviço</th>
+              <th class="px-6 py-3">Valor</th>
+              <th class="px-6 py-3">Data</th>
+              <th class="px-6 py-3">Status</th>
+              <th class="px-6 py-3">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTbodyDW">
+            <tr><td colspan="7" class="px-6 py-4 text-gray-400">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Clients View -->
+    <section id="view-clients" class="hidden">
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800 mb-4">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <h3 class="text-gray-200 text-lg font-semibold">Clientes</h3>
+            <p class="text-gray-400 text-sm">Lista de clientes consolidados por telefone</p>
+          </div>
+          <input id="clientSearchDW" type="text" placeholder="Buscar cliente..." class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" />
+        </div>
+      </div>
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800 overflow-x-auto">
+        <table class="w-full text-left text-gray-300">
+          <thead class="text-xs text-gray-400 uppercase bg-gray-800">
+            <tr>
+              <th class="px-6 py-3">Nome</th>
+              <th class="px-6 py-3">Telefone</th>
+              <th class="px-6 py-3">Últ. Visita</th>
+              <th class="px-6 py-3">Total Gasto</th>
+              <th class="px-6 py-3">Agendamentos</th>
+            </tr>
+          </thead>
+          <tbody id="clientsTbodyDW">
+            <tr><td colspan="5" class="px-6 py-4 text-gray-400">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Settings View -->
+    <section id="view-settings" class="hidden space-y-6">
+      <!-- Equipe -->
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-200 text-lg font-semibold mb-2">Equipe</h3>
+        <p class="text-gray-400 text-sm mb-4">Número de barbeiros ativos na barbearia</p>
+        <div class="flex items-center gap-3 flex-wrap">
+          <label class="text-sm text-gray-300">Barbeiros Ativos:</label>
+          <input id="activeBarbersInputDW" type="number" min="0" max="50" class="w-28 bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" value="0" placeholder="Ex: 3" />
+          <button onclick="saveActiveBarbersDW()" class="px-4 py-2 rounded-md bg-emerald-600 text-white text-sm hover:bg-emerald-700 transition-colors">
+            💾 Salvar
+          </button>
+          <span id="activeBarbersStatusDW" class="text-sm font-semibold"></span>
+        </div>
+      </div>
+
+      <!-- Horários Disponíveis -->
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-gray-200 text-lg font-semibold">Horários Disponíveis</h3>
+            <p class="text-gray-400 text-sm">Gerencie a grade de horários por dia</p>
+          </div>
+          <button id="toggleCalendarBtnDW" onclick="toggleWeeklyCalendarDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Ver calendário semanal</button>
+        </div>
+        <div id="weeklyCalendarViewDW" class="hidden mb-4 p-4 bg-[#1A1A1A] border border-gray-700 rounded-lg">
+          <h4 class="text-[#A38F5F] font-semibold mb-3">Grade Semanal de Horários</h4>
+          <div id="weeklyCalendarGridDW" class="grid md:grid-cols-3 gap-3"></div>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 mb-3">
+          <label class="text-sm">Dia da semana:</label>
+          <select id="slotDaySelectDW" class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm">
+            <option value="0">Domingo</option>
+            <option value="1">Segunda-feira</option>
+            <option value="2">Terça-feira</option>
+            <option value="3">Quarta-feira</option>
+            <option value="4">Quinta-feira</option>
+            <option value="5">Sexta-feira</option>
+            <option value="6">Sábado</option>
+          </select>
+          <button onclick="copySlotsFromDayDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Copiar de outro dia</button>
+          <button onclick="useGlobalDefaultSlotsDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Usar padrão global</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 mb-3">
+          <input id="newSlotInputDW" type="time" step="300" value="09:00" class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" />
+          <button onclick="addAvailableSlotDW()" class="px-3 py-2 rounded-md bg-emerald-600 text-white text-sm">Adicionar neste dia</button>
+          <button onclick="addAvailableSlotToAllDaysDW()" class="px-3 py-2 rounded-md border border-purple-500 text-purple-300 hover:bg-purple-900/30 text-sm">Adicionar em todos os dias</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 mb-3 border-t border-gray-700 pt-3">
+          <strong class="text-sm text-gray-400">Gerar intervalos:</strong>
+          <label class="text-sm">Início <input id="genStartDWW" type="time" value="09:00" class="ml-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-1 px-2 text-sm" /></label>
+          <label class="text-sm">Fim <input id="genEndDW" type="time" value="18:00" class="ml-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-1 px-2 text-sm" /></label>
+          <label class="text-sm">Passo (min) <input id="genStepDW" type="number" value="30" min="5" step="5" class="ml-2 w-20 bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-1 px-2 text-sm" /></label>
+          <button onclick="generateForSelectedDayDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Gerar para este dia</button>
+          <button onclick="applyPresetTueFriSatDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Aplicar Ter–Sex 09–18 / Sáb 09–16 (30m)</button>
+        </div>
+        <div id="availableSlotsListDW" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- Dias Fechados -->
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-200 text-lg font-semibold mb-2">Dias Fechados</h3>
+        <p class="text-gray-400 text-sm mb-3">Defina datas em que a barbearia estará fechada</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <button onclick="toggleAllSundaysDW()" class="px-3 py-2 rounded-md border border-[#A38F5F] text-[#A38F5F] hover:bg-[#A38F5F]/10 text-sm">
+            <span id="sundayBtnTextDW">Fechar todos os domingos</span>
+          </button>
+          <button onclick="toggleAllMondaysDW()" class="px-3 py-2 rounded-md border border-[#A38F5F] text-[#A38F5F] hover:bg-[#A38F5F]/10 text-sm">
+            <span id="mondayBtnTextDW">Fechar todas as segundas</span>
+          </button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <input id="closedDateInputDW" type="date" class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" />
+          <button onclick="addClosedDateDW()" class="px-3 py-2 rounded-md bg-emerald-600 text-white text-sm">Adicionar</button>
+        </div>
+        <div id="closedDatesListDW" class="space-y-2"></div>
+      </div>
+
+      <!-- Segurança -->
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-200 text-lg font-semibold mb-2">Segurança</h3>
+        <div class="grid md:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Senha atual</label>
+            <input id="currentAdminPasswordDW" type="password" class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Nova senha</label>
+            <input id="newAdminPasswordDW" type="password" class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Confirmar nova senha</label>
+            <input id="confirmAdminPasswordDW" type="password" class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-2 px-3 text-sm" />
+          </div>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button onclick="changeAdminPasswordDW()" class="px-3 py-2 rounded-md bg-[#A38F5F] text-white text-sm">Salvar nova senha</button>
+          <button onclick="resetAdminPasswordToDefaultDW()" class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm">Restaurar padrão</button>
+        </div>
+      </div>
+
+      <!-- Backup / Restauração -->
+      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-200 text-lg font-semibold mb-2">Backup e Restauração</h3>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="exportBackupDW()" class="px-3 py-2 rounded-md bg-emerald-600 text-white text-sm">Exportar Backup</button>
+          <label class="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700 text-sm cursor-pointer">
+            Importar Backup
+            <input id="importBackupInputDW" type="file" accept="application/json" class="hidden" onchange="importBackupDW(this)" />
+          </label>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<!-- Login Overlay (fora do #dashboardMain para evitar ser ocultado junto) -->
+<div id="loginOverlay" class="hacker-login-overlay" style="display: none;">
+    <canvas class="matrix-bg"></canvas>
+    <div class="scan-line"></div>
+    <div id="loginBox" class="hacker-login-box">
+        <h2 class="hacker-title" data-text="Acesso Restrito">Acesso Restrito</h2>
+        <form id="loginForm" class="hacker-form" onsubmit="event.preventDefault(); validateLogin();">
+          <!-- Username Field (hidden but required for form) -->
+          <div class="mb-6">
+            <label for="adminUser" class="block mb-3">
+              <span class="typewriter-label" data-text="USUÁRIO:">USUÁRIO:</span>
+            </label>
+            <input 
+              type="text" 
+              id="adminUser" 
+              class="hacker-input w-full rounded-lg" 
+              value="ADMIN"
+              readonly
+              placeholder=">>> ADMIN"
+            />
+          </div>
+          
+          <!-- Password Field -->
+          <div class="mb-6">
+            <label for="adminPwd" class="block mb-3">
+              <span class="typewriter-label" data-text="SENHA:">SENHA:</span>
+            </label>
+            <input 
+              type="password" 
+              id="adminPwd" 
+              class="hacker-input w-full rounded-lg" 
+              placeholder=">>> Digite a senha"
+              required
+            />
+          </div>
+          
+          <!-- Submit Button -->
+          <button type="submit" class="hacker-button w-full rounded-lg">
+            [ ACESSAR SISTEMA ]
+          </button>
+          
+          <!-- Back Button -->
+          <button 
+            type="button" 
+            onclick="window.location.href='index.html'" 
+            class="w-full mt-4 px-4 py-3 rounded-lg border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-black transition-all duration-300 font-['VT323'] text-xl"
+            style="letter-spacing: 2px;"
+          >
+            [ CANCELAR ]
+          </button>
+        </form>
+        
+        <!-- Error Message -->
+        <div class="login-error-message" id="loginErrorMessage">
+          Senha incorreta. Tente novamente.
+        </div>
+      </div>
+    </div>
+
+<script>
+  console.log('[INIT] Script carregando...');
+  const API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:3333';
+  console.log('[INIT] API_BASE:', API_BASE);
+
+  // Auth helpers (usa a mesma senha do index.html)
+  const DEFAULT_ADMIN_PASSWORD = 'bf12025';
+  function getAdminPassword() {
+    try {
+      const saved = localStorage.getItem('adminPassword');
+      return (saved && saved.length) ? saved : DEFAULT_ADMIN_PASSWORD;
+    } catch (e) {
+      return DEFAULT_ADMIN_PASSWORD;
+    }
+  }
+
+  function hideLogin() {
+    const overlay = document.getElementById('loginOverlay');
+    const main = document.getElementById('dashboardMain');
+    console.log('[HIDELOGIN] Escondendo overlay, mostrando dashboard');
+    if (overlay) {
+      overlay.classList.add('hidden');
+      overlay.style.display = 'none';
+    }
+    if (main) {
+      main.style.display = 'flex';
+    }
+  }
+
+  function validateLogin() {
+    const input = document.getElementById('adminPwd');
+    const pwd = input ? input.value : '';
+    console.log('[LOGIN] Tentando validar senha...');
+    if (!pwd) {
+      console.log('[LOGIN] Campo vazio');
+      return;
+    }
+    const expected = getAdminPassword();
+    console.log('[LOGIN] Comparando senha (length):', pwd.length, 'vs', expected.length);
+    if (pwd === expected) {
+      console.log('[LOGIN] Senha correta! Autenticando...');
+      sessionStorage.setItem('admin_authenticated', 'true');
+      sessionStorage.setItem('admin_auth_time', Date.now());
+      hideLogin();
+      refreshDashboard();
+    } else {
+      console.log('[LOGIN] Senha incorreta');
+      // feedback simples
+      if (input) {
+        input.value = '';
+        input.classList.add('ring-2','ring-red-500');
+        setTimeout(() => input.classList.remove('ring-2','ring-red-500'), 800);
+      }
+      // Mostrar mensagem de erro
+      const errorMessage = document.getElementById('loginErrorMessage');
+      if (errorMessage) {
+        errorMessage.style.display = 'block';
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 3000);
+      }
+    }
+  }
+
+  // Verificar autenticação e decidir o que mostrar
+  function checkAuthDW() {
+    console.log('[CHECKAUTH] Verificando autenticação...');
+    const isAuth = sessionStorage.getItem('admin_authenticated');
+    const authTime = sessionStorage.getItem('admin_auth_time');
+    const now = Date.now();
+    const fourHours = 4 * 60 * 60 * 1000;
+    const valid = isAuth && authTime && ((now - parseInt(authTime)) <= fourHours);
+    console.log('[CHECKAUTH] isAuth:', isAuth, 'authTime:', authTime, 'valid:', valid);
+    if (!valid) {
+      console.log('[CHECKAUTH] Sessão inválida, mostrando login');
+      sessionStorage.removeItem('admin_authenticated');
+      sessionStorage.removeItem('admin_auth_time');
+      showLogin();
+    } else {
+      console.log('[CHECKAUTH] Sessão válida, mostrando dashboard');
+      // Já está autenticado, garante que o dashboard está visível
+      hideLogin();
+    }
+  }
+  
+  // Executar ao carregar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAuthDW);
+  } else {
+    checkAuthDW();
+  }
+
+  function currencyBRL(v) {
+    try { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0); } catch { return `R$ ${Number(v||0).toFixed(2)}`; }
+  }
+
+  async function loadStats() {
+    try {
+      const r = await fetch(`${API_BASE}/api/dashboard/stats`);
+      const data = await r.json();
+      document.getElementById('revenueValue').textContent = currencyBRL(data.totalRevenueMonth || 0);
+      document.getElementById('appointmentsValue').textContent = data.newAppointmentsMonth || 0;
+      document.getElementById('barbersValue').textContent = data.activeBarbers || 0;
+    } catch (e) {
+      console.error('Falha ao carregar stats', e);
+    }
+  }
+
+  function statusBadge(status) {
+    const map = {
+      'Pago': 'bg-green-600',
+      'Pendente': 'bg-yellow-600',
+      'Cancelado': 'bg-red-600'
+    };
+    const cls = map[status] || 'bg-gray-600';
+    return `<span class="${cls} text-white text-xs font-medium px-2.5 py-0.5 rounded-full">${status}</span>`;
+  }
+
+  function formatDateBR(iso) {
+    if (!iso) return '';
+    const [y,m,d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  async function loadRecent() {
+    try {
+      const r = await fetch(`${API_BASE}/api/dashboard/recent-appointments?limit=10`);
+      const { bookings } = await r.json();
+      const tbody = document.getElementById('recentTbody');
+      if (!bookings || bookings.length === 0) {
+        tbody.innerHTML = `<tr><td class="px-6 py-4 text-gray-400" colspan="6">Sem agendamentos</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = bookings.map(b => `
+        <tr class="bg-[#2A2A2A] border-b border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+          <td class="px-6 py-4 font-medium text-white whitespace-nowrap">${b.cliente}</td>
+          <td class="px-6 py-4">Equipe</td>
+          <td class="px-6 py-4">${formatDateBR(b.dataISO)}</td>
+          <td class="px-6 py-4">${b.servicoNome}</td>
+          <td class="px-6 py-4">${b.hora}</td>
+          <td class="px-6 py-4">${statusBadge(b.status)}</td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error('Falha ao carregar recentes', e);
+    }
+  }
+
+  let earningsChart;
+  async function loadEarnings() {
+    try {
+      const r = await fetch(`${API_BASE}/api/dashboard/earnings`);
+      const { labels, values } = await r.json();
+      const ctx = document.getElementById('earningsChart').getContext('2d');
+      if (earningsChart) earningsChart.destroy();
+      earningsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Receita',
+            data: values,
+            borderColor: '#22C55E',
+            backgroundColor: 'rgba(34,197,94,0.15)',
+            tension: 0.35,
+            fill: true,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    } catch (e) {
+      console.error('Falha ao carregar earnings', e);
+    }
+  }
+
+  // Boot
+  (function init() {
+    const isAuth = sessionStorage.getItem('admin_authenticated');
+    const authTime = sessionStorage.getItem('admin_auth_time');
+    const now = Date.now();
+    const fourHours = 4 * 60 * 60 * 1000;
+    const valid = isAuth && authTime && ((now - parseInt(authTime)) <= fourHours);
+    if (valid) {
+      loadStats();
+      loadRecent();
+      loadEarnings();
+    }
+  })();
+
+  // Refresh function
+  function refreshDashboard() {
+    loadStats();
+    loadRecent();
+    loadEarnings();
+  }
+
+  // Logout function
+  function logout() {
+    sessionStorage.removeItem('admin_authenticated');
+    sessionStorage.removeItem('admin_auth_time');
+    window.location.href = 'index.html';
+  }
+
+  // ==============
+  // Views handling
+  // ==============
+  function bindNavDW(){
+    const nav = document.getElementById('sidebarNav');
+    if (!nav || bindNavDW._bound) return; bindNavDW._bound = true;
+    nav.querySelectorAll('button[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const view = btn.getAttribute('data-view');
+        switchViewDW(view);
+        nav.querySelectorAll('button[data-view]').forEach(b => b.classList.remove('bg-[#A38F5F]/20','text-[#A38F5F]'));
+        btn.classList.add('bg-[#A38F5F]/20','text-[#A38F5F]');
+      });
+    });
+  }
+
+  function switchViewDW(view){
+    const ids = ['view-dashboard','view-orders','view-clients','view-settings'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === `view-${view}`) el.classList.remove('hidden'); else el.classList.add('hidden');
+    });
+    if (view === 'orders') loadOrdersDW();
+    if (view === 'clients') loadClientsDW();
+    if (view === 'settings') initSettingsDW();
+  }
+
+  // ==============
+  // Orders (Vendas)
+  // ==============
+  async function fetchAllBookingsDW(params = {}){
+    const url = new URL(`${API_BASE}/api/bookings`);
+    Object.entries(params).forEach(([k,v]) => { if (v != null && v !== '' && v !== 'all') url.searchParams.set(k,v); });
+    const r = await fetch(url.toString());
+    const data = await r.json().catch(()=>({}));
+    if (!r.ok) throw new Error(data.error || 'Falha ao listar agendamentos');
+    return Array.isArray(data.bookings) ? data.bookings : [];
+  }
+
+  function formatBRLDW(v){
+    try { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v)||0); } catch { return `R$ ${(Number(v)||0).toFixed(2)}`; }
+  }
+
+  function statusBadgeDW(status){
+    const map = { 'Pago': 'bg-green-600', 'Pendente': 'bg-yellow-600', 'Cancelado': 'bg-red-600' };
+    const cls = map[status] || 'bg-gray-600';
+    return `<span class="${cls} text-white text-xs font-medium px-2.5 py-0.5 rounded-full">${status}</span>`;
+  }
+
+  async function updateOrderStatusDW(id, newStatus){
+    try{
+      const r = await fetch(`${API_BASE}/api/bookings/${id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status: newStatus }) });
+      if (!r.ok) throw new Error('Falha ao atualizar status');
+      toastDW('Status atualizado');
+      loadOrdersDW();
+    }catch(e){ toastDW('Erro ao atualizar status','error'); }
+  }
+
+  let ordersCacheDW = [];
+  async function loadOrdersDW(){
+    const tbody = document.getElementById('ordersTbodyDW');
+    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-gray-400">Carregando...</td></tr>`;
+    try{
+      ordersCacheDW = await fetchAllBookingsDW();
+    }catch(e){ ordersCacheDW = []; }
+    renderOrdersDW();
+    const f = document.getElementById('ordersStatusFilter');
+    const s = document.getElementById('ordersSearch');
+    if (f && !f._bound){ f._bound = true; f.addEventListener('change', renderOrdersDW); }
+    if (s && !s._bound){ s._bound = true; s.addEventListener('input', renderOrdersDW); }
+  }
+
+  function renderOrdersDW(){
+    const tbody = document.getElementById('ordersTbodyDW');
+    if (!tbody) return;
+    const status = (document.getElementById('ordersStatusFilter')?.value)||'all';
+    const q = (document.getElementById('ordersSearch')?.value||'').toLowerCase();
+    const data = ordersCacheDW.filter(o => (status==='all'||o.status===status) && JSON.stringify(o).toLowerCase().includes(q));
+    if (!data.length){ tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-gray-400">Sem registros</td></tr>`; return; }
+    tbody.innerHTML = data.map(o=>{
+      const d = o.dataISO ? o.dataISO : o.data;
+      const br = d ? `${d.split('-').reverse().join('/')}` : '-';
+      const actions = o.status==='Pendente' ? `
+        <div class="flex gap-2">
+          <button class="px-2 py-1 rounded bg-emerald-600 text-white text-xs" onclick="updateOrderStatusDW(${o.id}, 'Pago')">Confirmar</button>
+          <button class="px-2 py-1 rounded bg-red-600 text-white text-xs" onclick="updateOrderStatusDW(${o.id}, 'Cancelado')">Cancelar</button>
+        </div>` : '<span class="text-gray-500 text-xs">—</span>';
+      return `
+        <tr class="bg-[#2A2A2A] border-b border-gray-700">
+          <td class="px-6 py-3">#${o.id}</td>
+          <td class="px-6 py-3">${o.cliente||'-'}</td>
+          <td class="px-6 py-3">${o.servicoNome||o.servico||'-'}</td>
+          <td class="px-6 py-3">${formatBRLDW(o.valor)}</td>
+          <td class="px-6 py-3">${br}</td>
+          <td class="px-6 py-3">${statusBadgeDW(o.status||'-')}</td>
+          <td class="px-6 py-3">${actions}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ==========
+  // Clients
+  // ==========
+  let clientsCacheDW = [];
+  async function loadClientsDW(){
+    // usa ordersCache se já carregado
+    if (!ordersCacheDW.length){
+      try{ ordersCacheDW = await fetchAllBookingsDW(); }catch(e){ ordersCacheDW=[]; }
+    }
+    const map = {};
+    ordersCacheDW.forEach(b=>{
+      const tel = (b.telefone||'').replace(/\D/g,''); if (!tel) return;
+      if (!map[tel]) map[tel] = { nome: b.cliente||'-', telefone: tel, lastVisit: b.dataISO||b.data, totalSpent:0, bookingCount:0 };
+      map[tel].totalSpent += Number(b.valor)||0;
+      map[tel].bookingCount += 1;
+      if ((b.dataISO||b.data) > map[tel].lastVisit) map[tel].lastVisit = (b.dataISO||b.data);
+    });
+    clientsCacheDW = Object.values(map);
+    renderClientsDW();
+    const s = document.getElementById('clientSearchDW'); if (s && !s._bound){ s._bound=true; s.addEventListener('input', renderClientsDW); }
+  }
+
+  function renderClientsDW(){
+    const tbody = document.getElementById('clientsTbodyDW'); if (!tbody) return;
+    const q = (document.getElementById('clientSearchDW')?.value||'').toLowerCase();
+    let list = clientsCacheDW.filter(c => c.nome.toLowerCase().includes(q) || c.telefone.includes(q));
+    if (!list.length){ tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-gray-400">Nenhum cliente encontrado</td></tr>`; return; }
+    list.sort((a,b)=> (b.lastVisit||'').localeCompare(a.lastVisit||''));
+    tbody.innerHTML = list.map(c=>`
+      <tr class="bg-[#2A2A2A] border-b border-gray-700">
+        <td class="px-6 py-3">${c.nome}</td>
+        <td class="px-6 py-3">${c.telefone}</td>
+        <td class="px-6 py-3">${c.lastVisit? c.lastVisit.split('-').reverse().join('/'):'-'}</td>
+        <td class="px-6 py-3">${formatBRLDW(c.totalSpent)}</td>
+        <td class="px-6 py-3">${c.bookingCount}</td>
+      </tr>`).join('');
+  }
+
+  // ==============
+  // Settings
+  // ==============
+  let settingsBoundDW = false;
+  function initSettingsDW(){
+    if (settingsBoundDW) { // ainda assim atualiza listas
+      renderAvailableSlotsListDW();
+      renderWeeklyCalendarDW();
+      renderClosedDatesDW();
+      loadActiveBarbersDW();
+      return;
+    }
+    // bind
+    const sel = document.getElementById('slotDaySelectDW');
+    if (sel && !sel._bound){ sel._bound=true; sel.addEventListener('change', ()=>{ renderAvailableSlotsListDW(); }); }
+    settingsBoundDW = true;
+    // carrega
+    loadActiveBarbersDW();
+    renderAvailableSlotsListDW();
+    renderWeeklyCalendarDW();
+    renderClosedDatesDW();
+  }
+
+  // Equipe
+  async function loadActiveBarbersDW(){
+    const input = document.getElementById('activeBarbersInputDW');
+    console.log('[LOAD_BARBERS] Carregando barbeiros ativos...', { input });
+    
+    if (!input) {
+      console.error('[LOAD_BARBERS] Input não encontrado!');
+      return;
+    }
+
+    // SEMPRE carregar do localStorage primeiro (é o que importa)
+    try {
+      const stored = localStorage.getItem('active_barbers');
+      console.log('[LOAD_BARBERS] localStorage value:', stored);
+      
+      if (stored != null) {
+        const n = parseInt(stored, 10);
+        if (!isNaN(n) && n >= 0) {
+          input.value = n;
+          console.log('[LOAD_BARBERS] Carregado do localStorage:', n);
+          return; // Já carregou, não precisa tentar API
+        }
+      }
+    } catch (e) {
+      console.error('[LOAD_BARBERS] Erro ao ler localStorage:', e);
+    }
+
+    // Se não tem no localStorage, tenta API
+    try {
+      console.log('[LOAD_BARBERS] Tentando carregar da API...');
+      const r = await fetch(`${API_BASE}/api/settings/active_barbers`);
+      const data = await r.json();
+      
+      if (data && data.value != null){ 
+        const n = parseInt(data.value,10); 
+        if (!isNaN(n) && n >= 0) {
+          input.value = n;
+          // Salva no localStorage também
+          localStorage.setItem('active_barbers', String(n));
+          console.log('[LOAD_BARBERS] Carregado da API:', n);
+        }
+      }
+    } catch (e) {
+      console.warn('[LOAD_BARBERS] API não disponível:', e.message);
+      // Deixa valor padrão 0
+      input.value = 0;
+    }
+  }
+  
+  async function saveActiveBarbersDW(){
+    const input = document.getElementById('activeBarbersInputDW');
+    const status = document.getElementById('activeBarbersStatusDW');
+    const value = parseInt(input?.value||'0',10);
+    
+    console.log('[SAVE_BARBERS] Iniciando save...', { input, status, value });
+    
+    if (!input || isNaN(value)) {
+      console.error('[SAVE_BARBERS] Input inválido ou valor NaN');
+      if (status) status.textContent = '❌ Valor inválido';
+      return;
+    }
+
+    // Sempre salvar no localStorage como fallback
+    try {
+      localStorage.setItem('active_barbers', String(value));
+      console.log('[SAVE_BARBERS] Salvo no localStorage:', value);
+    } catch (e) {
+      console.error('[SAVE_BARBERS] Erro ao salvar no localStorage:', e);
+    }
+
+    // Tentar salvar na API
+    try {
+      console.log('[SAVE_BARBERS] Tentando salvar na API...', API_BASE);
+      const r = await fetch(`${API_BASE}/api/settings/active_barbers`, { 
+        method:'PUT', 
+        headers:{'Content-Type':'application/json'}, 
+        body: JSON.stringify({ value }) 
+      });
+      
+      console.log('[SAVE_BARBERS] Resposta da API:', r.status, r.ok);
+      
+      if (r.ok) {
+        if (status) {
+          status.textContent = '✓ Salvo com sucesso!';
+          status.style.color = '#00ff41';
+        }
+        toastDW('Barbeiros ativos atualizado!');
+        console.log('[SAVE_BARBERS] Sucesso!');
+      } else {
+        throw new Error('Erro na API: ' + r.status);
+      }
+    } catch (err) {
+      // Salvou no localStorage mesmo sem API
+      console.warn('[SAVE_BARBERS] API indisponível, usando localStorage:', err.message);
+      if (status) {
+        status.textContent = '✓ Salvo localmente';
+        status.style.color = '#00d4ff';
+      }
+      toastDW('Salvo localmente (sem backend)');
+    }
+
+    // Recarregar valor para garantir que aparece
+    console.log('[SAVE_BARBERS] Recarregando valor na tela...');
+    await loadActiveBarbersDW();
+
+    // Limpar mensagem após 3s
+    setTimeout(() => {
+      if (status) status.textContent = '';
+    }, 3000);
+  }
+
+  // Slots helpers (localStorage)
+  const DEFAULT_SLOTS_DW = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+  function toMinutesDW(hhmm){ const [h,m]=(hhmm||'').split(':').map(Number); return (Number.isFinite(h)&&Number.isFinite(m))?(h*60+m):0; }
+  function getAvailableSlotsDW(){ try{ const raw=JSON.parse(localStorage.getItem('availableSlots')||'null'); let arr=Array.isArray(raw)?raw.filter(v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v)):null; if (!arr||!arr.length) arr=DEFAULT_SLOTS_DW.slice(); return Array.from(new Set(arr)).sort((a,b)=>toMinutesDW(a)-toMinutesDW(b)); }catch{return DEFAULT_SLOTS_DW.slice();} }
+  function saveAvailableSlotsDW(slots){ try{ localStorage.setItem('availableSlots', JSON.stringify(slots)); }catch{} }
+  function getSlotsByDayDW(){ try{ const obj=JSON.parse(localStorage.getItem('availableSlotsByDay')||'null'); return (obj && typeof obj==='object')?obj:{}; }catch{return{}} }
+  function saveSlotsByDayDW(map){ try{ localStorage.setItem('availableSlotsByDay', JSON.stringify(map)); }catch{} }
+  function getSlotsForDowDW(dowStr){ const map=getSlotsByDayDW(); const arr=(map && Array.isArray(map[dowStr]))?map[dowStr]:[]; if (arr&&arr.length) return Array.from(new Set(arr)).filter(v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v)).sort((a,b)=>toMinutesDW(a)-toMinutesDW(b)); return getAvailableSlotsDW(); }
+  function setSlotsForDowDW(dowStr, slots){ const map=getSlotsByDayDW(); map[dowStr]=Array.from(new Set(slots)).filter(v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v)).sort((a,b)=>toMinutesDW(a)-toMinutesDW(b)); saveSlotsByDayDW(map); }
+
+  function renderAvailableSlotsListDW(){ const list=document.getElementById('availableSlotsListDW'); if (!list) return; const sel=document.getElementById('slotDaySelectDW'); const dow = sel?String(sel.value):String(new Date().getDay()); const slots=getSlotsForDowDW(dow); list.innerHTML=''; if (!slots.length){ list.innerHTML='<div class="text-gray-400">Nenhum horário configurado</div>'; return; } slots.forEach(s=>{ const row=document.createElement('div'); row.className='flex items-center gap-2 border border-gray-700 rounded-md px-2 py-1'; row.innerHTML = `<span>${s}</span>`; const eBtn=document.createElement('button'); eBtn.className='px-2 py-1 text-xs border border-gray-700 rounded hover:bg-gray-700'; eBtn.innerHTML='<i>Editar</i>'; eBtn.onclick=()=>editAvailableSlotDW(s); const dBtn=document.createElement('button'); dBtn.className='px-2 py-1 text-xs border border-gray-700 rounded hover:bg-gray-700'; dBtn.innerHTML='<i>Remover</i>'; dBtn.onclick=()=>removeAvailableSlotDWDow(s); const dAllBtn=document.createElement('button'); dAllBtn.className='px-2 py-1 text-xs border border-red-700 text-red-300 rounded hover:bg-red-900/30'; dAllBtn.innerHTML='<i>Remover (todos)</i>'; dAllBtn.onclick=()=>removeAvailableSlotDWAll(s); row.appendChild(eBtn); row.appendChild(dBtn); row.appendChild(dAllBtn); list.appendChild(row); }); }
+
+  function addAvailableSlotDW(){ const input=document.getElementById('newSlotInputDW'); if (!input) return; let v=(input.value||'').trim(); if (/^\d{1,2}:\d{2}$/.test(v)){ const [h,m]=v.split(':').map(n=>String(n).padStart(2,'0')); v=`${h}:${m}`; } if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) { toastDW('Informe um horário válido (HH:MM)','error'); return; } const sel=document.getElementById('slotDaySelectDW'); const dow= sel?String(sel.value):String(new Date().getDay()); let slots=getSlotsByDayDW()[dow] || getSlotsForDowDW(dow); if (slots.includes(v)) { toastDW('Horário já existe','error'); return; } slots=[...slots,v]; const sorted=Array.from(new Set(slots)).sort((a,b)=>toMinutesDW(a)-toMinutesDW(b)); setSlotsForDowDW(dow, sorted); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); }
+  function addAvailableSlotToAllDaysDW(){ const input=document.getElementById('newSlotInputDW'); if (!input) return; let v=(input.value||'').trim(); if (/^\d{1,2}:\d{2}$/.test(v)){ const [h,m]=v.split(':').map(n=>String(n).padStart(2,'0')); v=`${h}:${m}`; } if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) { toastDW('Informe um horário válido (HH:MM)','error'); return; } if (!confirm(`Adicionar ${v} em todos os dias (Dom–Sáb)?`)) return; for (let dow=0; dow<=6; dow++){ let slots=getSlotsByDayDW()[String(dow)] || getSlotsForDowDW(String(dow)); if (!slots.includes(v)){ slots=[...slots,v]; setSlotsForDowDW(String(dow), Array.from(new Set(slots)).sort((a,b)=>toMinutesDW(a)-toMinutesDW(b))); } } renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); }
+  function removeAvailableSlotDWDow(v){ const sel=document.getElementById('slotDaySelectDW'); const dow= sel?String(sel.value):String(new Date().getDay()); let slots=getSlotsByDayDW()[dow] || getSlotsForDowDW(dow); slots = slots.filter(s=>s!==v); setSlotsForDowDW(dow, slots); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); }
+  function removeAvailableSlotDWAll(v){ if (!confirm(`Remover ${v} de todos os dias?`)) return; for (let dow=0; dow<=6; dow++){ let slots=getSlotsByDayDW()[String(dow)] || getSlotsForDowDW(String(dow)); const oldLen=slots.length; slots=slots.filter(s=>s!==v); if (slots.length<oldLen) setSlotsForDowDW(String(dow), slots); } renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); }
+  function editAvailableSlotDW(oldV){ const current=(oldV||'').trim(); const input=prompt('Novo horário (HH:MM):', current); if (input==null) return; let v=input.trim(); if (/^\d{1,2}:\d{2}$/.test(v)){ const [h,m]=v.split(':').map(n=>String(n).padStart(2,'0')); v=`${h}:${m}`; } if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) { toastDW('Informe um horário válido (HH:MM)','error'); return; } const sel=document.getElementById('slotDaySelectDW'); const dow= sel?String(sel.value):String(new Date().getDay()); let slots=getSlotsByDayDW()[dow] || getSlotsForDowDW(dow); if (v===current) return; if (slots.includes(v)) { toastDW('Este horário já existe','error'); return; } slots=slots.map(s=> s===current? v : s); slots=Array.from(new Set(slots)).sort((a,b)=>toMinutesDW(a)-toMinutesDW(b)); setSlotsForDowDW(dow, slots); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); }
+  function generateTimeArrayDW(startHHMM,endHHMM,stepMin){ const [sh,sm]=startHHMM.split(':').map(Number); const [eh,em]=endHHMM.split(':').map(Number); const start=sh*60+sm; const end=eh*60+em; const step=Number(stepMin)||30; if (!Number.isFinite(start)||!Number.isFinite(end)||step<5||end<start) return []; const out=[]; for (let t=start;t<=end;t+=step){ const h=Math.floor(t/60), m=t%60; out.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')); } return out; }
+  function generateForSelectedDayDW(){ const sel=document.getElementById('slotDaySelectDW'); const dow= sel?String(sel.value):String(new Date().getDay()); const s=document.getElementById('genStartDWW')?.value||'09:00'; const e=document.getElementById('genEndDW')?.value||'18:00'; const p=Number(document.getElementById('genStepDW')?.value||30); const arr=generateTimeArrayDW(s,e,p); if (!arr.length){ toastDW('Parâmetros inválidos','error'); return; } setSlotsForDowDW(dow, arr); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); }
+  function applyPresetTueFriSatDW(){ const tueFri=generateTimeArrayDW('09:00','18:00',30); const sat=generateTimeArrayDW('09:00','16:00',30); ['2','3','4','5'].forEach(d=> setSlotsForDowDW(d, tueFri)); setSlotsForDowDW('6', sat); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); }
+  
+  function copySlotsFromDayDW(){ const sel=document.getElementById('slotDaySelectDW'); const targetDow= sel?String(sel.value):String(new Date().getDay()); const mapNames=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']; const from=prompt('Copiar horários de qual dia? (0=Dom,1=Seg,2=Ter,3=Qua,4=Qui,5=Sex,6=Sáb)', '1'); if (from==null) return; const srcDow=String(parseInt(from,10)); if (!/^([0-6])$/.test(srcDow)){ toastDW('Dia inválido','error'); return; } const slots=getSlotsForDowDW(srcDow); setSlotsForDowDW(targetDow, slots); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); toastDW('Horários copiados de '+mapNames[Number(srcDow)]); }
+  
+  function useGlobalDefaultSlotsDW(){ const sel=document.getElementById('slotDaySelectDW'); const dow= sel?String(sel.value):String(new Date().getDay()); const slots=getAvailableSlotsDW(); setSlotsForDowDW(dow, slots); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); toastDW('Aplicado o padrão global'); }
+
+  function toggleWeeklyCalendarDW(){ const view=document.getElementById('weeklyCalendarViewDW'); const btn=document.getElementById('toggleCalendarBtnDW'); if (!view||!btn) return; const isVisible = !view.classList.contains('hidden'); if (isVisible){ view.classList.add('hidden'); btn.textContent='Ver calendário semanal'; } else { view.classList.remove('hidden'); btn.textContent='Fechar calendário'; renderWeeklyCalendarDW(); } }
+  function renderWeeklyCalendarDW(){ const grid=document.getElementById('weeklyCalendarGridDW'); if (!grid) return; const dayNames=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']; const dayIcons=['☀️','💼','💼','💼','💼','💼','🎉']; grid.innerHTML=''; for (let dow=0; dow<=6; dow++){ const slots=getSlotsForDowDW(String(dow)); const card=document.createElement('div'); card.className='p-3 rounded-lg border border-gray-700 bg-[#1A1A1A]'; const head=document.createElement('div'); head.className='font-semibold text-[#A38F5F] mb-2'; head.textContent=`${dayIcons[dow]} ${dayNames[dow]}`; const body=document.createElement('div'); body.className='text-sm text-gray-300'; if (!slots.length){ body.innerHTML='<div class="text-gray-500 italic">Sem horários</div>'; } else { const summary = slots.length <= 5 ? slots.join(', ') : `${slots[0]} - ${slots[slots.length-1]} (${slots.length} horários)`; body.innerHTML = `<div class="font-semibold mb-1">${slots.length} horário(s)</div><div>${summary}</div>`; const edit=document.createElement('button'); edit.className='mt-2 w-full px-2 py-1 rounded border border-gray-700 hover:bg-gray-700 text-xs'; edit.textContent='Editar'; edit.onclick=()=>{ const sel=document.getElementById('slotDaySelectDW'); if (sel) sel.value=String(dow); renderAvailableSlotsListDW(); sel?.scrollIntoView({behavior:'smooth', block:'center'}); }; body.appendChild(edit); }
+      card.appendChild(head); card.appendChild(body); grid.appendChild(card); }
+  }
+
+  // Dias Fechados
+  function renderClosedDatesDW(){ const list=document.getElementById('closedDatesListDW'); if (!list) return; let closed=[]; try{ closed=JSON.parse(localStorage.getItem('closedDates')||'[]'); }catch{} const hasSunday=closed.some(dateISO=> new Date(dateISO+'T12:00:00').getDay()===0); const hasMonday=closed.some(dateISO=> new Date(dateISO+'T12:00:00').getDay()===1); const sb=document.getElementById('sundayBtnTextDW'); if (sb) sb.textContent = hasSunday ? 'Reabrir todos os domingos' : 'Fechar todos os domingos'; const mb=document.getElementById('mondayBtnTextDW'); if (mb) mb.textContent = hasMonday ? 'Reabrir todas as segundas' : 'Fechar todas as segundas'; if (!closed.length){ list.innerHTML='<div class="text-center text-gray-400 py-4">Nenhuma data fechada</div>'; return; } list.innerHTML=''; closed.forEach(dateISO=>{ const row=document.createElement('div'); row.className='flex items-center justify-between border border-gray-700 rounded px-3 py-2'; const dbr = dateISO.split('-').reverse().join('/'); const day = new Date(dateISO+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long'}); row.innerHTML = `<div><div class="font-semibold">${dbr}</div><div class="text-xs text-gray-400 capitalize">${day}</div></div>`; const del=document.createElement('button'); del.className='px-3 py-1 rounded border border-red-700 text-red-300 hover:bg-red-900/30 text-sm'; del.textContent='Remover'; del.onclick=()=>removeClosedDateDW(dateISO); row.appendChild(del); list.appendChild(row); }); }
+  function addClosedDateDW(){ const input=document.getElementById('closedDateInputDW'); const v=input?.value; if (!v){ toastDW('Selecione uma data','error'); return;} try{ let list=JSON.parse(localStorage.getItem('closedDates')||'[]'); if (list.includes(v)){ toastDW('Data já existente','error'); return; } list.push(v); list.sort(); localStorage.setItem('closedDates', JSON.stringify(list)); input.value=''; renderClosedDatesDW(); toastDW('Data adicionada'); }catch{ toastDW('Erro ao salvar','error'); }}
+  function removeClosedDateDW(dateISO){ try{ let list=JSON.parse(localStorage.getItem('closedDates')||'[]'); list=list.filter(d=>d!==dateISO); localStorage.setItem('closedDates', JSON.stringify(list)); renderClosedDatesDW(); toastDW('Data removida'); }catch{ toastDW('Erro ao remover','error'); }}
+  function toggleAllSundaysDW(){ try{ let closed=JSON.parse(localStorage.getItem('closedDates')||'[]'); const today=new Date(); const end=new Date(today); end.setMonth(end.getMonth()+12); const has=closed.some(dateISO=> new Date(dateISO+'T12:00:00').getDay()===0); if (has){ closed = closed.filter(dateISO=> new Date(dateISO+'T12:00:00').getDay()!==0); } else { let cur=new Date(today); cur.setDate(cur.getDate()+ ((7-cur.getDay())%7) ); while (cur<=end){ const iso = cur.toISOString().slice(0,10); if (!closed.includes(iso)) closed.push(iso); cur.setDate(cur.getDate()+7); } }
+    closed.sort(); localStorage.setItem('closedDates', JSON.stringify(closed)); renderClosedDatesDW(); toastDW(has?'Domingos reabertos':'Domingos fechados'); }catch{ toastDW('Erro ao processar','error'); }}
+  function toggleAllMondaysDW(){ try{ let closed=JSON.parse(localStorage.getItem('closedDates')||'[]'); const today=new Date(); const end=new Date(today); end.setMonth(end.getMonth()+12); const has=closed.some(dateISO=> new Date(dateISO+'T12:00:00').getDay()===1); if (has){ closed = closed.filter(dateISO=> new Date(dateISO+'T12:00:00').getDay()!==1); } else { let cur=new Date(today); const delta=(1 - cur.getDay() + 7)%7; cur.setDate(cur.getDate()+ (delta===0?7:delta)); while (cur<=end){ const iso = cur.toISOString().slice(0,10); if (!closed.includes(iso)) closed.push(iso); cur.setDate(cur.getDate()+7); } }
+    closed.sort(); localStorage.setItem('closedDates', JSON.stringify(closed)); renderClosedDatesDW(); toastDW(has?'Segundas reabertas':'Segundas fechadas'); }catch{ toastDW('Erro ao processar','error'); }}
+
+  // Segurança (senha admin)
+  function changeAdminPasswordDW(){ const current=document.getElementById('currentAdminPasswordDW')?.value||''; const next=document.getElementById('newAdminPasswordDW')?.value||''; const confirm=document.getElementById('confirmAdminPasswordDW')?.value||''; if (current!==getAdminPassword()) { toastDW('Senha atual incorreta','error'); return; } if (!next || next.length<6){ toastDW('Nova senha deve ter 6+ caracteres','error'); return; } if (next!==confirm){ toastDW('Confirmação não confere','error'); return; } try{ localStorage.setItem('adminPassword', next); toastDW('Senha alterada com sucesso'); document.getElementById('currentAdminPasswordDW').value=''; document.getElementById('newAdminPasswordDW').value=''; document.getElementById('confirmAdminPasswordDW').value=''; }catch{ toastDW('Não foi possível salvar','error'); } }
+  function resetAdminPasswordToDefaultDW(){ try{ localStorage.removeItem('adminPassword'); toastDW('Senha restaurada para o padrão'); }catch{} }
+
+  // Backup/Restore
+  function exportBackupDW(){ try{ const data={ bookings: JSON.parse(localStorage.getItem('bookings')||'[]'), closedDates: JSON.parse(localStorage.getItem('closedDates')||'[]'), availableSlots: JSON.parse(localStorage.getItem('availableSlots')||'null'), availableSlotsByDay: JSON.parse(localStorage.getItem('availableSlotsByDay')||'null'), adminPassword: localStorage.getItem('adminPassword')||null, exportedAt: new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); const dt=new Date(); const y=dt.getFullYear(); const m=String(dt.getMonth()+1).padStart(2,'0'); const d=String(dt.getDate()).padStart(2,'0'); a.href=url; a.download=`barbearia-backup-${y}${m}${d}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toastDW('Backup exportado'); }catch{ toastDW('Falha ao exportar backup','error'); } }
+  function importBackupDW(input){ const file=input?.files?.[0]; if (!file) return; const reader=new FileReader(); reader.onload=function(e){ try{ const json=JSON.parse(e.target.result); if (Array.isArray(json.bookings)) localStorage.setItem('bookings', JSON.stringify(json.bookings)); if (Array.isArray(json.closedDates)) localStorage.setItem('closedDates', JSON.stringify(json.closedDates)); if (json.availableSlots==null || Array.isArray(json.availableSlots)) { if (json.availableSlots==null) localStorage.removeItem('availableSlots'); else localStorage.setItem('availableSlots', JSON.stringify(json.availableSlots)); } if (json.availableSlotsByDay==null || typeof json.availableSlotsByDay==='object'){ if (json.availableSlotsByDay==null) localStorage.removeItem('availableSlotsByDay'); else localStorage.setItem('availableSlotsByDay', JSON.stringify(json.availableSlotsByDay)); } if (typeof json.adminPassword==='string' && json.adminPassword.length){ localStorage.setItem('adminPassword', json.adminPassword); }
+      renderClosedDatesDW(); renderAvailableSlotsListDW(); renderWeeklyCalendarDW(); toastDW('Backup importado'); }catch{ toastDW('Arquivo inválido','error'); } finally { input.value=''; } }; reader.onerror=function(){ toastDW('Não foi possível ler o arquivo','error'); input.value=''; }; reader.readAsText(file); }
+
+  // Toast helper
+  function toastDW(msg,type){
+    const el=document.createElement('div');
+    el.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg ${type==='error'?'bg-red-600':'bg-emerald-600'} text-white text-sm`;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(()=>{ el.remove(); }, 2500);
+  }
+
+  // Bind nav after DOM ready
+  document.addEventListener('DOMContentLoaded', bindNavDW);
+
+  // Safety: se nada estiver visível após 1s, força exibição do dashboard
+  setTimeout(() => {
+    try {
+      const overlay = document.getElementById('loginOverlay');
+      const main = document.getElementById('dashboardMain');
+      const overlayVisible = overlay ? getComputedStyle(overlay).display !== 'none' : false;
+      const mainVisible = main ? getComputedStyle(main).display !== 'none' : false;
+      if (!overlayVisible && !mainVisible) {
+        console.warn('[SAFETY] Nenhuma view visível; forçando dashboard');
+        if (overlay) { overlay.classList.add('hidden'); overlay.style.display = 'none'; }
+        if (main) { main.style.display = 'flex'; }
+      }
+    } catch (e) { console.warn('[SAFETY] Falha ao aplicar verificação de visibilidade', e); }
+  }, 1000);
+
+  function showLogin() {
+    const loginOverlay = document.getElementById('loginOverlay');
+    if (loginOverlay) {
+      loginOverlay.style.display = 'flex';
+      document.getElementById('password').focus();
+    }
+  }
+
+  function initTypewriter() {
+    // This function is no longer needed for the new theme, but kept to avoid breaking calls.
+  }
+
+  function createMatrixRain() {
+    // This function is no longer needed for the new theme, but kept to avoid breaking calls.
+  }
+
+  function checkAuth() {
+    const authTimestamp = sessionStorage.getItem('authTimestamp');
+    const now = Date.now();
+    const fourHours = 4 * 60 * 60 * 1000;
+    const valid = authTimestamp && (now - parseInt(authTimestamp)) <= fourHours;
+    console.log('[CHECKAUTH] authTimestamp:', authTimestamp, 'valid:', valid);
+    if (!valid) {
+      console.log('[CHECKAUTH] Sessão inválida, mostrando login');
+      sessionStorage.removeItem('admin_authenticated');
+      sessionStorage.removeItem('admin_auth_time');
+      showLogin();
+    } else {
+      console.log('[CHECKAUTH] Sessão válida, mostrando dashboard');
+      hideLogin();
+    }
+  }
+  
+  // Executar ao carregar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAuth);
+  } else {
+    checkAuth();
+  }
+</script>
+</body>
+</html>

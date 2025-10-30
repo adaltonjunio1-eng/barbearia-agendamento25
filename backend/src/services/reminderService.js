@@ -32,6 +32,11 @@ class ReminderService {
 
   async checkReminders() {
     try {
+      // Se a mensageria estiver desativada, não tentar enviar
+      if (smsService.channel === 'none') {
+        return;
+      }
+
       const now = new Date();
       const reminderTime = parseInt(process.env.REMINDER_TIME_BEFORE) || 60; // padrão 60 minutos
 
@@ -52,11 +57,12 @@ class ReminderService {
         const twoMinutes = 2 * 60 * 1000;
 
         if (diff >= -twoMinutes && diff <= twoMinutes) {
-          console.log(`📨 Enviando lembrete por SMS para ${booking.cliente}...`);
+          const channelLabel = smsService.channel === 'whatsapp' ? 'WhatsApp' : 'SMS';
+          console.log(`📨 Enviando lembrete por ${channelLabel} para ${booking.cliente}...`);
           try {
             await smsService.sendReminder(booking);
           } catch (error) {
-            console.error(`❌ Falha ao enviar SMS para ${booking.cliente}:`, error.message);
+            console.error(`❌ Falha ao enviar ${channelLabel} para ${booking.cliente}:`, error.message);
           }
         }
       }

@@ -8,11 +8,22 @@ class SMSService {
     this.client = null;
     this.isReady = false;
     this.provider = process.env.SMS_PROVIDER || 'twilio'; // twilio, zenvia, totalvoice
+    this.channel = (process.env.SMS_CHANNEL || 'sms').toLowerCase(); // sms | whatsapp | none
     this.initialize();
   }
 
   initialize() {
     console.log('🔄 Inicializando serviço de SMS...');
+
+    // Canal desativado
+    if (this.channel === 'none') {
+      this.client = null;
+      this.fromNumber = null;
+      this.isReady = false;
+      this.provider = this.provider || 'disabled';
+      console.log('🔕 Mensageria desativada (canal: NONE). Nenhuma mensagem será enviada.');
+      return;
+    }
 
     // Verificar se credenciais estão configuradas
     if (!process.env.SMS_ACCOUNT_SID || !process.env.SMS_AUTH_TOKEN) {
@@ -30,9 +41,17 @@ class SMSService {
           process.env.SMS_ACCOUNT_SID,
           process.env.SMS_AUTH_TOKEN
         );
-        this.fromNumber = process.env.SMS_FROM_NUMBER || '';
+        // Definir remetente conforme canal
+        if (this.channel === 'whatsapp') {
+          // Número do WhatsApp Sandbox do Twilio
+          // Pode ser configurado como: whatsapp:+14155238886 ou apenas +14155238886
+          const rawFrom = process.env.WHATSAPP_FROM || process.env.WHATSAPP_SANDBOX_NUMBER || '+14155238886';
+          this.fromNumber = rawFrom.startsWith('whatsapp:') ? rawFrom : `whatsapp:${rawFrom}`;
+        } else {
+          this.fromNumber = process.env.SMS_FROM_NUMBER || '';
+        }
         this.isReady = true;
-        console.log('✅ Serviço de SMS (Twilio) inicializado!');
+        console.log(`✅ Serviço de mensagens (Twilio) inicializado no canal: ${this.channel.toUpperCase()}`);
       } else {
         console.warn(`⚠️ Provedor '${this.provider}' não implementado. Use 'twilio'.`);
         this.isReady = false;
@@ -45,13 +64,19 @@ class SMSService {
   }
 
   async sendReminder(booking) {
+    if (this.channel === 'none') {
+      throw new Error('Mensageria desativada (canal NONE)');
+    }
     if (!this.isReady) {
       throw new Error('Serviço de SMS não está configurado. Configure as credenciais no .env');
     }
 
     const phone = booking.telefone.replace(/\D/g, '');
     // Formato internacional: +5511999999999
-    const toNumber = phone.startsWith('55') ? `+${phone}` : `+55${phone}`;
+    let toNumber = phone.startsWith('55') ? `+${phone}` : `+55${phone}`;
+    if (this.channel === 'whatsapp') {
+      toNumber = toNumber.startsWith('whatsapp:') ? toNumber : `whatsapp:${toNumber}`;
+    }
 
     const message = `Olá ${booking.cliente}! 😊
 
@@ -86,10 +111,11 @@ Responda SIM para confirmar presença.`;
         [booking.id]
       );
 
-      console.log(`✅ SMS enviado para ${booking.cliente} (${phone}) - SID: ${result.sid}`);
-      return { success: true, message: 'SMS enviado', sid: result.sid };
+      const channelLabel = this.channel === 'whatsapp' ? 'WhatsApp' : 'SMS';
+      console.log(`✅ ${channelLabel} enviado para ${booking.cliente} (${phone}) - SID: ${result.sid}`);
+      return { success: true, message: `${channelLabel} enviado`, sid: result.sid };
     } catch (error) {
-      console.error(`❌ Erro ao enviar SMS para ${booking.cliente}:`, error);
+      console.error(`❌ Erro ao enviar mensagem (${this.channel}) para ${booking.cliente}:`, error);
 
       // Registrar falha no banco
       await db.run(
@@ -102,12 +128,18 @@ Responda SIM para confirmar presença.`;
   }
 
   async sendMessage(telefone, message) {
+    if (this.channel === 'none') {
+      throw new Error('Mensageria desativada (canal NONE)');
+    }
     if (!this.isReady) {
       throw new Error('Serviço de SMS não está configurado');
     }
 
     const phone = telefone.replace(/\D/g, '');
-    const toNumber = phone.startsWith('55') ? `+${phone}` : `+55${phone}`;
+    let toNumber = phone.startsWith('55') ? `+${phone}` : `+55${phone}`;
+    if (this.channel === 'whatsapp') {
+      toNumber = toNumber.startsWith('whatsapp:') ? toNumber : `whatsapp:${toNumber}`;
+    }
 
     try {
       const result = await this.client.messages.create({
@@ -116,10 +148,11 @@ Responda SIM para confirmar presença.`;
         to: toNumber
       });
 
-      console.log(`✅ SMS enviado para ${telefone} - SID: ${result.sid}`);
+      const channelLabel = this.channel === 'whatsapp' ? 'WhatsApp' : 'SMS';
+      console.log(`✅ ${channelLabel} enviado para ${telefone} - SID: ${result.sid}`);
       return { success: true, sid: result.sid };
     } catch (error) {
-      console.error(`❌ Erro ao enviar SMS:`, error);
+      console.error(`❌ Erro ao enviar mensagem (${this.channel}):`, error);
       throw error;
     }
   }
@@ -131,9 +164,10 @@ Responda SIM para confirmar presença.`;
 
   getStatus() {
     return {
-      connected: this.isReady,
+      connected: this.channel !== 'none' && this.isReady,
       provider: this.provider,
-      fromNumber: this.isReady ? this.fromNumber : null,
+      channel: this.channel,
+      fromNumber: this.isReady && this.channel !== 'none' ? this.fromNumber : null,
       configured: !!process.env.SMS_ACCOUNT_SID
     };
   }
@@ -144,7 +178,9 @@ Responda SIM para confirmar presença.`;
     return { 
       dataUrl: null, 
       generatedAt: null,
-      message: 'SMS não requer QR Code - configure credenciais no .env'
+      message: this.channel === 'whatsapp'
+        ? 'WhatsApp Sandbox do Twilio não requer QR Code. Conecte enviando "join <código>" para o número do sandbox.'
+        : (this.channel === 'none' ? 'Mensageria desativada - nenhum QR é necessário.' : 'SMS não requer QR Code - configure credenciais no .env')
     };
   }
 
@@ -152,7 +188,9 @@ Responda SIM para confirmar presença.`;
     // SMS não precisa de logout, mas mantemos para compatibilidade
     return { 
       success: true, 
-      message: 'SMS não requer logout - sempre pronto quando configurado'
+      message: this.channel === 'whatsapp'
+        ? 'WhatsApp Sandbox não requer logout - pronto após parear com join <código>'
+        : (this.channel === 'none' ? 'Mensageria desativada.' : 'SMS não requer logout - sempre pronto quando configurado')
     };
   }
 }

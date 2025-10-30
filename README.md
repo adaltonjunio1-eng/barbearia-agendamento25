@@ -44,7 +44,17 @@ npm install
 
 ## Execução
 
-Este repositório contém o frontend (página única `index.html`) e um backend Node.js (pasta `backend`) responsável por API e envio de lembretes via WhatsApp.
+Este repositório contém o frontend (página única `index.html`) e um backend Node.js (pasta `backend`) responsável por API e envio de lembretes via SMS/WhatsApp.
+
+### ⚠️ IMPORTANTE - WhatsApp no Brasil
+
+Se você está no Brasil e recebeu o **erro 63058** ao tentar usar WhatsApp:
+
+**📚 Veja a solução completa:** [`ERRO_63058_FIX.md`](ERRO_63058_FIX.md)
+
+**Solução rápida:** Use SMS em vez de WhatsApp (funciona imediatamente).
+
+---
 
 ### 1) Iniciar o backend
 
@@ -66,15 +76,24 @@ O backend roda por padrão em http://localhost:3333
 
 No rodapé, clique em "Entrar como Admin" (senha: bf12025) para acessar a área administrativa.
 
-### 3) Conectar o WhatsApp
+### 3) Configurar SMS
 
-No Admin > Configurações, clique em "Abrir QR Code em nova aba" ou acesse diretamente:
+No Admin > Configurações, clique em "Abrir Página de Configuração" para ver as instruções.
+
+Ou acesse diretamente:
 
 ```
-http://localhost:3333/api/whatsapp/qr/html
+http://localhost:3333/api/sms/config/html
 ```
 
-No celular: WhatsApp > Dispositivos conectados > Conectar um dispositivo e escaneie o QR. Se já estiver conectado, o QR não será exibido (não é necessário).
+No arquivo `.env` do backend, certifique-se de ter:
+
+```
+SMS_CHANNEL=sms
+SMS_ACCOUNT_SID=...
+SMS_AUTH_TOKEN=...
+SMS_FROM_NUMBER=+1555...
+```
 
 ## Contribuição
 

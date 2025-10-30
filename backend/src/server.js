@@ -7,7 +7,7 @@ const rateLimit = require('express-rate-limit');
 
 const apiRoutes = require('./routes/api');
 const reminderService = require('./services/reminderService');
-const whatsappService = require('./services/whatsappService');
+const smsService = require('./services/smsService');
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -39,16 +39,16 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    whatsapp: whatsappService.getStatus(),
+    sms: smsService.getStatus(),
     reminders: {
       isRunning: reminderService.isRunning
     }
   });
 });
 
-// Rota para status do WhatsApp
+// Rota para status do SMS (compatibilidade com código antigo)
 app.get('/api/whatsapp/status', (req, res) => {
-  res.json(whatsappService.getStatus());
+  res.json(smsService.getStatus());
 });
 
 // Rota para estatísticas de lembretes
@@ -74,6 +74,8 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
+  const status = smsService.getStatus();
+  const readableChannel = status.channel === 'whatsapp' ? 'WhatsApp' : 'SMS';
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
@@ -82,7 +84,7 @@ app.listen(PORT, () => {
 ╠═══════════════════════════════════════════════════════════╣
 ║                                                           ║
 ║   🌐  Servidor rodando em: http://localhost:${PORT}       ║
-║   📱  WhatsApp: Aguardando conexão...                     ║
+║   📱  Canal: ${readableChannel} — ${status.connected ? 'Configurado ✅' : 'Não configurado ⚠️'}            ║
 ║   ⏰  Lembretes automáticos: Iniciando...                 ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
@@ -91,7 +93,7 @@ app.listen(PORT, () => {
   // Iniciar serviço de lembretes automáticos
   setTimeout(() => {
     reminderService.start();
-  }, 5000); // Aguardar 5s para WhatsApp conectar
+  }, 2000); // Aguardar 2s para o serviço de mensagens inicializar
 });
 
 // Graceful shutdown
