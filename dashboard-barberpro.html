@@ -518,11 +518,26 @@
 </head>
 <body>
 <div id="dashboardMain" class="flex h-screen bg-[#1A1A1A] text-gray-100">
+  <!-- Mobile Menu Button -->
+  <button id="mobileMenuBtn" class="fixed top-4 left-4 z-50 lg:hidden bg-[#121212] p-2 rounded-lg text-gray-400 hover:text-[#00ff41] border border-gray-800">
+    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
+  <!-- Mobile Overlay -->
+  <div id="mobileOverlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden"></div>
+
   <!-- Sidebar -->
-  <aside class="w-64 bg-[#121212] p-6 flex flex-col">
+  <aside id="sidebar" class="fixed lg:static w-64 bg-[#121212] p-6 flex flex-col h-full z-40 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
     <div>
-      <div class="flex items-center mb-10">
+      <div class="flex items-center justify-between mb-10">
         <span class="text-2xl font-bold" style="color: #e0e0e0; letter-spacing: 1px;">BARBER<span style="color: #00ff41; font-weight: 700;">PRO</span></span>
+        <button id="closeSidebarBtn" class="lg:hidden text-gray-400 hover:text-red-500">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
       <nav>
         <ul id="sidebarNav">
@@ -574,10 +589,10 @@
   </aside>
 
   <!-- Main -->
-  <main class="flex-1 p-8 overflow-y-auto">
+  <main class="flex-1 p-4 lg:p-8 overflow-y-auto w-full">
     <!-- Header -->
-    <header class="flex justify-between items-center mb-8">
-      <div class="relative w-full max-w-md">
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 mt-12 lg:mt-0">
+      <div class="relative w-full sm:max-w-md">
         <input type="text" placeholder="Pesquisar..." class="w-full bg-[#2A2A2A] text-gray-200 border border-gray-700 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#A38F5F]" />
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
@@ -593,76 +608,76 @@
 
   <section id="view-dashboard">
   <!-- Stat cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
-        <h3 class="text-gray-400 text-sm mb-2">RECEITA DO MÊS</h3>
-        <p class="text-3xl font-bold text-[#A38F5F]"><span id="revenueValue">R$ 0,00</span> <span class="text-green-500 text-base ml-2">↑</span></p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+      <div class="bg-[#2A2A2A] rounded-lg p-4 lg:p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-400 text-xs lg:text-sm mb-2">RECEITA DO MÊS</h3>
+        <p class="text-2xl lg:text-3xl font-bold text-[#A38F5F]"><span id="revenueValue">R$ 0,00</span> <span class="text-green-500 text-sm lg:text-base ml-2">↑</span></p>
         <p class="text-gray-500 text-xs mt-1" id="revenueSubtext">Faturamento até o momento</p>
       </div>
-      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
-        <h3 class="text-gray-400 text-sm mb-2">AGENDAMENTOS DO MÊS</h3>
-        <p class="text-3xl font-bold text-white" id="appointmentsValue">0</p>
+      <div class="bg-[#2A2A2A] rounded-lg p-4 lg:p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-400 text-xs lg:text-sm mb-2">AGENDAMENTOS DO MÊS</h3>
+        <p class="text-2xl lg:text-3xl font-bold text-white" id="appointmentsValue">0</p>
         <p class="text-gray-500 text-xs mt-1">Total no mês atual</p>
       </div>
-      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
-        <h3 class="text-gray-400 text-sm mb-2">BARBEIROS ATIVOS</h3>
-        <p class="text-3xl font-bold text-white" id="barbersValue">0</p>
+      <div class="bg-[#2A2A2A] rounded-lg p-4 lg:p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-400 text-xs lg:text-sm mb-2">BARBEIROS ATIVOS</h3>
+        <p class="text-2xl lg:text-3xl font-bold text-white" id="barbersValue">0</p>
         <p class="text-gray-500 text-xs mt-1">Atualmente online</p>
       </div>
     </div>
 
   <!-- Charts row -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
-        <div class="flex justify-between items-center mb-2">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
+      <div class="bg-[#2A2A2A] rounded-lg p-4 lg:p-6 shadow-lg border border-gray-800">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
           <div>
-            <h3 class="text-gray-200 text-lg font-semibold">📈 PROGRESSO DA META MENSAL</h3>
-            <p class="text-gray-400 text-sm mt-1">Acompanhamento diário do mês</p>
+            <h3 class="text-gray-200 text-base lg:text-lg font-semibold">📈 PROGRESSO DA META MENSAL</h3>
+            <p class="text-gray-400 text-xs lg:text-sm mt-1">Acompanhamento diário do mês</p>
           </div>
-          <div class="text-right">
-            <div class="text-2xl font-bold text-emerald-400" id="goalProgressPercent">0%</div>
+          <div class="text-left sm:text-right">
+            <div class="text-xl lg:text-2xl font-bold text-emerald-400" id="goalProgressPercent">0%</div>
             <div class="text-xs text-gray-400" id="goalProgressLabel">da meta</div>
           </div>
         </div>
-        <div class="h-56 mt-4">
+        <div class="h-48 sm:h-56 mt-4">
           <canvas id="monthlyGoalChart" class="w-full h-full"></canvas>
         </div>
       </div>
 
-      <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
-        <h3 class="text-gray-200 text-lg font-semibold mb-2">👥 TOP CLIENTES DO MÊS</h3>
-        <p class="text-gray-400 text-sm mb-4">Clientes que mais frequentaram</p>
-        <div class="h-64 flex items-center justify-center">
+      <div class="bg-[#2A2A2A] rounded-lg p-4 lg:p-6 shadow-lg border border-gray-800">
+        <h3 class="text-gray-200 text-base lg:text-lg font-semibold mb-2">👥 TOP CLIENTES DO MÊS</h3>
+        <p class="text-gray-400 text-xs lg:text-sm mb-4">Clientes que mais frequentaram</p>
+        <div class="h-48 sm:h-64 flex items-center justify-center">
           <canvas id="topClientsChart" class="max-h-full"></canvas>
         </div>
-        <div id="topClientsLegend" class="mt-4 grid grid-cols-2 gap-2 text-xs"></div>
+        <div id="topClientsLegend" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
       </div>
     </div>
 
   <!-- Recent appointments -->
-  <div class="bg-[#2A2A2A] rounded-lg p-6 shadow-lg border border-gray-800">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-gray-200 text-lg font-semibold">AGENDAMENTOS RECENTES</h3>
-        <div class="flex items-center space-x-2">
+  <div class="bg-[#2A2A2A] rounded-lg p-4 lg:p-6 shadow-lg border border-gray-800">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <h3 class="text-gray-200 text-base lg:text-lg font-semibold">AGENDAMENTOS RECENTES</h3>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <input type="text" placeholder="Pesquisar..." class="bg-gray-700 text-gray-200 border border-gray-600 rounded-md py-1 px-3 text-sm focus:outline-none focus:border-[#A38F5F]" />
-          <button class="px-3 py-1 rounded-md bg-[#A38F5F] text-white text-sm">Filtros</button>
+          <button class="px-3 py-1 rounded-md bg-[#A38F5F] text-white text-sm whitespace-nowrap">Filtros</button>
         </div>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-gray-300">
+      <div class="overflow-x-auto -mx-4 lg:mx-0">
+        <table class="w-full text-left text-gray-300 min-w-[600px]">
           <thead class="text-xs text-gray-400 uppercase bg-gray-800">
             <tr>
-              <th scope="col" class="px-6 py-3">Cliente</th>
-              <th scope="col" class="px-6 py-3">Barbeiro</th>
-              <th scope="col" class="px-6 py-3">Data</th>
-              <th scope="col" class="px-6 py-3">Serviço</th>
-              <th scope="col" class="px-6 py-3">Hora</th>
-              <th scope="col" class="px-6 py-3">Status</th>
+              <th scope="col" class="px-3 lg:px-6 py-3">Cliente</th>
+              <th scope="col" class="px-3 lg:px-6 py-3">Barbeiro</th>
+              <th scope="col" class="px-3 lg:px-6 py-3">Data</th>
+              <th scope="col" class="px-3 lg:px-6 py-3">Serviço</th>
+              <th scope="col" class="px-3 lg:px-6 py-3">Hora</th>
+              <th scope="col" class="px-3 lg:px-6 py-3">Status</th>
             </tr>
           </thead>
           <tbody id="recentTbody">
             <tr>
-              <td class="px-6 py-4 text-gray-400" colspan="6">Carregando...</td>
+              <td class="px-3 lg:px-6 py-4 text-gray-400" colspan="6">Carregando...</td>
             </tr>
           </tbody>
         </table>
@@ -1801,6 +1816,9 @@
 
   // Boot
   (function init() {
+    // Inicializar menu mobile
+    initMobileMenu();
+    
     const isAuth = sessionStorage.getItem('admin_authenticated');
     const authTime = sessionStorage.getItem('admin_auth_time');
     const now = Date.now();
@@ -1827,6 +1845,50 @@
     sessionStorage.removeItem('admin_authenticated');
     sessionStorage.removeItem('admin_auth_time');
     window.location.href = 'index.html';
+  }
+
+  // ==============
+  // Mobile Menu
+  // ==============
+  function initMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+
+    function openSidebar() {
+      sidebar.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', openSidebar);
+    }
+
+    if (closeSidebarBtn) {
+      closeSidebarBtn.addEventListener('click', closeSidebar);
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', closeSidebar);
+    }
+
+    // Fechar sidebar ao clicar em qualquer item do menu
+    const navButtons = document.querySelectorAll('#sidebarNav button[data-view]');
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.innerWidth < 1024) { // lg breakpoint
+          closeSidebar();
+        }
+      });
+    });
   }
 
   // ==============
