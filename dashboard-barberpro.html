@@ -4,6 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BARBERPRO • Dashboard</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="Dashboard Administrativo - BarberPro Sistema de Agendamento">
+  <meta name="theme-color" content="#00ff41">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BarberPro Admin">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Ícones PWA -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%230f1419' width='100' height='100'/%3E%3Ctext y='75' font-size='70' fill='%2300ff41' font-family='Arial Black'%3E%E2%9C%82%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect fill='%230f1419' width='180' height='180' rx='40'/%3E%3Ctext x='50%25' y='55%25' font-size='90' fill='%2300ff41' font-family='Arial Black' text-anchor='middle' dominant-baseline='middle'%3E%E2%9C%82%3C/text%3E%3Ctext x='50%25' y='85%25' font-size='16' fill='%2300ff41' font-family='Arial' text-anchor='middle' font-weight='bold'%3EADMIN%3C/text%3E%3C/svg%3E">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -3594,6 +3610,21 @@
         inp.addEventListener('keypress', (e) => { if (e.key === 'Enter') validateLogin(); });
       }
     }
+  }
+</script>
+
+<!-- Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/barbearia-agendamento25/sw.js')
+        .then((registration) => {
+          console.log('[PWA] Service Worker registrado:', registration.scope);
+        })
+        .catch((error) => {
+          console.log('[PWA] Falha ao registrar Service Worker:', error);
+        });
+    });
   }
 </script>
 </body>

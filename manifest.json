@@ -1,0 +1,26 @@
+{
+  "name": "BarberPro - Sistema de Agendamento",
+  "short_name": "BarberPro",
+  "description": "Sistema profissional de agendamento para barbearias",
+  "start_url": "/barbearia-agendamento25/",
+  "display": "standalone",
+  "background_color": "#0f1419",
+  "theme_color": "#00ff41",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "lifestyle"],
+  "screenshots": []
+}
