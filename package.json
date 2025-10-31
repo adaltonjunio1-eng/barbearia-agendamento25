@@ -8,7 +8,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "gen:icons": "node scripts/generate-icons.js"
+    "gen:icons": "node scripts/generate-icons.js",
+    "personalize": "node personalize.js"
   },
   "keywords": [
     "react",
