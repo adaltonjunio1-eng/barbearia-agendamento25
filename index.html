@@ -4154,10 +4154,10 @@ Para confirmar presença, responda esta mensagem.`;
         // Log de sistema ativo
         console.log('[SISTEMA DE LEMBRETES] Ativo - Verificando a cada 2 minutos');
 
-        // Wire admin access button - agora vai direto para o novo Dashboard
+        // Wire admin access button - abre o novo login brilhante
         (function(){
             const btn = document.querySelector('.admin-access-btn');
-            if (btn) btn.addEventListener('click', function(){ window.location.href = 'dashboard-barberpro.html'; });
+            if (btn) btn.addEventListener('click', function(){ openAdminLogin(); });
         })();
 
         // Aplicar automaticamente a grade solicitada (uma única vez), sem sobrescrever futuras edições
