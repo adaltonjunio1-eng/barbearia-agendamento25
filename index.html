@@ -842,7 +842,7 @@
         }
 
         /* ===================== */
-        /* Admin Login Screen    */
+        /* Admin Login Screen - Novo Design Brilhante */
         /* ===================== */
         .admin-login-screen {
             position: fixed;
@@ -855,6 +855,8 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            background-color: #1a1a1a;
+            overflow: hidden;
         }
 
         .admin-login-overlay {
@@ -863,22 +865,61 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(10, 15, 28, 0.95);
-            backdrop-filter: blur(10px);
+            background: #1a1a1a;
             z-index: 1;
         }
 
+        /* Container principal do formulário com o efeito de borda */
         .admin-login-container {
             position: relative;
-            z-index: 2;
-            background: var(--surface);
-            border: 1px solid rgba(200, 169, 81, 0.2);
-            border-radius: var(--radius);
-            padding: 40px 30px;
-            max-width: 420px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            width: 350px;
+            padding: 30px;
+            background: #252525;
+            border-radius: 20px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             animation: loginSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Pseudo-elementos para o efeito de borda brilhante animada */
+        .admin-login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                45deg,
+                #ff0066,
+                #00ffff,
+                #ff0066,
+                #00ffff
+            );
+            background-size: 400%;
+            border-radius: 20px;
+            z-index: -1;
+            filter: drop-shadow(0 0 15px #ff0066) drop-shadow(0 0 15px #00ffff);
+            animation: rotation 4s linear infinite;
+            animation-delay: -1s;
+        }
+
+        .admin-login-container::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: #252525;
+            border-radius: 20px;
+            z-index: -1;
+        }
+
+        /* Keyframes da animação de rotação */
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @keyframes loginSlideIn {
@@ -892,84 +933,95 @@
             }
         }
 
-        .admin-login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .admin-login-header i {
-            font-size: 48px;
-            color: var(--secondary);
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .admin-login-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .admin-login-header p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
+        /* Estilos do formulário */
         .admin-login-form {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-        }
-
-        .admin-login-form .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .admin-login-form label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
             align-items: center;
-            gap: 8px;
+            padding: 10px;
         }
 
-        .admin-login-form label i {
-            color: var(--secondary);
+        .admin-login-header {
+            text-align: center;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .admin-login-header h2 {
+            font-size: 1.8rem;
+            letter-spacing: 5px;
+            color: #f7f7f7;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            margin: 0 0 10px 0;
+        }
+
+        .admin-login-header p {
+            font-size: 0.85rem;
+            color: #ccc;
+            margin: 0;
+        }
+
+        /* Campo de input */
+        .admin-login-form .form-group {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .admin-login-form .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            z-index: 1;
         }
 
         .admin-login-form input {
-            padding: 14px 16px;
-            background: var(--surface-light);
-            border: 1px solid rgba(200, 169, 81, 0.2);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 16px;
-            transition: var(--transition);
+            width: 100%;
+            padding: 12px 12px 12px 45px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
         }
 
         .admin-login-form input:focus {
-            outline: none;
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(200, 169, 81, 0.1);
+            border-color: #ff0066;
+            box-shadow: 0 0 10px rgba(255, 0, 102, 0.6);
         }
 
+        /* Opções de link */
         .password-hint {
-            font-size: 12px;
-            color: var(--text-secondary);
+            width: 100%;
+            text-align: right;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .password-hint a,
+        .password-hint {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
             display: block;
-            margin-top: 4px;
+        }
+
+        .password-hint a:hover {
+            color: #ff0066;
         }
 
         .password-hint strong {
-            color: var(--secondary);
+            color: #ff0066;
             font-weight: 600;
         }
 
+        /* Botões de ação */
         .admin-login-actions {
+            width: 100%;
             display: flex;
             gap: 12px;
             margin-top: 10px;
@@ -977,13 +1029,36 @@
 
         .admin-login-actions button {
             flex: 1;
-            padding: 14px;
-            font-size: 15px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-login-actions button[type="submit"] {
+            background: #ff0066;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 0, 102, 0.5);
+        }
+
+        .admin-login-actions button[type="submit"]:hover {
+            background: #ff3399;
+            box-shadow: 0 0 15px rgba(255, 0, 102, 0.8);
+        }
+
+        .admin-login-actions button[type="button"] {
+            background: transparent;
+            color: #ccc;
+            border: 1px solid #444;
+        }
+
+        .admin-login-actions button[type="button"]:hover {
+            background: #333;
+            border-color: #ff0066;
+            color: #ff0066;
         }
 
         /* ===================== */
@@ -4136,6 +4211,37 @@ Para confirmar presença, responda esta mensagem.`;
             document.addEventListener('DOMContentLoaded', loadActiveBarbers);
         })();
     </script>
+    
+    <!-- Admin Login Screen com novo design brilhante -->
+    <div class="admin-login-screen" id="adminLoginScreen" style="display:none">
+        <div class="admin-login-overlay" onclick="closeAdminLogin()"></div>
+        <div class="admin-login-container">
+            <form class="admin-login-form" onsubmit="event.preventDefault(); validateAdminPassword();">
+                <div class="admin-login-header">
+                    <h2>LOGIN ADMIN</h2>
+                    <p>Acesso restrito à área administrativa</p>
+                </div>
+                
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="adminPassword" placeholder="Senha" required autocomplete="current-password">
+                </div>
+                
+                <div class="password-hint">
+                    <span>Senha padrão: <strong>bf12025</strong></span>
+                </div>
+                
+                <div class="admin-login-actions">
+                    <button type="button" onclick="closeAdminLogin()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <!-- Service Worker Registration -->
     <script>
